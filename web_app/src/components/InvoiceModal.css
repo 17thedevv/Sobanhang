@@ -1,0 +1,85 @@
+.invoice-card {
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.invoice-header h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+}
+
+.invoice-body {
+  background: #f8f9fa;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  border: 1px dashed #ccc;
+}
+
+.invoice-total {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.invoice-total h3 {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.invoice-items {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.invoice-items h4 {
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.invoice-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 2rem;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.action-btn .icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.action-btn:hover .icon-circle {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
