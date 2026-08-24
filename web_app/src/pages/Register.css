@@ -1,0 +1,127 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f3f4f6;
+  font-family: 'Inter', sans-serif;
+}
+
+.register-card {
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.register-logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+.register-subtitle {
+  color: #6b7280;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.form-group input[type="tel"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.form-group input[type="tel"]:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.checkbox-group input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  font-size: 13px;
+  color: #4b5563;
+  margin: 0;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.btn-primary:disabled {
+  background-color: #93c5fd;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 4px;
+  display: block;
+}
+
+.success-message {
+  color: #10b981;
+  font-size: 14px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.link-text {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #6b7280;
+}

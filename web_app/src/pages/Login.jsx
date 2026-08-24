@@ -38,6 +38,10 @@ export default function Login() {
           <button type="submit" className="btn-primary login-btn">
             Tiếp tục
           </button>
+          
+          <div style={{ marginTop: '24px', textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
+            Chưa có tài khoản? <a href="/register" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>Đăng ký ngay</a>
+          </div>
         </form>
       </div>
     </div>

@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import StoreSetup from './pages/StoreSetup';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import POS from './pages/POS';
@@ -11,6 +13,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/store-setup" element={<StoreSetup />} />
         
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />

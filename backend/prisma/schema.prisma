@@ -1,0 +1,63 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  phone        String?        @unique
+  email        String?        @unique
+  passwordHash String?
+  status       String         @default("NEW") // NEW, REGISTERING, SHOP_CREATED, PASSWORD_NOT_SET, ACTIVE
+  role         String         @default("OWNER")
+  createdAt    DateTime       @default(now())
+  
+  store        Store?
+  oauthAccounts OAuthAccount[]
+}
+
+model Store {
+  id        String   @id @default(uuid())
+  ownerId   String   @unique
+  name      String
+  industry  String
+  createdAt DateTime @default(now())
+
+  owner     User     @relation(fields: [ownerId], references: [id])
+}
+
+model OnboardingSession {
+  id                   String   @id @default(uuid())
+  phone                String   @unique
+  needs                String?  // JSON string
+  surveyAnswers        String?  // JSON string
+  onboardingPreference String?
+  status               String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+}
+
+model OtpVerification {
+  id         String    @id @default(uuid())
+  phone      String
+  codeHash   String
+  purpose    String    // e.g., "REGISTER", "FORGOT_PASSWORD"
+  expiresAt  DateTime
+  attempts   Int       @default(0)
+  consumedAt DateTime?
+}
+
+model OAuthAccount {
+  id             String @id @default(uuid())
+  userId         String
+  provider       String // e.g., "GOOGLE"
+  providerUserId String
+
+  user           User   @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerUserId])
+}
