@@ -18,7 +18,7 @@ const FeatureSuggestions = () => {
   useEffect(() => {
     const fetchSuggestions = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/onboarding/suggestions?industry=${industry}`);
+        const response = await axios.get(`/api/onboarding/suggestions?industry=${industry}`);
         const data = response.data.suggestions;
         setSuggestions(data);
         
