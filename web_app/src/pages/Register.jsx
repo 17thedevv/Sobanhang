@@ -32,14 +32,16 @@ const Register = () => {
         phone: phone
       });
 
-      setSuccess('Đăng ký thành công! Vui lòng kiểm tra màn hình console của Backend để lấy mã OTP.');
+      // Ở MVP, ta dùng userId được lưu tạm
+      if (response.data && response.data.userId) {
+        sessionStorage.setItem('tempUserId', response.data.userId);
+      }
+
+      setSuccess('Đăng ký thành công! Đang chuyển hướng thiết lập cửa hàng...');
       
-      // Chuyển hướng sang trang nhập OTP (hoặc OnboardingWizard) sau 3 giây
       setTimeout(() => {
-        // Tạm thời chuyển về Login hoặc bước tiếp theo của Onboarding
-        // Theo spec thực tế, cần màn hình VerifyOTP riêng, ở đây ta giả định điều hướng tới Login
-        navigate('/login');
-      }, 3000);
+        navigate('/store-setup');
+      }, 1500);
 
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
