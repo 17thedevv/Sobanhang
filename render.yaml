@@ -23,3 +23,13 @@ services:
         sync: false
       - key: GMAIL_PASS
         sync: false
+
+  - type: static
+    name: sobanhang-frontend
+    rootDir: web_app
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
