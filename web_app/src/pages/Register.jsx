@@ -31,8 +31,8 @@ const Register = () => {
       const response = await axios.post('/api/auth/register/phone', { phone });
       console.log('Register response:', response.data);
       
-      // Chuyển sang bước OTP (MVP: giả lập bỏ qua OTP, sang thẳng tạo shop)
-      navigate('/store-setup');
+      // Chuyển sang bước OTP
+      navigate('/verify-otp', { state: { phone } });
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);

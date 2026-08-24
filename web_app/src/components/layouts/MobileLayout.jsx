@@ -1,15 +1,29 @@
 import React from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { Home, ShoppingCart, Package, DollarSign, Menu } from 'lucide-react';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Home, ShoppingCart, Package, DollarSign, Menu, LogOut } from 'lucide-react';
 import './MobileLayout.css'; 
 
 const MobileLayout = () => {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      const axios = require('axios').default || require('axios');
+      await axios.post('/api/auth/logout');
+    } catch (error) {
+      console.error('Logout error', error);
+    }
+    navigate('/login');
+  };
+
   return (
     <div className="layout-container mobile-layout">
       <header className="mobile-header glass">
         <div className="logo-circle-small">SB</div>
         <h3>Sổ Bán Hàng</h3>
-        <button className="btn-icon"><Menu size={24} /></button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button className="btn-icon" onClick={handleLogout}><LogOut size={24} /></button>
+          <button className="btn-icon"><Menu size={24} /></button>
+        </div>
       </header>
 
       <main className="main-content mobile-content">

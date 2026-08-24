@@ -6,6 +6,9 @@ const router = Router();
 
 // Route Đăng ký SĐT (US-03)
 router.post('/register/phone', authController.registerPhone);
+router.post('/verify-otp', authController.verifyOtp);
 router.post('/set-password', verifySetupToken, authController.setPassword);
+router.post('/login', authController.login);
+router.post('/logout', authController.logout);
 
 export default router;

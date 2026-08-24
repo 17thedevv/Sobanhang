@@ -6,7 +6,13 @@ import './DesktopLayout.css'; // Sẽ tạo sau, hiện tại dùng chung hoặc
 const DesktopLayout = () => {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      const axios = require('axios').default || require('axios');
+      await axios.post('/api/auth/logout');
+    } catch (error) {
+      console.error('Logout error', error);
+    }
     navigate('/login');
   };
 

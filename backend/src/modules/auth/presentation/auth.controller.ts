@@ -12,7 +12,21 @@ export class AuthController {
       }
 
       const result = await authService.registerPhone(phone);
-      
+      return res.status(200).json({ message: result.message });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async verifyOtp(req: Request, res: Response) {
+    try {
+      const { phone, otp } = req.body;
+      if (!phone || !otp) {
+        return res.status(400).json({ error: 'Vui lòng cung cấp số điện thoại và mã OTP' });
+      }
+
+      const result = await authService.verifyOtp(phone, otp);
+
       const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
       
       const setupToken = jwt.sign(
@@ -28,7 +42,7 @@ export class AuthController {
         maxAge: 3600000 // 1 hour
       });
 
-      return res.status(200).json({ message: result.message });
+      return res.status(200).json({ message: 'Xác thực thành công' });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
@@ -74,6 +88,47 @@ export class AuthController {
       }
       return res.status(400).json({ error: error.message });
     }
+  }
+
+  async login(req: Request, res: Response) {
+    try {
+      const { phone, password } = req.body;
+      if (!phone || !password) {
+        return res.status(400).json({ error: 'Vui lòng cung cấp số điện thoại và mật khẩu' });
+      }
+
+      const user = await authService.login(phone, password);
+
+      const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
+      const accessToken = jwt.sign(
+        { userId: user.userId, role: user.role, scope: 'access' },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 3600000 // 7 days
+      });
+
+      return res.status(200).json({ message: 'Đăng nhập thành công', user });
+    } catch (error: any) {
+      if (error.message.includes('chính xác') || error.message.includes('đăng ký')) {
+        return res.status(401).json({ error: error.message });
+      }
+      if (error.message.includes('thiết lập')) {
+        return res.status(403).json({ error: error.message });
+      }
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async logout(req: Request, res: Response) {
+    res.clearCookie('accessToken');
+    res.clearCookie('setupToken');
+    return res.status(200).json({ message: 'Đăng xuất thành công' });
   }
 }
 

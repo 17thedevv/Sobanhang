@@ -85,6 +85,57 @@ export class AuthService {
   }
 
   /**
+   * Xác minh OTP (US-03)
+   */
+  async verifyOtp(phone: string, otp: string) {
+    const normalizedPhone = this.normalizePhone(phone);
+
+    const otpRecord = await prisma.otpVerification.findFirst({
+      where: {
+        phone: normalizedPhone,
+        purpose: 'REGISTER',
+        consumedAt: null
+      },
+      orderBy: { expiresAt: 'desc' }
+    });
+
+    if (!otpRecord) {
+      throw new Error('Mã OTP không tồn tại hoặc đã được sử dụng');
+    }
+
+    if (new Date() > otpRecord.expiresAt) {
+      throw new Error('Mã OTP đã hết hạn');
+    }
+
+    // Ở MVP, ta dùng codeHash lưu plaintext, thực tế phải băm
+    if (otpRecord.codeHash !== otp) {
+      await prisma.otpVerification.update({
+        where: { id: otpRecord.id },
+        data: { attempts: otpRecord.attempts + 1 }
+      });
+      throw new Error('Mã OTP không chính xác');
+    }
+
+    // Đánh dấu đã dùng
+    await prisma.otpVerification.update({
+      where: { id: otpRecord.id },
+      data: { consumedAt: new Date() }
+    });
+
+    const user = await prisma.user.findUnique({
+      where: { phone: normalizedPhone }
+    });
+
+    if (!user) {
+      throw new Error('Không tìm thấy người dùng');
+    }
+
+    return {
+      userId: user.id
+    };
+  }
+
+  /**
    * Thiết lập mật khẩu cho tài khoản (US-07)
    */
   async setPassword(userId: string, password: string) {
@@ -124,6 +175,42 @@ export class AuthService {
       phone: updatedUser.phone,
       role: updatedUser.role,
       status: updatedUser.status
+    };
+  }
+
+  /**
+   * Đăng nhập bằng Số điện thoại & Mật khẩu (US-08)
+   */
+  async login(phone: string, password: string) {
+    const normalizedPhone = this.normalizePhone(phone);
+    const user = await prisma.user.findUnique({
+      where: { phone: normalizedPhone }
+    });
+
+    if (!user) {
+      throw new Error('Số điện thoại chưa được đăng ký');
+    }
+
+    if (user.status !== 'ACTIVE') {
+      throw new Error('Tài khoản chưa hoàn tất thiết lập hoặc đang bị khóa');
+    }
+
+    if (!user.passwordHash) {
+      throw new Error('Tài khoản chưa thiết lập mật khẩu');
+    }
+
+    const bcrypt = require('bcrypt');
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isMatch) {
+      throw new Error('Mật khẩu không chính xác');
+    }
+
+    return {
+      userId: user.id,
+      phone: user.phone,
+      role: user.role,
+      status: user.status
     };
   }
 }
