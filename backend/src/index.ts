@@ -13,7 +13,10 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: function (origin, callback) {
+    // Cho phép tất cả các domain (kể cả localhost lẫn Cloudflare) gọi API
+    callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json());
