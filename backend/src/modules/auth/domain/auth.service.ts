@@ -1,24 +1,24 @@
 import { prisma } from '../../../prisma';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 export class AuthService {
   /**
-   * Register a new phone number
+   * Register a new email
    */
-  async registerPhone(phone: string) {
-    // 1. Normalize phone (basic logic for MVP)
-    const normalizedPhone = this.normalizePhone(phone);
-    if (!this.isValidVietnamesePhone(normalizedPhone)) {
-      throw new Error('Số điện thoại không hợp lệ');
+  async registerEmail(email: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!this.isValidEmail(normalizedEmail)) {
+      throw new Error('Địa chỉ email không hợp lệ');
     }
 
-    // 2. Check if phone is already registered and active
+    // 2. Check if email is already registered and active
     const existingUser = await prisma.user.findUnique({
-      where: { phone: normalizedPhone },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser && existingUser.status !== 'NEW' && existingUser.status !== 'REGISTERING') {
-      throw new Error('Số điện thoại đã được đăng ký');
+      throw new Error('Email đã được đăng ký');
     }
 
     // 3. Create or update user
@@ -31,7 +31,7 @@ export class AuthService {
     } else {
       user = await prisma.user.create({
         data: {
-          phone: normalizedPhone,
+          email: normalizedEmail,
           status: 'REGISTERING',
         }
       });
@@ -54,22 +54,48 @@ export class AuthService {
     // Store OTP in database
     await prisma.otpVerification.create({
       data: {
-        phone: normalizedPhone,
+        email: normalizedEmail,
         codeHash: otp, // MVP: store plain text, ideal: hash it
         purpose: 'REGISTER',
         expiresAt: expiresAt,
       }
     });
 
-    // MVP: Print OTP to console instead of sending SMS
-    console.log(`\n========================================`);
-    console.log(`🔔 SMS SIMULATION: Mã OTP của bạn là: ${otp}`);
-    console.log(`========================================\n`);
+    // Cấu hình Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER || 'sobanhang.demo@gmail.com',
+        pass: process.env.GMAIL_PASS || 'your-app-password'
+      }
+    });
+
+    const mailOptions = {
+      from: '"Sổ Bán Hàng" <sobanhang.demo@gmail.com>',
+      to: normalizedEmail,
+      subject: 'Mã xác thực Sổ Bán Hàng',
+      text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Vui lòng không chia sẻ cho bất kỳ ai.`
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`[Email] Đã gửi OTP tới ${normalizedEmail}`);
+    } catch (err) {
+      console.error('Lỗi khi gửi email, in OTP ra console để dự phòng:', err);
+      console.log(`\n========================================`);
+      console.log(`🔔 EMAIL SIMULATION: Mã OTP cho ${normalizedEmail} là: ${otp}`);
+      console.log(`========================================\n`);
+    }
 
     return {
       message: 'Mã OTP đã được gửi',
       userId: user.id
     };
+  }
+
+  private isValidEmail(email: string): boolean {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
   }
 
   private normalizePhone(phone: string): string {
@@ -85,14 +111,14 @@ export class AuthService {
   }
 
   /**
-   * Xác minh OTP (US-03)
+   * Xác minh OTP qua Email (US-03)
    */
-  async verifyOtp(phone: string, otp: string) {
-    const normalizedPhone = this.normalizePhone(phone);
+  async verifyOtp(email: string, otp: string) {
+    const normalizedEmail = email.trim().toLowerCase();
 
     const otpRecord = await prisma.otpVerification.findFirst({
       where: {
-        phone: normalizedPhone,
+        email: normalizedEmail,
         purpose: 'REGISTER',
         consumedAt: null
       },
@@ -123,7 +149,7 @@ export class AuthService {
     });
 
     const user = await prisma.user.findUnique({
-      where: { phone: normalizedPhone }
+      where: { email: normalizedEmail }
     });
 
     if (!user) {
@@ -172,23 +198,23 @@ export class AuthService {
 
     return {
       userId: updatedUser.id,
-      phone: updatedUser.phone,
+      email: updatedUser.email,
       role: updatedUser.role,
       status: updatedUser.status
     };
   }
 
   /**
-   * Đăng nhập bằng Số điện thoại & Mật khẩu (US-08)
+   * Đăng nhập bằng Email & Mật khẩu (US-08)
    */
-  async login(phone: string, password: string) {
-    const normalizedPhone = this.normalizePhone(phone);
+  async login(email: string, password: string) {
+    const normalizedEmail = email.trim().toLowerCase();
     const user = await prisma.user.findUnique({
-      where: { phone: normalizedPhone }
+      where: { email: normalizedEmail }
     });
 
     if (!user) {
-      throw new Error('Số điện thoại chưa được đăng ký');
+      throw new Error('Email chưa được đăng ký');
     }
 
     if (user.status !== 'ACTIVE') {
@@ -208,7 +234,7 @@ export class AuthService {
 
     return {
       userId: user.id,
-      phone: user.phone,
+      email: user.email,
       role: user.role,
       status: user.status
     };

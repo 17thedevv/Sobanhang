@@ -46,7 +46,7 @@ model OnboardingSession {
 
 model OtpVerification {
   id         String    @id @default(uuid())
-  phone      String
+  email      String
   codeHash   String
   purpose    String    // e.g., "REGISTER", "FORGOT_PASSWORD"
   expiresAt  DateTime

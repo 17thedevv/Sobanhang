@@ -3,15 +3,15 @@ import { authService } from '../domain/auth.service';
 import jwt from 'jsonwebtoken';
 
 export class AuthController {
-  async registerPhone(req: Request, res: Response) {
+  async registerEmail(req: Request, res: Response) {
     try {
-      const { phone } = req.body;
+      const { email } = req.body;
       
-      if (!phone) {
-        return res.status(400).json({ error: 'Vui lòng cung cấp số điện thoại' });
+      if (!email) {
+        return res.status(400).json({ error: 'Vui lòng cung cấp địa chỉ email' });
       }
 
-      const result = await authService.registerPhone(phone);
+      const result = await authService.registerEmail(email);
       return res.status(200).json({ message: result.message });
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
@@ -20,12 +20,12 @@ export class AuthController {
 
   async verifyOtp(req: Request, res: Response) {
     try {
-      const { phone, otp } = req.body;
-      if (!phone || !otp) {
-        return res.status(400).json({ error: 'Vui lòng cung cấp số điện thoại và mã OTP' });
+      const { email, otp } = req.body;
+      if (!email || !otp) {
+        return res.status(400).json({ error: 'Vui lòng cung cấp email và mã OTP' });
       }
 
-      const result = await authService.verifyOtp(phone, otp);
+      const result = await authService.verifyOtp(email, otp);
 
       const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
       
@@ -92,12 +92,12 @@ export class AuthController {
 
   async login(req: Request, res: Response) {
     try {
-      const { phone, password } = req.body;
-      if (!phone || !password) {
-        return res.status(400).json({ error: 'Vui lòng cung cấp số điện thoại và mật khẩu' });
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({ error: 'Vui lòng cung cấp email và mật khẩu' });
       }
 
-      const user = await authService.login(phone, password);
+      const user = await authService.login(email, password);
 
       const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
       const accessToken = jwt.sign(

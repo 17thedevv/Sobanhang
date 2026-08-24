@@ -4,20 +4,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import './Register.css';
 
 const Register = () => {
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // Validate Vietnamese phone number
-  const isValidPhone = (p) => {
-    const regex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
-    return regex.test(p.trim().replace(/\s/g, ''));
+  // Validate email
+  const isValidEmail = (e) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(e.trim());
   };
 
-  const isFormValid = isValidPhone(phone) && termsAccepted;
+  const isFormValid = isValidEmail(email) && termsAccepted;
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -28,11 +28,11 @@ const Register = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('/api/auth/register/phone', { phone });
+      const response = await axios.post('/api/auth/register/email', { email });
       console.log('Register response:', response.data);
       
       // Chuyển sang bước OTP
-      navigate('/verify-otp', { state: { phone } });
+      navigate('/verify-otp', { state: { email } });
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
@@ -54,20 +54,20 @@ const Register = () => {
         
         <form onSubmit={handleRegister}>
           <div className="form-group">
-            <label htmlFor="phone">Số điện thoại</label>
+            <label htmlFor="email">Địa chỉ email</label>
             <input
-              type="tel"
-              id="phone"
-              placeholder="Nhập số điện thoại (VD: 0912345678)"
-              value={phone}
+              type="email"
+              id="email"
+              placeholder="Nhập email của bạn"
+              value={email}
               onChange={(e) => {
-                setPhone(e.target.value);
+                setEmail(e.target.value);
                 setError('');
               }}
               disabled={loading || success}
             />
-            {phone && !isValidPhone(phone) && (
-              <span className="error-message">Số điện thoại không hợp lệ</span>
+            {email && !isValidEmail(email) && (
+              <span className="error-message">Email không hợp lệ</span>
             )}
           </div>
 

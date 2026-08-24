@@ -6,13 +6,13 @@ import './VerifyOtp.css';
 const VerifyOtp = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const phone = location.state?.phone;
+  const email = location.state?.email;
 
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (!phone) {
+  if (!email) {
     navigate('/register');
     return null;
   }
@@ -29,7 +29,7 @@ const VerifyOtp = () => {
 
     try {
       await axios.post('/api/auth/verify-otp', {
-        phone,
+        email,
         otp
       });
       
@@ -53,8 +53,8 @@ const VerifyOtp = () => {
       <div className="verify-otp-card">
         <h2>Nhập mã xác thực</h2>
         <p className="subtitle">
-          Mã xác thực 6 số đã được gửi tới số điện thoại<br/>
-          <strong>{phone}</strong>
+          Mã xác thực 6 số đã được gửi tới email<br/>
+          <strong>{email}</strong>
         </p>
 
         <form onSubmit={handleSubmit}>

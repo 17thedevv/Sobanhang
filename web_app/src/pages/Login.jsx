@@ -6,7 +6,7 @@ import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
@@ -17,8 +17,8 @@ const Login = () => {
     e.preventDefault();
     setError('');
     
-    if (!phone || !password) {
-      setError('Vui lòng nhập đầy đủ Số điện thoại và Mật khẩu');
+    if (!email || !password) {
+      setError('Vui lòng nhập đầy đủ Email và Mật khẩu');
       return;
     }
 
@@ -26,7 +26,7 @@ const Login = () => {
 
     try {
       await axios.post('/api/auth/login', {
-        phone,
+        email,
         password
       });
       
@@ -56,12 +56,12 @@ const Login = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Số điện thoại</label>
+            <label>Địa chỉ Email</label>
             <input
-              type="tel"
-              placeholder="Nhập số điện thoại"
-              value={phone}
-              onChange={(e) => { setPhone(e.target.value); setError(''); }}
+              type="email"
+              placeholder="Nhập email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setError(''); }}
               disabled={loading}
             />
           </div>
@@ -96,7 +96,7 @@ const Login = () => {
           <button 
             type="submit" 
             className="btn-primary" 
-            disabled={loading || !phone || !password}
+            disabled={loading || !email || !password}
             style={{ marginTop: '24px' }}
           >
             {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
