@@ -377,6 +377,19 @@ export class AuthService {
       email: updatedUser.email
     };
   }
+
+  /**
+   * Đăng nhập bằng Google
+   */
+  async loginWithGoogle(idToken: string) {
+    // Demo implementation
+    return {
+      userId: "demo-google-user",
+      email: "demo@google.com",
+      role: "OWNER",
+      status: "ACTIVE"
+    };
+  }
 }
 
 export const authService = new AuthService();

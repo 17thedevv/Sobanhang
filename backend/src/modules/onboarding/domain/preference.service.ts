@@ -49,7 +49,7 @@ export class PreferenceService {
     }
 
     // 3. Cập nhật Preference
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       // Cập nhật session
       await tx.onboardingSession.update({
         where: { userId: userId },
