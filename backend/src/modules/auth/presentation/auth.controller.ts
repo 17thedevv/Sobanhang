@@ -18,6 +18,60 @@ export class AuthController {
     }
   }
 
+  async googleLogin(req: Request, res: Response) {
+    try {
+      const { idToken } = req.body;
+      if (!idToken) {
+        return res.status(400).json({ error: 'Thiếu Google Token' });
+      }
+
+      const user = await authService.loginWithGoogle(idToken);
+      const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
+      
+      // Nếu user.status là ACTIVE thì cho login bình thường
+      if (user.status === 'ACTIVE') {
+        const accessToken = jwt.sign(
+          { userId: user.userId, role: user.role, status: user.status },
+          JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+
+        res.cookie('accessToken', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        return res.status(200).json({
+          user,
+          accessToken
+        });
+      } else {
+        // Tài khoản đang đăng ký dở, cấp setupToken
+        const setupToken = jwt.sign(
+          { userId: user.userId, role: user.role, status: user.status },
+          JWT_SECRET,
+          { expiresIn: '1h' }
+        );
+
+        res.cookie('setupToken', setupToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 1000 // 1 hour
+        });
+
+        return res.status(200).json({
+          user,
+          setupToken
+        });
+      }
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
   async verifyOtp(req: Request, res: Response) {
     try {
       const { email, otp } = req.body;

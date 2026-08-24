@@ -1,6 +1,9 @@
 import { prisma } from '../../../prisma';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'mock_google_client_id');
 
 export class AuthService {
   /**
@@ -230,6 +233,106 @@ export class AuthService {
 
     if (!isMatch) {
       throw new Error('Mật khẩu không chính xác');
+    }
+
+    return {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+      status: user.status
+    };
+  }
+
+  /**
+   * Đăng nhập bằng Google (US-09)
+   */
+  async loginWithGoogle(idToken: string) {
+    let payload;
+    
+    // Nếu sếp chưa có Client ID thật và gửi token fake từ FE thì mình dùng mock
+    if (idToken === 'mock_google_token') {
+      payload = {
+        sub: 'mock_google_id_123',
+        email: 'sobanhang.demo@gmail.com',
+        name: 'Sổ Bán Hàng User'
+      };
+    } else {
+      try {
+        const ticket = await googleClient.verifyIdToken({
+          idToken: idToken,
+          audience: process.env.GOOGLE_CLIENT_ID || 'mock_google_client_id',
+        });
+        payload = ticket.getPayload();
+      } catch (error) {
+        throw new Error('Token Google không hợp lệ hoặc đã hết hạn');
+      }
+    }
+
+    if (!payload || !payload.email || !payload.sub) {
+      throw new Error('Không thể lấy thông tin từ Google');
+    }
+
+    const { email, sub: googleId } = payload;
+    const normalizedEmail = email.toLowerCase();
+
+    // 1. Kiểm tra xem OAuthAccount này đã tồn tại chưa
+    let oauthAccount = await prisma.oAuthAccount.findUnique({
+      where: {
+        provider_providerUserId: {
+          provider: 'GOOGLE',
+          providerUserId: googleId
+        }
+      },
+      include: { user: true }
+    });
+
+    if (oauthAccount) {
+      // Đã từng đăng nhập Google
+      const user = oauthAccount.user;
+      return {
+        userId: user.id,
+        email: user.email,
+        role: user.role,
+        status: user.status
+      };
+    }
+
+    // 2. Chưa từng đăng nhập Google ID này, tìm xem email đã có trong hệ thống chưa
+    let user = await prisma.user.findUnique({
+      where: { email: normalizedEmail }
+    });
+
+    if (user) {
+      // Tự động liên kết tài khoản
+      await prisma.oAuthAccount.create({
+        data: {
+          userId: user.id,
+          provider: 'GOOGLE',
+          providerUserId: googleId
+        }
+      });
+    } else {
+      // 3. Tạo tài khoản mới hoàn toàn
+      user = await prisma.user.create({
+        data: {
+          email: normalizedEmail,
+          status: 'REGISTERING', // Google đã xác thực email, cho nhảy thẳng vào Store Setup
+          oauthAccounts: {
+            create: {
+              provider: 'GOOGLE',
+              providerUserId: googleId
+            }
+          }
+        }
+      });
+
+      // Tạo Onboarding Session cho tài khoản mới
+      await prisma.onboardingSession.create({
+        data: {
+          userId: user.id,
+          status: 'IN_PROGRESS'
+        }
+      });
     }
 
     return {

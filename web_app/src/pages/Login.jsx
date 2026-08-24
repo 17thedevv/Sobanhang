@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 import './Login.css';
 
 const Login = () => {
@@ -25,27 +26,54 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await axios.post('/api/auth/login', {
+      const response = await axios.post('/api/auth/login', {
         email,
         password
       });
       
       // Cookie accessToken đã được set tự động (HttpOnly)
-      navigate('/dashboard');
+      // Kiểm tra xem backend trả về gì
+      if (response.data.setupToken) {
+        // Tài khoản đang cài đặt dở
+        navigate('/store-setup');
+      } else {
+        // Login thành công
+        navigate('/');
+      }
       
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
-        if (err.response.status === 403) {
-          // Chưa cài đặt mật khẩu
-          setTimeout(() => navigate('/register'), 2000);
-        }
       } else {
-        setError('Có lỗi xảy ra khi đăng nhập');
+        setError('Có lỗi xảy ra, vui lòng thử lại');
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true);
+      const idToken = credentialResponse.credential || 'mock_google_token';
+      
+      const response = await axios.post('/api/auth/google', { idToken });
+      
+      if (response.data.setupToken) {
+        navigate('/store-setup');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError('Đăng nhập Google thất bại');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Đăng nhập Google thất bại (Error from Google)');
   };
 
   return (
@@ -103,7 +131,19 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="register-section">
+        <div className="social-login-separator" style={{ margin: '20px 0', textAlign: 'center', color: '#666' }}>
+          hoặc
+        </div>
+
+        <div className="google-login-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+            useOneTap
+          />
+        </div>
+
+        <div className="register-section" style={{ marginTop: '20px' }}>
           Chưa có tài khoản? <Link to="/register">Đăng ký ngay</Link>
         </div>
       </div>

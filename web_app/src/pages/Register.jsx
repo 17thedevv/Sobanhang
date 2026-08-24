@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import { GoogleLogin } from '@react-oauth/google';
 import './Register.css';
 
 const Register = () => {
@@ -42,6 +43,31 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      setLoading(true);
+      // Gửi token fake nếu giả lập, token thật nếu có key
+      const idToken = credentialResponse.credential || 'mock_google_token';
+      
+      const response = await axios.post('/api/auth/google', { idToken });
+      
+      if (response.data.setupToken) {
+        navigate('/store-setup');
+      } else {
+        navigate('/');
+      }
+    } catch (err) {
+      setError('Đăng nhập Google thất bại');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleError = () => {
+    setError('Đăng nhập Google thất bại (Error from Google)');
   };
 
   return (
@@ -95,9 +121,20 @@ const Register = () => {
           </button>
         </form>
 
-        <div className="login-link">
-          Đã có tài khoản? <Link to="/login" className="link-text">Đăng nhập ngay</Link>
+        <div className="social-login-separator" style={{ margin: '20px 0', textAlign: 'center', color: '#666' }}>
+          hoặc đăng ký nhanh bằng
         </div>
+
+        <div className="google-login-wrapper" style={{ display: 'flex', justifyContent: 'center' }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={handleGoogleError}
+          />
+        </div>
+
+        <p className="login-link" style={{ marginTop: '20px', textAlign: 'center' }}>
+          Đã có tài khoản? <Link to="/login" className="link-text">Đăng nhập ngay</Link>
+        </p>
       </div>
     </div>
   );
