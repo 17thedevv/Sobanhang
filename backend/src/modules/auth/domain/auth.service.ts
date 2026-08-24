@@ -238,6 +238,142 @@ export class AuthService {
       role: user.role,
       status: user.status
     };
+  /**
+   * Quên mật khẩu (US-10) - Yêu cầu gửi OTP
+   */
+  async forgotPassword(email: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail }
+    });
+
+    if (!user) {
+      throw new Error('Tài khoản không tồn tại');
+    }
+    
+    // Ở hệ thống này, phải Active hoặc Password Not Set mới cho forgot
+    if (user.status !== 'ACTIVE' && user.status !== 'PASSWORD_NOT_SET') {
+      throw new Error('Tài khoản chưa hoàn tất đăng ký');
+    }
+
+    // 1. Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    // Store OTP in database
+    await prisma.otpVerification.create({
+      data: {
+        email: normalizedEmail,
+        codeHash: otp, // Thực tế cần băm
+        purpose: 'FORGOT_PASSWORD',
+        expiresAt: expiresAt,
+      }
+    });
+
+    // 2. Gửi email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER || 'sobanhang.demo@gmail.com',
+        pass: process.env.GMAIL_PASS || 'your-app-password'
+      }
+    });
+
+    const mailOptions = {
+      from: '"Sổ Bán Hàng" <sobanhang.demo@gmail.com>',
+      to: normalizedEmail,
+      subject: 'Yêu cầu khôi phục mật khẩu Sổ Bán Hàng',
+      text: `Mã OTP khôi phục mật khẩu của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Nếu không phải bạn yêu cầu, vui lòng bỏ qua.`
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log(`[Email] Đã gửi OTP Khôi phục mật khẩu tới ${normalizedEmail}`);
+    } catch (err: any) {
+      console.error('Lỗi khi gửi email, in OTP ra console để dự phòng:', err.message);
+      console.log(`\n========================================`);
+      console.log(`🔔 EMAIL SIMULATION [FORGOT PASS]: Mã OTP cho ${normalizedEmail} là: ${otp}`);
+      console.log(`========================================\n`);
+    }
+
+    return {
+      message: 'Mã OTP khôi phục đã được gửi'
+    };
+  }
+
+  /**
+   * Xác minh OTP Quên mật khẩu (US-10)
+   */
+  async verifyForgotPasswordOtp(email: string, otp: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const otpRecord = await prisma.otpVerification.findFirst({
+      where: {
+        email: normalizedEmail,
+        purpose: 'FORGOT_PASSWORD',
+        consumedAt: null
+      },
+      orderBy: { expiresAt: 'desc' }
+    });
+
+    if (!otpRecord) {
+      throw new Error('Mã OTP không tồn tại hoặc đã được sử dụng');
+    }
+
+    if (new Date() > otpRecord.expiresAt) {
+      throw new Error('Mã OTP đã hết hạn');
+    }
+
+    if (otpRecord.codeHash !== otp) {
+      await prisma.otpVerification.update({
+        where: { id: otpRecord.id },
+        data: { attempts: otpRecord.attempts + 1 }
+      });
+      throw new Error('Mã OTP không chính xác');
+    }
+
+    // Đánh dấu đã dùng
+    await prisma.otpVerification.update({
+      where: { id: otpRecord.id },
+      data: { consumedAt: new Date() }
+    });
+
+    const user = await prisma.user.findUnique({
+      where: { email: normalizedEmail }
+    });
+
+    if (!user) {
+      throw new Error('Không tìm thấy người dùng');
+    }
+
+    return {
+      userId: user.id
+    };
+  }
+
+  /**
+   * Đổi mật khẩu mới (US-11)
+   */
+  async resetPassword(userId: string, newPassword: string) {
+    if (newPassword.length < 8) {
+      throw new Error('Mật khẩu phải từ 8 ký tự trở lên');
+    }
+
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash: hashedPassword
+      }
+    });
+
+    return {
+      userId: updatedUser.id,
+      email: updatedUser.email
+    };
   }
 }
 

@@ -87,8 +87,10 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="forgot-password">
-            <Link to="/forgot-password">Quên mật khẩu?</Link>
+          <div style={{ textAlign: 'right', marginTop: '8px' }}>
+            <Link to="/forgot-password" style={{ fontSize: '14px', color: '#0056b3', textDecoration: 'none' }}>
+              Quên mật khẩu?
+            </Link>
           </div>
 
           {error && <div className="error-message">{error}</div>}

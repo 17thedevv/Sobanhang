@@ -7,6 +7,9 @@ import StoreSetup from './pages/StoreSetup';
 import FeatureSuggestions from './pages/FeatureSuggestions';
 import OnboardingPreference from './pages/OnboardingPreference';
 import SetPassword from './pages/SetPassword';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyResetOtp from './pages/VerifyResetOtp';
+import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import POS from './pages/POS';
@@ -27,6 +30,9 @@ function App() {
         <Route path="/suggestions" element={<FeatureSuggestions />} />
         <Route path="/preference" element={<OnboardingPreference />} />
         <Route path="/set-password" element={<SetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />

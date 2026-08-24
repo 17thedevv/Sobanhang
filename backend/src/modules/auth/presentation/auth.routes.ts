@@ -1,14 +1,19 @@
 import { Router } from 'express';
-import { authController } from './auth.controller';
-import { verifySetupToken } from '../../../shared/middlewares/auth.middleware';
+import { AuthController } from './auth.controller';
+import { verifySetupToken, verifyResetToken } from '../../../shared/middlewares/auth.middleware';
 
 const router = Router();
+const authController = new AuthController();
 
-// Route Đăng ký SĐT (US-03)
 router.post('/register/email', authController.registerEmail);
 router.post('/verify-otp', authController.verifyOtp);
 router.post('/set-password', verifySetupToken, authController.setPassword);
 router.post('/login', authController.login);
+router.post('/google', authController.googleLogin);
 router.post('/logout', authController.logout);
+
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/verify-reset-otp', authController.verifyResetOtp);
+router.post('/reset-password', verifyResetToken, authController.resetPassword);
 
 export default router;
