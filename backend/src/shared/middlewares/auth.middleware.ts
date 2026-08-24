@@ -66,3 +66,20 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
     return res.status(401).json({ error: 'Phiên đăng nhập hết hạn' });
   }
 };
+
+export const verifyResetToken = (req: Request, res: Response, next: NextFunction) => {
+  const token = req.cookies.resetToken;
+
+  if (!token) {
+    return res.status(401).json({ error: 'Vui lòng xác minh mã OTP trước' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+    if (err) {
+      return res.status(403).json({ error: 'Token đã hết hạn, vui lòng xin lại mã OTP' });
+    }
+
+    req.user = decoded;
+    next();
+  });
+};

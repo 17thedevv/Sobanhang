@@ -238,6 +238,8 @@ export class AuthService {
       role: user.role,
       status: user.status
     };
+  }
+
   /**
    * Quên mật khẩu (US-10) - Yêu cầu gửi OTP
    */
