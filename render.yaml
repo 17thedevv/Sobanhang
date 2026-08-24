@@ -24,7 +24,8 @@ services:
       - key: GMAIL_PASS
         sync: false
 
-  - type: static
+  - type: web
+    env: static
     name: sobanhang-frontend
     rootDir: web_app
     buildCommand: npm install && npm run build
