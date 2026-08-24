@@ -20,6 +20,7 @@ model User {
   
   store        Store?
   oauthAccounts OAuthAccount[]
+  onboardingSession OnboardingSession?
 }
 
 model Store {
@@ -34,11 +35,13 @@ model Store {
 
 model OnboardingSession {
   id                   String   @id @default(uuid())
-  phone                String   @unique
+  userId               String   @unique
   needs                String?  // JSON string
   surveyAnswers        String?  // JSON string
   onboardingPreference String?
   status               String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+
+  user                 User     @relation(fields: [userId], references: [id])
 }
 
 model OtpVerification {

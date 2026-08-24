@@ -51,14 +51,10 @@ const FeatureSuggestions = () => {
   };
 
   const handleContinue = async () => {
-    // Theo MVP, chúng ta có thể không cần lưu các lựa chọn này vào Database,
-    // nhưng ta giả lập thời gian xử lý một chút.
     setSubmitting(true);
     setTimeout(() => {
       setSubmitting(false);
-      // TODO: Chuyển sang US-06 (Cách làm quen)
-      alert('Đã lưu cấu hình tính năng! (Sẵn sàng sang US-06)');
-      // navigate('/preference');
+      navigate('/preference');
     }, 500);
   };
 

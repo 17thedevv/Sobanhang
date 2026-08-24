@@ -39,10 +39,10 @@ export class AuthService {
 
     // 4. Create OnboardingSession
     await prisma.onboardingSession.upsert({
-      where: { phone: normalizedPhone },
+      where: { userId: user.id },
       update: { status: 'IN_PROGRESS' },
       create: {
-        phone: normalizedPhone,
+        userId: user.id,
         status: 'IN_PROGRESS'
       }
     });
