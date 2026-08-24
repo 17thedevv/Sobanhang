@@ -28,21 +28,11 @@ const Register = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/register/phone', {
-        phone: phone
-      });
-
-      // Ở MVP, ta dùng userId được lưu tạm
-      if (response.data && response.data.userId) {
-        sessionStorage.setItem('tempUserId', response.data.userId);
-      }
-
-      setSuccess('Đăng ký thành công! Đang chuyển hướng thiết lập cửa hàng...');
+      const response = await axios.post('/api/auth/register/phone', { phone });
+      console.log('Register response:', response.data);
       
-      setTimeout(() => {
-        navigate('/store-setup');
-      }, 1500);
-
+      // Chuyển sang bước OTP (MVP: giả lập bỏ qua OTP, sang thẳng tạo shop)
+      navigate('/store-setup');
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);

@@ -5,14 +5,19 @@ import authRoutes from './modules/auth/presentation/auth.routes';
 import storeRoutes from './modules/onboarding/presentation/store.routes';
 import suggestionRoutes from './modules/onboarding/presentation/suggestion.routes';
 import preferenceRoutes from './modules/onboarding/presentation/preference.routes';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);

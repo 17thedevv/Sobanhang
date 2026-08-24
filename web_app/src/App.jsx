@@ -5,10 +5,15 @@ import Register from './pages/Register';
 import StoreSetup from './pages/StoreSetup';
 import FeatureSuggestions from './pages/FeatureSuggestions';
 import OnboardingPreference from './pages/OnboardingPreference';
+import SetPassword from './pages/SetPassword';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import POS from './pages/POS';
 import CashFlow from './pages/CashFlow';
+import axios from 'axios';
+
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = 'http://localhost:3000';
 
 function App() {
   return (
@@ -19,6 +24,7 @@ function App() {
         <Route path="/store-setup" element={<StoreSetup />} />
         <Route path="/suggestions" element={<FeatureSuggestions />} />
         <Route path="/preference" element={<OnboardingPreference />} />
+        <Route path="/set-password" element={<SetPassword />} />
         
         <Route path="/" element={<Layout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />

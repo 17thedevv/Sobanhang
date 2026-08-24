@@ -24,16 +24,6 @@ const StoreSetup = () => {
     referralCode: ''
   });
 
-  // Ở MVP, ta dùng userId được lưu tạm sau bước Register
-  const userId = sessionStorage.getItem('tempUserId');
-
-  useEffect(() => {
-    if (!userId) {
-      // Nếu chưa có userId, quay lại màn Register
-      navigate('/register');
-    }
-  }, [userId, navigate]);
-
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError('');
@@ -49,8 +39,7 @@ const StoreSetup = () => {
     setError('');
 
     try {
-      await axios.post('http://localhost:3000/api/stores', {
-        userId,
+      await axios.post('/api/stores', {
         ...formData
       });
 

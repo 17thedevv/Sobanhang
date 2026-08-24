@@ -4,7 +4,12 @@ import { preferenceService } from '../domain/preference.service';
 export class PreferenceController {
   async setPreference(req: Request, res: Response) {
     try {
-      const { userId, preference } = req.body;
+      const { preference } = req.body;
+      const userId = req.user?.userId;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Không tìm thấy thông tin xác thực' });
+      }
       
       const result = await preferenceService.setPreference({ userId, preference });
 

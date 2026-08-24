@@ -4,8 +4,13 @@ import { storeService } from '../domain/store.service';
 export class StoreController {
   async createStore(req: Request, res: Response) {
     try {
-      const { userId, name, industry, role, referralCode } = req.body;
+      const { name, industry, role, referralCode } = req.body;
+      const userId = req.user?.userId;
       
+      if (!userId) {
+        return res.status(401).json({ error: 'Không tìm thấy thông tin xác thực' });
+      }
+
       const store = await storeService.createStore({
         userId,
         name,

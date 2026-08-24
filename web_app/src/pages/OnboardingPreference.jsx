@@ -31,17 +31,9 @@ const OnboardingPreference = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Lấy userId tạm từ sessionStorage (do chưa có JWT ở bước này)
-  const tempUserId = sessionStorage.getItem('tempUserId');
-
   const handleSubmit = async () => {
     if (!selectedPref) {
       setError('Vui lòng chọn một cách làm quen!');
-      return;
-    }
-
-    if (!tempUserId) {
-      setError('Phiên đăng ký đã hết hạn. Vui lòng quay lại từ đầu.');
       return;
     }
 
@@ -49,8 +41,7 @@ const OnboardingPreference = () => {
     setError('');
 
     try {
-      await axios.post('http://localhost:3000/api/onboarding/preference', {
-        userId: tempUserId,
+      await axios.post('/api/onboarding/preference', {
         preference: selectedPref
       });
       

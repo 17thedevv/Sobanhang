@@ -83,6 +83,49 @@ export class AuthService {
     const regex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
     return regex.test(phone);
   }
+
+  /**
+   * Thiết lập mật khẩu cho tài khoản (US-07)
+   */
+  async setPassword(userId: string, password: string) {
+    const minLength = parseInt(process.env.PASSWORD_MIN_LENGTH || '8');
+    if (!password || password.length < minLength) {
+      throw new Error(`Mật khẩu phải chứa ít nhất ${minLength} ký tự`);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    }
+
+    if (user.status === 'ACTIVE') {
+      throw new Error('Người dùng đã thiết lập mật khẩu');
+    }
+    
+    // In strict mode, we could assert status === 'PASSWORD_NOT_SET'
+    
+    const bcrypt = require('bcrypt');
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash,
+        status: 'ACTIVE'
+      }
+    });
+
+    return {
+      userId: updatedUser.id,
+      phone: updatedUser.phone,
+      role: updatedUser.role,
+      status: updatedUser.status
+    };
+  }
 }
 
 export const authService = new AuthService();
