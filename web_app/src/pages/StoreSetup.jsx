@@ -54,10 +54,10 @@ const StoreSetup = () => {
         ...formData
       });
 
-      // TODO: Sang bước Onboarding tiếp theo (VD: Gợi ý tính năng US-05)
-      // Tạm thời redirect sang Dashboard hoặc login (vì chưa có JWT)
+      // Lưu tạm ngành hàng để màn Suggestion dùng (MVP)
+      sessionStorage.setItem('tempIndustry', formData.industry);
       alert('Tạo cửa hàng thành công!');
-      navigate('/login');
+      navigate('/suggestions', { state: { industry: formData.industry } });
       
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
