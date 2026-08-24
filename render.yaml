@@ -1,0 +1,33 @@
+services:
+  - type: web
+    name: sobanhang-api
+    runtime: node
+    rootDir: backend
+    
+    buildCommand: npm install && npm run build
+    preDeployCommand: npx prisma db push
+    startCommand: npm start
+    
+    healthCheckPath: /health
+    
+    # Dùng đĩa ảo (Persistent Disk) cho file dev.db của SQLite
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
+      
+    envVars:
+      - key: NODE_ENV
+        value: production
+        
+      # Tro DATABASE_URL tới đường dẫn của đĩa mount (thay vì ./dev.db)
+      - key: DATABASE_URL
+        value: file:/data/dev.db
+        
+      # Các biến bảo mật sẽ điền trên Dashboard của Render, đặt sync: false để không lưu mã lên code
+      - key: JWT_SECRET
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_PASS
+        sync: false
