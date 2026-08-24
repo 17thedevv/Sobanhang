@@ -5,8 +5,7 @@ services:
     rootDir: backend
     plan: free
     
-    buildCommand: npm install && npm run build
-    preDeployCommand: npx prisma db push
+    buildCommand: npm install && npx prisma db push && npm run build
     startCommand: npm start
     
     healthCheckPath: /health
