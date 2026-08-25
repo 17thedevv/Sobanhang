@@ -31,10 +31,12 @@ function App() {
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />
-          <Route path="/store-setup" element={<ProtectedRoute><StoreSetup /></ProtectedRoute>} />
-          <Route path="/suggestions" element={<ProtectedRoute><FeatureSuggestions /></ProtectedRoute>} />
-          <Route path="/preference" element={<ProtectedRoute><OnboardingPreference /></ProtectedRoute>} />
-          <Route path="/set-password" element={<ProtectedRoute><SetPassword /></ProtectedRoute>} />
+          
+          {/* Các trang onboarding không dùng ProtectedRoute vì user chưa có accessToken, chỉ có setupToken */}
+          <Route path="/store-setup" element={<StoreSetup />} />
+          <Route path="/suggestions" element={<FeatureSuggestions />} />
+          <Route path="/preference" element={<OnboardingPreference />} />
+          <Route path="/set-password" element={<SetPassword />} />
           
           <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
           <Route path="/verify-reset-otp" element={<PublicRoute><VerifyResetOtp /></PublicRoute>} />

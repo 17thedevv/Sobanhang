@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './SetPassword.css';
 
 const SetPassword = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
@@ -32,12 +34,17 @@ const SetPassword = () => {
     setLoading(true);
 
     try {
-      await axios.post('/api/auth/set-password', {
+      const response = await axios.post('/api/auth/set-password', {
         password
       });
       
       // Xoá mọi state rác nếu có
       sessionStorage.removeItem('tempIndustry');
+      
+      // Update global auth state
+      if (response.data && response.data.user) {
+        login(response.data.user);
+      }
       
       // Thành công, cookie HTTPOnly đã được ghi nhận. Sang thẳng Dashboard.
       navigate('/dashboard');
