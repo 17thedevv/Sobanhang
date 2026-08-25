@@ -1,6 +1,6 @@
 import { prisma } from '../../../prisma';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 export class AuthService {
   /**
@@ -61,33 +61,22 @@ export class AuthService {
       }
     });
 
-    // Cấu hình Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER || 'sobanhang.demo@gmail.com',
-        pass: process.env.GMAIL_PASS || 'your-app-password'
-      },
-      connectionTimeout: 5000, // Timeout sau 5 giây thay vì treo
-      greetingTimeout: 5000,
-      socketTimeout: 5000,
-    });
-
-    const mailOptions = {
-      from: '"Sổ Bán Hàng" <sobanhang.demo@gmail.com>',
-      to: normalizedEmail,
-      subject: 'Mã xác thực Sổ Bán Hàng',
-      text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Vui lòng không chia sẻ cho bất kỳ ai.`
-    };
-
+    const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+    
     try {
-      await transporter.sendMail(mailOptions);
-      console.log(`[Email] Đã gửi OTP tới ${normalizedEmail}`);
-    } catch (err) {
-      console.error('Lỗi khi gửi email, in OTP ra console để dự phòng:', err);
-      console.log(`\n========================================`);
-      console.log(`🔔 EMAIL SIMULATION: Mã OTP cho ${normalizedEmail} là: ${otp}`);
-      console.log(`========================================\n`);
+      if (process.env.RESEND_API_KEY) {
+        await resend.emails.send({
+          from: 'Sổ Bán Hàng <onboarding@resend.dev>', // Email mặc định của Resend (chỉ gửi được cho chính email đăng ký Resend trừ khi add domain)
+          to: normalizedEmail,
+          subject: 'Mã xác thực Sổ Bán Hàng',
+          text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Vui lòng không chia sẻ cho bất kỳ ai.`
+        });
+        console.log(`[Email] Đã gửi OTP tới ${normalizedEmail} qua Resend`);
+      } else {
+        console.log(`🔔 EMAIL SIMULATION: Mã OTP cho ${normalizedEmail} là: ${otp} (Bỏ qua gửi mail vì chưa có RESEND_API_KEY)`);
+      }
+    } catch (err: any) {
+      console.error('Lỗi khi gửi email bằng Resend:', err.message);
     }
 
     return {
@@ -276,33 +265,22 @@ export class AuthService {
       }
     });
 
-    // 2. Gửi email
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.GMAIL_USER || 'sobanhang.demo@gmail.com',
-        pass: process.env.GMAIL_PASS || 'your-app-password'
-      },
-      connectionTimeout: 5000,
-      greetingTimeout: 5000,
-      socketTimeout: 5000,
-    });
-
-    const mailOptions = {
-      from: '"Sổ Bán Hàng" <sobanhang.demo@gmail.com>',
-      to: normalizedEmail,
-      subject: 'Yêu cầu khôi phục mật khẩu Sổ Bán Hàng',
-      text: `Mã OTP khôi phục mật khẩu của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Nếu không phải bạn yêu cầu, vui lòng bỏ qua.`
-    };
+    const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
 
     try {
-      await transporter.sendMail(mailOptions);
-      console.log(`[Email] Đã gửi OTP Khôi phục mật khẩu tới ${normalizedEmail}`);
+      if (process.env.RESEND_API_KEY) {
+        await resend.emails.send({
+          from: 'Sổ Bán Hàng <onboarding@resend.dev>',
+          to: normalizedEmail,
+          subject: 'Yêu cầu khôi phục mật khẩu Sổ Bán Hàng',
+          text: `Mã OTP khôi phục mật khẩu của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Nếu không phải bạn yêu cầu, vui lòng bỏ qua.`
+        });
+        console.log(`[Email] Đã gửi OTP Khôi phục mật khẩu tới ${normalizedEmail} qua Resend`);
+      } else {
+        console.log(`🔔 EMAIL SIMULATION [FORGOT PASS]: Mã OTP cho ${normalizedEmail} là: ${otp} (Chưa có RESEND_API_KEY)`);
+      }
     } catch (err: any) {
-      console.error('Lỗi khi gửi email, in OTP ra console để dự phòng:', err.message);
-      console.log(`\n========================================`);
-      console.log(`🔔 EMAIL SIMULATION [FORGOT PASS]: Mã OTP cho ${normalizedEmail} là: ${otp}`);
-      console.log(`========================================\n`);
+      console.error('Lỗi khi gửi email khôi phục bằng Resend:', err.message);
     }
 
     return {
