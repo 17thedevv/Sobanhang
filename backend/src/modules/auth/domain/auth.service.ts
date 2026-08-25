@@ -67,7 +67,10 @@ export class AuthService {
       auth: {
         user: process.env.GMAIL_USER || 'sobanhang.demo@gmail.com',
         pass: process.env.GMAIL_PASS || 'your-app-password'
-      }
+      },
+      connectionTimeout: 5000, // Timeout sau 5 giây thay vì treo
+      greetingTimeout: 5000,
+      socketTimeout: 5000,
     });
 
     const mailOptions = {
@@ -89,7 +92,8 @@ export class AuthService {
 
     return {
       message: 'Mã OTP đã được gửi',
-      userId: user.id
+      userId: user.id,
+      demoOtp: otp // Phục vụ cho mục đích test UI mà không cần check email
     };
   }
 
@@ -278,7 +282,10 @@ export class AuthService {
       auth: {
         user: process.env.GMAIL_USER || 'sobanhang.demo@gmail.com',
         pass: process.env.GMAIL_PASS || 'your-app-password'
-      }
+      },
+      connectionTimeout: 5000,
+      greetingTimeout: 5000,
+      socketTimeout: 5000,
     });
 
     const mailOptions = {
@@ -299,7 +306,8 @@ export class AuthService {
     }
 
     return {
-      message: 'Mã OTP khôi phục đã được gửi'
+      message: 'Mã OTP khôi phục đã được gửi',
+      demoOtp: otp // Phục vụ mục đích test
     };
   }
 
