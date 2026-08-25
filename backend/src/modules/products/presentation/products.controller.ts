@@ -86,7 +86,7 @@ export class ProductsController {
 
       // Verify ownership
       const existingProduct = await prisma.product.findFirst({
-        where: { id, storeId }
+        where: { id: id as string, storeId }
       });
 
       if (!existingProduct) {
@@ -98,12 +98,12 @@ export class ProductsController {
         // Delete old variants if 'variants' array is provided in request
         if (variants && Array.isArray(variants)) {
           await tx.productVariant.deleteMany({
-            where: { productId: id }
+            where: { productId: id as string }
           });
         }
 
         return await tx.product.update({
-          where: { id },
+          where: { id: id as string },
           data: {
             name,
             price: price !== undefined ? Number(price) : undefined,
@@ -144,7 +144,7 @@ export class ProductsController {
 
       // Verify ownership
       const existingProduct = await prisma.product.findFirst({
-        where: { id, storeId }
+        where: { id: id as string, storeId }
       });
 
       if (!existingProduct) {
@@ -152,7 +152,7 @@ export class ProductsController {
       }
 
       await prisma.product.delete({
-        where: { id }
+        where: { id: id as string }
       });
 
       return res.status(200).json({ message: 'Xóa sản phẩm thành công' });

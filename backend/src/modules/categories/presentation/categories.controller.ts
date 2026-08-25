@@ -62,7 +62,7 @@ export class CategoriesController {
       }
 
       const existingCategory = await prisma.category.findFirst({
-        where: { id, storeId }
+        where: { id: id as string, storeId }
       });
 
       if (!existingCategory) {
@@ -70,7 +70,7 @@ export class CategoriesController {
       }
 
       const category = await prisma.category.update({
-        where: { id },
+        where: { id: id as string },
         data: { name }
       });
 
@@ -86,7 +86,7 @@ export class CategoriesController {
       const storeId = req.user?.storeId;
 
       const existingCategory = await prisma.category.findFirst({
-        where: { id, storeId }
+        where: { id: id as string, storeId }
       });
 
       if (!existingCategory) {
@@ -95,7 +95,7 @@ export class CategoriesController {
 
       // Check if products are using this category
       const productsCount = await prisma.product.count({
-        where: { categoryId: id }
+        where: { categoryId: id as string }
       });
 
       if (productsCount > 0) {
@@ -103,7 +103,7 @@ export class CategoriesController {
       }
 
       await prisma.category.delete({
-        where: { id }
+        where: { id: id as string }
       });
 
       return res.status(200).json({ message: 'Xóa danh mục thành công' });

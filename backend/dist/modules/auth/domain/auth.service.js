@@ -1,0 +1,342 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.authService = exports.AuthService = void 0;
+const prisma_1 = require("../../../prisma");
+const resend_1 = require("resend");
+class AuthService {
+    /**
+     * Register a new email
+     */
+    async registerEmail(email) {
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!this.isValidEmail(normalizedEmail)) {
+            throw new Error('Địa chỉ email không hợp lệ');
+        }
+        // 2. Check if email is already registered and active
+        const existingUser = await prisma_1.prisma.user.findUnique({
+            where: { email: normalizedEmail },
+        });
+        if (existingUser && existingUser.status !== 'NEW' && existingUser.status !== 'REGISTERING') {
+            throw new Error('Email đã được đăng ký');
+        }
+        // 3. Create or update user
+        let user;
+        if (existingUser) {
+            user = await prisma_1.prisma.user.update({
+                where: { id: existingUser.id },
+                data: { status: 'REGISTERING' }
+            });
+        }
+        else {
+            user = await prisma_1.prisma.user.create({
+                data: {
+                    email: normalizedEmail,
+                    status: 'REGISTERING',
+                }
+            });
+        }
+        // 4. Create OnboardingSession
+        await prisma_1.prisma.onboardingSession.upsert({
+            where: { userId: user.id },
+            update: { status: 'IN_PROGRESS' },
+            create: {
+                userId: user.id,
+                status: 'IN_PROGRESS'
+            }
+        });
+        // 5. Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        // Store OTP in database
+        await prisma_1.prisma.otpVerification.create({
+            data: {
+                email: normalizedEmail,
+                codeHash: otp, // MVP: store plain text, ideal: hash it
+                purpose: 'REGISTER',
+                expiresAt: expiresAt,
+            }
+        });
+        const resend = new resend_1.Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+        try {
+            if (process.env.RESEND_API_KEY) {
+                await resend.emails.send({
+                    from: 'Cửa Hàng Số <onboarding@resend.dev>', // Email mặc định của Resend (chỉ gửi được cho chính email đăng ký Resend trừ khi add domain)
+                    to: normalizedEmail,
+                    subject: 'Mã xác thực Cửa Hàng Số',
+                    text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Vui lòng không chia sẻ cho bất kỳ ai.`
+                });
+                console.log(`[Email] Đã gửi OTP tới ${normalizedEmail} qua Resend`);
+            }
+            else {
+                console.log(`🔔 EMAIL SIMULATION: Mã OTP cho ${normalizedEmail} là: ${otp} (Bỏ qua gửi mail vì chưa có RESEND_API_KEY)`);
+            }
+        }
+        catch (err) {
+            console.error('Lỗi khi gửi email bằng Resend:', err.message);
+        }
+        return {
+            message: 'Mã OTP đã được gửi',
+            userId: user.id,
+            demoOtp: otp // Phục vụ cho mục đích test UI mà không cần check email
+        };
+    }
+    isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+    normalizePhone(phone) {
+        let p = phone.trim().replace(/\s/g, '');
+        if (p.startsWith('+84'))
+            p = '0' + p.slice(3);
+        if (p.startsWith('84'))
+            p = '0' + p.slice(2);
+        return p;
+    }
+    isValidVietnamesePhone(phone) {
+        const regex = /^(0[3|5|7|8|9])+([0-9]{8})$/;
+        return regex.test(phone);
+    }
+    /**
+     * Xác minh OTP qua Email (US-03)
+     */
+    async verifyOtp(email, otp) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const otpRecord = await prisma_1.prisma.otpVerification.findFirst({
+            where: {
+                email: normalizedEmail,
+                purpose: 'REGISTER',
+                consumedAt: null
+            },
+            orderBy: { expiresAt: 'desc' }
+        });
+        if (!otpRecord) {
+            throw new Error('Mã OTP không tồn tại hoặc đã được sử dụng');
+        }
+        if (new Date() > otpRecord.expiresAt) {
+            throw new Error('Mã OTP đã hết hạn');
+        }
+        // Ở MVP, ta dùng codeHash lưu plaintext, thực tế phải băm
+        if (otpRecord.codeHash !== otp) {
+            await prisma_1.prisma.otpVerification.update({
+                where: { id: otpRecord.id },
+                data: { attempts: otpRecord.attempts + 1 }
+            });
+            throw new Error('Mã OTP không chính xác');
+        }
+        // Đánh dấu đã dùng
+        await prisma_1.prisma.otpVerification.update({
+            where: { id: otpRecord.id },
+            data: { consumedAt: new Date() }
+        });
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { email: normalizedEmail }
+        });
+        if (!user) {
+            throw new Error('Không tìm thấy người dùng');
+        }
+        return {
+            userId: user.id
+        };
+    }
+    /**
+     * Thiết lập mật khẩu cho tài khoản (US-07)
+     */
+    async setPassword(userId, password) {
+        const minLength = parseInt(process.env.PASSWORD_MIN_LENGTH || '8');
+        if (!password || password.length < minLength) {
+            throw new Error(`Mật khẩu phải chứa ít nhất ${minLength} ký tự`);
+        }
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { id: userId }
+        });
+        if (!user) {
+            throw new Error('Người dùng không tồn tại');
+        }
+        if (user.status === 'ACTIVE') {
+            throw new Error('Người dùng đã thiết lập mật khẩu');
+        }
+        // In strict mode, we could assert status === 'PASSWORD_NOT_SET'
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        const passwordHash = await bcrypt.hash(password, saltRounds);
+        const updatedUser = await prisma_1.prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordHash,
+                status: 'ACTIVE'
+            },
+            include: {
+                store: true
+            }
+        });
+        return {
+            userId: updatedUser.id,
+            email: updatedUser.email,
+            role: updatedUser.role,
+            status: updatedUser.status,
+            storeId: updatedUser.store?.id
+        };
+    }
+    /**
+     * Đăng nhập bằng Email & Mật khẩu (US-08)
+     */
+    async login(email, password) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { email: normalizedEmail },
+            include: { store: true }
+        });
+        if (!user) {
+            throw new Error('Email chưa được đăng ký');
+        }
+        if (user.status !== 'ACTIVE') {
+            throw new Error('Tài khoản chưa hoàn tất thiết lập hoặc đang bị khóa');
+        }
+        if (!user.passwordHash) {
+            throw new Error('Tài khoản chưa thiết lập mật khẩu');
+        }
+        const bcrypt = require('bcrypt');
+        const isMatch = await bcrypt.compare(password, user.passwordHash);
+        if (!isMatch) {
+            throw new Error('Mật khẩu không chính xác');
+        }
+        return {
+            userId: user.id,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+            storeId: user.store?.id
+        };
+    }
+    /**
+     * Quên mật khẩu (US-10) - Yêu cầu gửi OTP
+     */
+    async forgotPassword(email) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { email: normalizedEmail }
+        });
+        if (!user) {
+            throw new Error('Tài khoản không tồn tại');
+        }
+        // Ở hệ thống này, phải Active hoặc Password Not Set mới cho forgot
+        if (user.status !== 'ACTIVE' && user.status !== 'PASSWORD_NOT_SET') {
+            throw new Error('Tài khoản chưa hoàn tất đăng ký');
+        }
+        // 1. Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+        // Store OTP in database
+        await prisma_1.prisma.otpVerification.create({
+            data: {
+                email: normalizedEmail,
+                codeHash: otp, // Thực tế cần băm
+                purpose: 'FORGOT_PASSWORD',
+                expiresAt: expiresAt,
+            }
+        });
+        const resend = new resend_1.Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+        let emailSent = false;
+        try {
+            if (process.env.RESEND_API_KEY) {
+                const emailResult = await resend.emails.send({
+                    from: 'Cửa Hàng Số <onboarding@resend.dev>',
+                    to: normalizedEmail,
+                    subject: 'Yêu cầu khôi phục mật khẩu Cửa Hàng Số',
+                    text: `Mã OTP khôi phục mật khẩu của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Nếu không phải bạn yêu cầu, vui lòng bỏ qua.`
+                });
+                console.log(`[Email] Kết quả gửi email khôi phục:`, JSON.stringify(emailResult));
+                emailSent = true;
+            }
+            else {
+                console.log(`🔔 EMAIL SIMULATION [FORGOT PASS]: Mã OTP cho ${normalizedEmail} là: ${otp} (Chưa có RESEND_API_KEY)`);
+            }
+        }
+        catch (err) {
+            console.error('❌ Lỗi khi gửi email khôi phục bằng Resend:', err.message);
+            console.error('❌ Chi tiết lỗi:', JSON.stringify(err));
+        }
+        return {
+            message: 'Mã OTP khôi phục đã được gửi',
+            demoOtp: otp,
+            emailSent
+        };
+    }
+    /**
+     * Xác minh OTP Quên mật khẩu (US-10)
+     */
+    async verifyForgotPasswordOtp(email, otp) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const otpRecord = await prisma_1.prisma.otpVerification.findFirst({
+            where: {
+                email: normalizedEmail,
+                purpose: 'FORGOT_PASSWORD',
+                consumedAt: null
+            },
+            orderBy: { expiresAt: 'desc' }
+        });
+        if (!otpRecord) {
+            throw new Error('Mã OTP không tồn tại hoặc đã được sử dụng');
+        }
+        if (new Date() > otpRecord.expiresAt) {
+            throw new Error('Mã OTP đã hết hạn');
+        }
+        if (otpRecord.codeHash !== otp) {
+            await prisma_1.prisma.otpVerification.update({
+                where: { id: otpRecord.id },
+                data: { attempts: otpRecord.attempts + 1 }
+            });
+            throw new Error('Mã OTP không chính xác');
+        }
+        // Đánh dấu đã dùng
+        await prisma_1.prisma.otpVerification.update({
+            where: { id: otpRecord.id },
+            data: { consumedAt: new Date() }
+        });
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { email: normalizedEmail }
+        });
+        if (!user) {
+            throw new Error('Không tìm thấy người dùng');
+        }
+        return {
+            userId: user.id
+        };
+    }
+    /**
+     * Đổi mật khẩu mới (US-11)
+     */
+    async resetPassword(userId, newPassword) {
+        if (newPassword.length < 8) {
+            throw new Error('Mật khẩu phải từ 8 ký tự trở lên');
+        }
+        const bcrypt = require('bcrypt');
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+        const updatedUser = await prisma_1.prisma.user.update({
+            where: { id: userId },
+            data: {
+                passwordHash: hashedPassword
+            }
+        });
+        return {
+            userId: updatedUser.id,
+            email: updatedUser.email
+        };
+    }
+    /**
+     * Đăng nhập bằng Google
+     */
+    async loginWithGoogle(idToken) {
+        // Demo implementation
+        return {
+            userId: "demo-google-user",
+            email: "demo@google.com",
+            role: "OWNER",
+            status: "ACTIVE",
+            storeId: "demo-store-id"
+        };
+    }
+}
+exports.AuthService = AuthService;
+exports.authService = new AuthService();

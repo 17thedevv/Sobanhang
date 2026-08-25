@@ -383,7 +383,8 @@ export class AuthService {
       userId: "demo-google-user",
       email: "demo@google.com",
       role: "OWNER",
-      status: "ACTIVE"
+      status: "ACTIVE",
+      storeId: "demo-store-id"
     };
   }
 }

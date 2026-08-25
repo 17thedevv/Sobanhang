@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const products_controller_1 = require("./products.controller");
+const auth_middleware_1 = require("../../../shared/middlewares/auth.middleware");
+const router = (0, express_1.Router)();
+const controller = new products_controller_1.ProductsController();
+router.use(auth_middleware_1.verifyAccessToken);
+router.get('/', controller.getAllProducts);
+router.post('/', controller.createProduct);
+router.put('/:id', controller.updateProduct);
+router.delete('/:id', controller.deleteProduct);
+exports.default = router;
