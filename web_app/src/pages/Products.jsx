@@ -64,22 +64,41 @@ export default function Products() {
                 <tr>
                   <th>Hình ảnh</th>
                   <th>Tên sản phẩm</th>
+                  <th>Danh mục</th>
                   <th>Giá bán</th>
                   <th>Tồn kho</th>
                   <th className="text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map(product => (
+                {filteredProducts.map(product => {
+                  const totalStock = product.variants?.length 
+                    ? product.variants.reduce((sum, v) => sum + (v.stock || 0), 0) 
+                    : (product.stock || 0);
+                  
+                  return (
                   <tr key={product.id}>
                     <td>
                       <div className="product-image-placeholder">
                         <PackageSearch size={24} color="#ccc" />
                       </div>
                     </td>
-                    <td className="font-medium">{product.name}</td>
-                    <td className="text-primary font-medium">{product.price.toLocaleString('vi-VN')}đ</td>
-                    <td>{product.stock} {product.unit}</td>
+                    <td className="font-medium">
+                      {product.name}
+                      {product.variants?.length > 0 && <div className="text-sm text-muted">{product.variants.length} phân loại</div>}
+                    </td>
+                    <td>{product.category?.name || '---'}</td>
+                    <td className="text-primary font-medium">
+                      {product.promotionalPrice ? (
+                        <>
+                          <div>{product.promotionalPrice.toLocaleString('vi-VN')}đ</div>
+                          <div className="text-sm text-muted" style={{textDecoration: 'line-through'}}>{product.price.toLocaleString('vi-VN')}đ</div>
+                        </>
+                      ) : (
+                        <>{product.price.toLocaleString('vi-VN')}đ</>
+                      )}
+                    </td>
+                    <td>{product.trackInventory ? `${totalStock} ${product.unit}` : 'Không theo dõi'}</td>
                     <td className="actions-cell">
                       <button className="btn-icon" onClick={() => handleEdit(product)}>
                         <Edit2 size={18} />
@@ -89,7 +108,7 @@ export default function Products() {
                       </button>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>

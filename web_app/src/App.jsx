@@ -12,6 +12,7 @@ import VerifyResetOtp from './pages/VerifyResetOtp';
 import ResetPassword from './pages/ResetPassword';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
+import Categories from './pages/Categories';
 import POS from './pages/POS';
 import CashFlow from './pages/CashFlow';
 import LandingPage from './pages/LandingPage';
@@ -50,6 +51,7 @@ function App() {
             <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
               <Route index element={<Dashboard />} />
               <Route path="products" element={<Products />} />
+              <Route path="categories" element={<Categories />} />
               <Route path="pos" element={<POS />} />
               <Route path="cashflow" element={<CashFlow />} />
             </Route>

@@ -96,7 +96,9 @@ const DesktopLayout = () => {
                   <NavLink to="/dashboard/products" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
                     Danh sách sản phẩm
                   </NavLink>
-                  <div className="sub-nav-item mockup">Danh mục</div>
+                  <NavLink to="/dashboard/categories" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
+                    Danh mục
+                  </NavLink>
                 </div>
               )}
             </div>
@@ -171,6 +173,7 @@ const DesktopLayout = () => {
               {location.pathname === '/dashboard' ? 'Tổng quan' : 
                location.pathname.includes('/pos') ? 'Bán hàng (POS)' : 
                location.pathname.includes('/products') ? 'Hàng hóa' : 
+               location.pathname.includes('/categories') ? 'Danh mục' : 
                location.pathname.includes('/cashflow') ? 'Tài chính' : 'Bảng điều khiển'}
             </span>
           </div>
