@@ -27,7 +27,14 @@ async function main() {
       store: {
         create: {
           name: 'Cửa Hàng Test',
-          industry: 'Bán lẻ'
+          industry: 'Bán lẻ',
+          products: {
+            create: [
+              { name: 'Cà phê sữa đá', price: 25000, stock: 100, unit: 'Ly' },
+              { name: 'Trà đào cam sả', price: 35000, stock: 50, unit: 'Ly' },
+              { name: 'Bánh mì thịt nướng', price: 20000, stock: 30, unit: 'Ổ' }
+            ]
+          }
         }
       },
       onboardingSession: {
@@ -37,14 +44,39 @@ async function main() {
       }
     },
     include: {
-      store: true
+      store: {
+        include: {
+          products: true
+        }
+      }
     }
   });
+
+  // Tạo thêm 1 order mẫu
+  if (user.store) {
+    const products = user.store.products;
+    if (products.length >= 2) {
+      await prisma.order.create({
+        data: {
+          storeId: user.store.id,
+          total: products[0].price * 2 + products[1].price * 1,
+          isDebt: false,
+          paymentMethod: 'CASH',
+          items: {
+            create: [
+              { productId: products[0].id, quantity: 2, price: products[0].price },
+              { productId: products[1].id, quantity: 1, price: products[1].price }
+            ]
+          }
+        }
+      });
+    }
+  }
 
   console.log('Seeding completed successfully.');
   console.log(`- User: ${user.email}`);
   console.log(`- Password: 12345678`);
-  console.log(`- Store: ${user.store?.name}`);
+  console.log(`- Store: ${user.store?.name} (${user.store?.products.length} products seeded)`);
 }
 
 main()

@@ -31,6 +31,46 @@ model Store {
   createdAt DateTime @default(now())
 
   owner     User     @relation(fields: [ownerId], references: [id])
+  products  Product[]
+  orders    Order[]
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  price     Float
+  stock     Int
+  unit      String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store     Store    @relation(fields: [storeId], references: [id])
+  orderItems OrderItem[]
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  storeId       String
+  total         Float
+  isDebt        Boolean  @default(false)
+  paymentMethod String   @default("CASH") // CASH, TRANSFER, CARD
+  createdAt     DateTime @default(now())
+
+  store         Store    @relation(fields: [storeId], references: [id])
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Float
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
 }
 
 model OnboardingSession {
