@@ -1,19 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Home, ShoppingCart, Package, DollarSign, LogOut } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './DesktopLayout.css'; // Sẽ tạo sau, hiện tại dùng chung hoặc tách riêng
 
 const DesktopLayout = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
-      const axios = require('axios').default || require('axios');
-      await axios.post('/api/auth/logout');
+      setIsLoggingOut(true);
+      await logout();
+      navigate('/login');
     } catch (error) {
       console.error('Logout error', error);
+    } finally {
+      setIsLoggingOut(false);
     }
-    navigate('/login');
   };
 
   return (

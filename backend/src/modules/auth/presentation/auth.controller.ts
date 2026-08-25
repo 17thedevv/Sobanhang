@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { authService } from '../domain/auth.service';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export class AuthController {
   async registerEmail(req: Request, res: Response) {
@@ -129,6 +132,42 @@ export class AuthController {
     res.clearCookie('accessToken');
     res.clearCookie('setupToken');
     return res.status(200).json({ message: 'Đăng xuất thành công' });
+  }
+
+  async getMe(req: Request, res: Response) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: 'Không tìm thấy thông tin xác thực' });
+      }
+
+      // Fetch user from database to ensure it still exists and gets latest status
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          phone: true,
+          status: true,
+          role: true,
+          store: {
+            select: {
+              id: true,
+              name: true,
+              industry: true
+            }
+          }
+        }
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+      }
+
+      return res.status(200).json({ user });
+    } catch (error: any) {
+      return res.status(500).json({ error: 'Lỗi server khi lấy thông tin người dùng' });
+    }
   }
 
   async googleLogin(req: Request, res: Response) {

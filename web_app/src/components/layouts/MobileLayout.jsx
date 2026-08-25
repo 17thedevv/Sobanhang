@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Home, ShoppingCart, Package, DollarSign, Menu, LogOut } from 'lucide-react';
+import { Home, ShoppingCart, Package, DollarSign, Menu, LogOut, X } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import './MobileLayout.css'; 
 
 const MobileLayout = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const handleLogout = async () => {
     try {
-      const axios = require('axios').default || require('axios');
-      await axios.post('/api/auth/logout');
+      await logout();
+      navigate('/login');
     } catch (error) {
       console.error('Logout error', error);
     }
-    navigate('/login');
   };
 
   return (

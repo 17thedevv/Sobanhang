@@ -15,6 +15,9 @@ import Products from './pages/Products';
 import POS from './pages/POS';
 import CashFlow from './pages/CashFlow';
 import LandingPage from './pages/LandingPage';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 import axios from 'axios';
 
 axios.defaults.withCredentials = true;
@@ -22,29 +25,32 @@ axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://sobanhang-api.
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verify-otp" element={<VerifyOtp />} />
-        <Route path="/store-setup" element={<StoreSetup />} />
-        <Route path="/suggestions" element={<FeatureSuggestions />} />
-        <Route path="/preference" element={<OnboardingPreference />} />
-        <Route path="/set-password" element={<SetPassword />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        
-        <Route path="/" element={<LandingPage />} />
-        
-        <Route path="/dashboard" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
-          <Route path="pos" element={<POS />} />
-          <Route path="cashflow" element={<CashFlow />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/verify-otp" element={<PublicRoute><VerifyOtp /></PublicRoute>} />
+          <Route path="/store-setup" element={<ProtectedRoute><StoreSetup /></ProtectedRoute>} />
+          <Route path="/suggestions" element={<ProtectedRoute><FeatureSuggestions /></ProtectedRoute>} />
+          <Route path="/preference" element={<ProtectedRoute><OnboardingPreference /></ProtectedRoute>} />
+          <Route path="/set-password" element={<ProtectedRoute><SetPassword /></ProtectedRoute>} />
+          
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+          <Route path="/verify-reset-otp" element={<PublicRoute><VerifyResetOtp /></PublicRoute>} />
+          <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
+          
+          <Route path="/" element={<LandingPage />} />
+          
+          <Route path="/dashboard" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+            <Route index element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="pos" element={<POS />} />
+            <Route path="cashflow" element={<CashFlow />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

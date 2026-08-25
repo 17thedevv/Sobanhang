@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from './auth.controller';
-import { verifySetupToken, verifyResetToken } from '../../../shared/middlewares/auth.middleware';
+import { verifySetupToken, verifyResetToken, verifyAccessToken } from '../../../shared/middlewares/auth.middleware';
 
 const router = Router();
 const authController = new AuthController();
@@ -11,6 +11,7 @@ router.post('/set-password', verifySetupToken, authController.setPassword);
 router.post('/login', authController.login);
 router.post('/google', authController.googleLogin);
 router.post('/logout', authController.logout);
+router.get('/me', verifyAccessToken, authController.getMe);
 
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/verify-reset-otp', authController.verifyResetOtp);

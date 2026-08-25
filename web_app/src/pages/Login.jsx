@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
@@ -12,6 +13,7 @@ const Login = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,12 +27,14 @@ const Login = () => {
     setLoading(true);
 
     try {
-      await axios.post('/api/auth/login', {
+      const response = await axios.post('/api/auth/login', {
         email,
         password
       });
       
-      // Cookie accessToken đã được set tự động (HttpOnly)
+      // Update global auth state
+      login(response.data.user);
+      
       navigate('/dashboard');
       
     } catch (err) {
