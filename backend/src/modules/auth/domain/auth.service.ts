@@ -266,26 +266,30 @@ export class AuthService {
     });
 
     const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy_key');
+    let emailSent = false;
 
     try {
       if (process.env.RESEND_API_KEY) {
-        await resend.emails.send({
+        const emailResult = await resend.emails.send({
           from: 'Cửa Hàng Số <onboarding@resend.dev>',
           to: normalizedEmail,
           subject: 'Yêu cầu khôi phục mật khẩu Cửa Hàng Số',
           text: `Mã OTP khôi phục mật khẩu của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Nếu không phải bạn yêu cầu, vui lòng bỏ qua.`
         });
-        console.log(`[Email] Đã gửi OTP Khôi phục mật khẩu tới ${normalizedEmail} qua Resend`);
+        console.log(`[Email] Kết quả gửi email khôi phục:`, JSON.stringify(emailResult));
+        emailSent = true;
       } else {
         console.log(`🔔 EMAIL SIMULATION [FORGOT PASS]: Mã OTP cho ${normalizedEmail} là: ${otp} (Chưa có RESEND_API_KEY)`);
       }
     } catch (err: any) {
-      console.error('Lỗi khi gửi email khôi phục bằng Resend:', err.message);
+      console.error('❌ Lỗi khi gửi email khôi phục bằng Resend:', err.message);
+      console.error('❌ Chi tiết lỗi:', JSON.stringify(err));
     }
 
     return {
       message: 'Mã OTP khôi phục đã được gửi',
-      demoOtp: otp // Phục vụ mục đích test
+      demoOtp: otp,
+      emailSent
     };
   }
 
