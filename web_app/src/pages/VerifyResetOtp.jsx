@@ -4,7 +4,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './VerifyOtp.css';
 
 const VerifyResetOtp = () => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -17,30 +17,10 @@ const VerifyResetOtp = () => {
     }
   }, [email, navigate]);
 
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return false;
-    
-    setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
-
-    // Tự động focus sang ô tiếp theo
-    if (element.nextSibling && element.value) {
-      element.nextSibling.focus();
-    }
-  };
-
-  const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace') {
-      if (!otp[index] && e.target.previousSibling) {
-        e.target.previousSibling.focus();
-      }
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const otpCode = otp.join('');
     
-    if (otpCode.length !== 6) {
+    if (otp.length !== 6) {
       setError('Vui lòng nhập đủ 6 số OTP');
       return;
     }
@@ -51,9 +31,8 @@ const VerifyResetOtp = () => {
     try {
       await axios.post('/api/auth/verify-reset-otp', {
         email,
-        otp: otpCode
+        otp
       });
-      // Thành công, cookie resetToken đã được set
       navigate('/reset-password');
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
@@ -77,52 +56,50 @@ const VerifyResetOtp = () => {
   };
 
   return (
-    <div className="verify-container">
-      <div className="verify-card">
-        <div className="verify-header">
-          <h2>Nhập mã OTP</h2>
-          <p>Mã khôi phục đã được gửi đến email</p>
-          <span className="phone-highlight">{email}</span>
-        </div>
-
-        {error && <div className="error-message">{error}</div>}
+    <div className="verify-otp-container">
+      <div className="verify-otp-card">
+        <h2>Nhập mã OTP</h2>
+        <p className="subtitle">
+          Mã khôi phục đã được gửi đến email<br/>
+          <strong>{email}</strong>
+        </p>
 
         <form onSubmit={handleSubmit}>
-          <div className="otp-input-container">
-            {otp.map((data, index) => {
-              return (
-                <input
-                  className="otp-field"
-                  type="text"
-                  name="otp"
-                  maxLength="1"
-                  key={index}
-                  value={data}
-                  onChange={e => handleChange(e.target, index)}
-                  onKeyDown={e => handleKeyDown(e, index)}
-                  onFocus={e => e.target.select()}
-                />
-              );
-            })}
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Nhập mã OTP (6 số)"
+              value={otp}
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '');
+                if (val.length <= 6) {
+                  setOtp(val);
+                  setError('');
+                }
+              }}
+              disabled={loading}
+              className="otp-input"
+            />
           </div>
+
+          {error && <div className="error-message">{error}</div>}
 
           <button 
             type="submit" 
             className="btn-primary" 
-            disabled={loading || otp.join('').length !== 6}
+            disabled={loading || otp.length !== 6}
           >
             {loading ? 'Đang xác thực...' : 'Xác nhận OTP'}
           </button>
         </form>
 
         <div className="resend-section">
-          <p>Chưa nhận được mã?</p>
-          <button onClick={handleResend} className="btn-text">Gửi lại mã</button>
+          Chưa nhận được mã? <button onClick={handleResend} className="btn-link">Gửi lại mã</button>
         </div>
         
-        <p className="login-link" style={{ marginTop: '20px', textAlign: 'center' }}>
-          <Link to="/login">Quay lại Đăng nhập</Link>
-        </p>
+        <div style={{ marginTop: '24px' }}>
+          <Link to="/login" className="btn-link" style={{ textDecoration: 'none' }}>Quay lại Đăng nhập</Link>
+        </div>
       </div>
     </div>
   );
