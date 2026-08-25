@@ -132,8 +132,13 @@ export class AuthController {
   }
 
   async logout(req: Request, res: Response) {
-    res.clearCookie('accessToken');
-    res.clearCookie('setupToken');
+    const cookieOptions: any = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    };
+    res.clearCookie('accessToken', cookieOptions);
+    res.clearCookie('setupToken', cookieOptions);
     return res.status(200).json({ message: 'Đăng xuất thành công' });
   }
 
