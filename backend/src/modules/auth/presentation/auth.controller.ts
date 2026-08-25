@@ -12,7 +12,7 @@ export class AuthController {
       }
 
       const result = await authService.registerEmail(email);
-      return res.status(200).json({ message: result.message });
+      return res.status(200).json(result);
     } catch (error: any) {
       return res.status(400).json({ error: error.message });
     }
