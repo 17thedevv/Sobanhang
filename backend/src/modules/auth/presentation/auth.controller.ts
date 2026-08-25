@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
 import { authService } from '../domain/auth.service';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../prisma';
 
 export class AuthController {
   async registerEmail(req: Request, res: Response) {
