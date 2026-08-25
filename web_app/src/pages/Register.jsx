@@ -48,10 +48,12 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <Link to="/" className="back-to-home">
-        &larr; Quay lại Trang chủ
-      </Link>
       <div className="register-card">
+        <div style={{ textAlign: 'left' }}>
+          <Link to="/" className="back-to-home">
+            &larr; Quay lại
+          </Link>
+        </div>
         <h1 className="register-logo">Cửa Hàng Số</h1>
         <p className="register-subtitle">Đăng ký tài khoản miễn phí</p>
 
