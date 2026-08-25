@@ -68,3 +68,13 @@
 .btn-link:hover {
   text-decoration: underline;
 }
+
+.error-message {
+  color: #dc2626;
+  font-size: 14px;
+  background-color: #fee2e2;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
