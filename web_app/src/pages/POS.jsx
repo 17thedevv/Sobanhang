@@ -20,11 +20,20 @@ export default function POS() {
 
   const cartItems = Object.values(cart);
 
-  const handleCheckout = () => {
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
     if (cartItems.length === 0) return;
-    const order = checkout(isDebt, paymentMethod);
-    setLastOrder(order);
-    setIsInvoiceOpen(true);
+    setIsCheckingOut(true);
+    try {
+      const order = await checkout(isDebt, paymentMethod);
+      setLastOrder(order);
+      setIsInvoiceOpen(true);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   return (
@@ -130,10 +139,10 @@ export default function POS() {
 
           <button 
             className="btn-primary btn-checkout" 
-            disabled={cartItems.length === 0}
+            disabled={cartItems.length === 0 || isCheckingOut}
             onClick={handleCheckout}
           >
-            {isDebt ? 'TẠO ĐƠN GHI NỢ' : 'THANH TOÁN'}
+            {isCheckingOut ? 'ĐANG XỬ LÝ...' : (isDebt ? 'TẠO ĐƠN GHI NỢ' : 'THANH TOÁN')}
           </button>
         </div>
       </div>

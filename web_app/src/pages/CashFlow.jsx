@@ -73,7 +73,7 @@ export default function CashFlow() {
                 </div>
                 <div className="tx-details">
                   <span className="tx-title">Thu tiền đơn hàng #{order.id.slice(0,6).toUpperCase()}</span>
-                  <span className="tx-time">{new Date(order.date).toLocaleString('vi-VN')} - {order.paymentMethod}</span>
+                  <span className="tx-time">{new Date(order.createdAt).toLocaleString('vi-VN')} - {order.paymentMethod}</span>
                 </div>
                 <div className="tx-amount text-success">
                   +{order.total.toLocaleString('vi-VN')}đ

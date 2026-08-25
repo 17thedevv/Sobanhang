@@ -29,8 +29,11 @@ export default function ProductModal({ product, onClose }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     
     const productData = {
       name: formData.name,
@@ -39,12 +42,15 @@ export default function ProductModal({ product, onClose }) {
       stock: Number(formData.stock) || 0
     };
 
+    let success = false;
     if (product) {
-      updateProduct({ ...product, ...productData });
+      success = await updateProduct({ ...product, ...productData });
     } else {
-      addProduct(productData);
+      success = await addProduct(productData);
     }
-    onClose();
+    
+    setLoading(false);
+    if (success) onClose();
   };
 
   return (
@@ -109,8 +115,10 @@ export default function ProductModal({ product, onClose }) {
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn-secondary" onClick={onClose}>Hủy</button>
-            <button type="submit" className="btn-primary">Lưu sản phẩm</button>
+            <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Hủy</button>
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? 'Đang lưu...' : 'Lưu sản phẩm'}
+            </button>
           </div>
         </form>
       </div>

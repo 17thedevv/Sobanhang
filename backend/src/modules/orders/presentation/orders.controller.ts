@@ -70,7 +70,11 @@ export class OrdersController {
             }
           },
           include: {
-            items: true
+            items: {
+              include: {
+                product: true
+              }
+            }
           }
         });
 
