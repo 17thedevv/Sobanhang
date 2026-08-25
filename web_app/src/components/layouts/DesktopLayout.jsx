@@ -20,8 +20,8 @@ const DesktopLayout = () => {
     <div className="layout-container desktop-layout">
       <aside className="sidebar glass">
         <div className="sidebar-header">
-          <div className="logo-circle">SB</div>
-          <h2>Sổ Bán Hàng</h2>
+          <div className="logo-circle">CS</div>
+          <h2>Cửa Hàng Số</h2>
         </div>
         
         <nav className="sidebar-nav">

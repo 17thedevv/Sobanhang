@@ -66,9 +66,9 @@ export class AuthService {
     try {
       if (process.env.RESEND_API_KEY) {
         await resend.emails.send({
-          from: 'Sổ Bán Hàng <onboarding@resend.dev>', // Email mặc định của Resend (chỉ gửi được cho chính email đăng ký Resend trừ khi add domain)
+          from: 'Cửa Hàng Số <onboarding@resend.dev>', // Email mặc định của Resend (chỉ gửi được cho chính email đăng ký Resend trừ khi add domain)
           to: normalizedEmail,
-          subject: 'Mã xác thực Sổ Bán Hàng',
+          subject: 'Mã xác thực Cửa Hàng Số',
           text: `Mã OTP của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Vui lòng không chia sẻ cho bất kỳ ai.`
         });
         console.log(`[Email] Đã gửi OTP tới ${normalizedEmail} qua Resend`);
@@ -270,9 +270,9 @@ export class AuthService {
     try {
       if (process.env.RESEND_API_KEY) {
         await resend.emails.send({
-          from: 'Sổ Bán Hàng <onboarding@resend.dev>',
+          from: 'Cửa Hàng Số <onboarding@resend.dev>',
           to: normalizedEmail,
-          subject: 'Yêu cầu khôi phục mật khẩu Sổ Bán Hàng',
+          subject: 'Yêu cầu khôi phục mật khẩu Cửa Hàng Số',
           text: `Mã OTP khôi phục mật khẩu của bạn là: ${otp}. Mã này sẽ hết hạn trong 5 phút. Nếu không phải bạn yêu cầu, vui lòng bỏ qua.`
         });
         console.log(`[Email] Đã gửi OTP Khôi phục mật khẩu tới ${normalizedEmail} qua Resend`);

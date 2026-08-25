@@ -8,7 +8,7 @@ const LandingPage = () => {
       <header className="landing-header">
         <Link to="/" className="landing-logo">
           <span className="landing-logo-icon">$</span>
-          SoBanHang
+          CuaHangSo
         </Link>
         
         <nav className="landing-nav">
@@ -77,7 +77,7 @@ const LandingPage = () => {
         <div className="hero-image-wrapper">
           <img 
             src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" 
-            alt="Sổ Bán Hàng Dashboard App" 
+            alt="Cửa Hàng Số Dashboard App" 
             className="hero-image"
           />
         </div>

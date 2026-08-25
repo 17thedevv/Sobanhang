@@ -51,8 +51,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Đăng nhập Sổ Bán Hàng</h2>
-        <p className="subtitle">Quản lý bán hàng dễ dàng và tiện lợi</p>
+        <h2 className="login-title">Đăng nhập Cửa Hàng Số</h2>
+        <p className="login-subtitle">Vui lòng nhập thông tin để đăng nhập</p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">

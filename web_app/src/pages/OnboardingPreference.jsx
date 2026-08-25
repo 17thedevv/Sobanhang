@@ -19,7 +19,7 @@ const preferences = [
   },
   {
     id: 'SELF_EXPLORE',
-    title: 'Tự khám phá Sổ Bán Hàng',
+    title: 'Tự khám phá Cửa Hàng Số',
     description: 'Tự do trải nghiệm ứng dụng, xem tài liệu hướng dẫn có sẵn.',
     icon: <Compass size={32} />
   }
@@ -66,7 +66,7 @@ const OnboardingPreference = () => {
   return (
     <div className="onboarding-container">
       <div className="onboarding-card preference-card">
-        <h2>Bạn muốn làm quen với Sổ Bán Hàng như thế nào?</h2>
+        <h2>Bạn muốn làm quen với Cửa Hàng Số như thế nào?</h2>
         <p className="subtitle">Lựa chọn cách tốt nhất để chúng tôi hỗ trợ bạn.</p>
 
         {error && <div className="error-message">{error}</div>}

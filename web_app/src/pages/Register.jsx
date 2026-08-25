@@ -47,7 +47,7 @@ const Register = () => {
   return (
     <div className="register-container">
       <div className="register-card">
-        <h1 className="register-logo">Sổ Bán Hàng</h1>
+        <h1 className="register-logo">Cửa Hàng Số</h1>
         <p className="register-subtitle">Đăng ký tài khoản miễn phí</p>
 
         {success && <div className="success-message">{success}</div>}

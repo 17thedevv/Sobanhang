@@ -18,8 +18,8 @@ const MobileLayout = () => {
   return (
     <div className="layout-container mobile-layout">
       <header className="mobile-header glass">
-        <div className="logo-circle-small">SB</div>
-        <h3>Sổ Bán Hàng</h3>
+        <div className="logo-circle-small">CS</div>
+        <h3>Cửa Hàng Số</h3>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button className="btn-icon" onClick={handleLogout}><LogOut size={24} /></button>
           <button className="btn-icon"><Menu size={24} /></button>
