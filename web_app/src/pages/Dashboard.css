@@ -13,6 +13,30 @@
   margin: 0;
 }
 
+.section-header-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-toggle-revenue {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.btn-toggle-revenue:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
 /* TOP CARDS GRID */
 .stats-grid-4 {
   display: grid;

@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { 
   TrendingUp, ReceiptText, UserPlus, Wallet, 
   ShoppingCart, PlusSquare, LayoutGrid, PackagePlus,
-  Hourglass, CheckCircle2, AlertTriangle, ArrowRight
+  Hourglass, CheckCircle2, AlertTriangle, ArrowRight,
+  Eye, EyeOff
 } from 'lucide-react';
 import './Dashboard.css';
 
@@ -13,6 +14,23 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { dashboardStats } = useApp();
   const { user } = useAuth();
+
+  const [showRevenue, setShowRevenue] = React.useState(() => {
+    return localStorage.getItem('showRevenue') !== 'false';
+  });
+
+  const toggleRevenue = () => {
+    setShowRevenue(prev => {
+      const newVal = !prev;
+      localStorage.setItem('showRevenue', String(newVal));
+      return newVal;
+    });
+  };
+
+  const formatCurrency = (val) => {
+    if (val === undefined || val === null) return '0đ';
+    return showRevenue ? `${val.toLocaleString('vi-VN')}đ` : '***';
+  };
 
   // Actual data from backend
   const revenue = dashboardStats?.revenue || 0;
@@ -40,7 +58,12 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      <h2 className="section-title">Bức tranh kinh doanh</h2>
+      <div className="section-header-row">
+        <h2 className="section-title">Bức tranh kinh doanh</h2>
+        <button className="btn-toggle-revenue" onClick={toggleRevenue} title={showRevenue ? "Ẩn số tiền" : "Hiện số tiền"}>
+          {showRevenue ? <EyeOff size={20} /> : <Eye size={20} />}
+        </button>
+      </div>
       
       {/* 4 STATS CARDS */}
       <div className="stats-grid-4">
@@ -51,17 +74,17 @@ export default function Dashboard() {
             <div className="card-icon bg-white"><TrendingUp size={16} color="#3b82f6" /></div>
           </div>
           <div className="card-body">
-            <h3 className="card-value">{revenue.toLocaleString('vi-VN')}đ</h3>
+            <h3 className="card-value">{formatCurrency(revenue)}</h3>
             <p className="card-compare">so với hôm qua</p>
           </div>
           <div className="card-footer">
             <div className="footer-row">
               <span className="footer-label">Giảm giá hóa đơn</span>
-              <span className="footer-value">{mockData.discount}đ</span>
+              <span className="footer-value">{formatCurrency(mockData.discount)}</span>
             </div>
             <div className="footer-row">
               <span className="footer-label">Trả hàng (0)</span>
-              <span className="footer-value">{mockData.refund}đ</span>
+              <span className="footer-value">{formatCurrency(mockData.refund)}</span>
             </div>
           </div>
         </div>
@@ -79,7 +102,7 @@ export default function Dashboard() {
           <div className="card-footer">
             <div className="footer-row">
               <span className="footer-label">Trung bình đơn</span>
-              <span className="footer-value">{mockData.avgOrderValue.toLocaleString('vi-VN')}đ</span>
+              <span className="footer-value">{formatCurrency(mockData.avgOrderValue)}</span>
             </div>
             <div className="footer-row">
               <span className="footer-label">Số khách/đơn</span>
@@ -113,17 +136,17 @@ export default function Dashboard() {
             <div className="card-icon bg-white"><Wallet size={16} color="#8b5cf6" /></div>
           </div>
           <div className="card-body">
-            <h3 className="card-value">{(mockData.totalIncome - mockData.totalExpense).toLocaleString('vi-VN')}đ</h3>
+            <h3 className="card-value">{formatCurrency(mockData.totalIncome - mockData.totalExpense)}</h3>
             <p className="card-compare">Số dư so với hôm qua</p>
           </div>
           <div className="card-footer">
             <div className="footer-row">
               <span className="footer-label">Tổng thu</span>
-              <span className="footer-value">{mockData.totalIncome.toLocaleString('vi-VN')}đ</span>
+              <span className="footer-value">{formatCurrency(mockData.totalIncome)}</span>
             </div>
             <div className="footer-row">
               <span className="footer-label">Tổng chi</span>
-              <span className="footer-value">{mockData.totalExpense.toLocaleString('vi-VN')}đ</span>
+              <span className="footer-value">{formatCurrency(mockData.totalExpense)}</span>
             </div>
           </div>
         </div>
