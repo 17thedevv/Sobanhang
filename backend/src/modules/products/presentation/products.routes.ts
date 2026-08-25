@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { ProductsController } from './products.controller';
-import { authMiddleware } from '../../../middleware/auth.middleware';
+import { verifyAccessToken } from '../../../shared/middlewares/auth.middleware';
 
 const router = Router();
 const controller = new ProductsController();
 
-router.use(authMiddleware);
+router.use(verifyAccessToken);
 
 router.get('/', controller.getAllProducts);
 router.post('/', controller.createProduct);

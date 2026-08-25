@@ -36,8 +36,10 @@ const Register = () => {
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {
         setError(err.response.data.error);
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng (Internet) hoặc thử lại sau.');
       } else {
-        setError('Có lỗi xảy ra khi kết nối tới máy chủ');
+        setError('Có lỗi xảy ra khi kết nối tới máy chủ. Vui lòng thử lại sau.');
       }
     } finally {
       setLoading(false);

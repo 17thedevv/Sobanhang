@@ -46,8 +46,10 @@ const Login = () => {
           // Chưa cài đặt mật khẩu
           setTimeout(() => navigate('/register'), 2000);
         }
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng (Internet) hoặc thử lại sau.');
       } else {
-        setError('Có lỗi xảy ra khi đăng nhập');
+        setError('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại sau.');
       }
     } finally {
       setLoading(false);

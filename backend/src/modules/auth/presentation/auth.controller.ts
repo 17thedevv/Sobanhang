@@ -63,7 +63,7 @@ export class AuthController {
       const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
       
       const accessToken = jwt.sign(
-        { userId: user.userId, role: user.role, scope: 'access' },
+        { userId: user.userId, role: user.role, scope: 'access', storeId: user.storeId },
         JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -102,7 +102,7 @@ export class AuthController {
 
       const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
       const accessToken = jwt.sign(
-        { userId: user.userId, role: user.role, scope: 'access' },
+        { userId: user.userId, role: user.role, scope: 'access', storeId: user.storeId },
         JWT_SECRET,
         { expiresIn: rememberMe ? '30d' : '1d' } // Nếu không nhớ, chỉ lưu 1 ngày
       );
@@ -191,7 +191,7 @@ export class AuthController {
       // Nếu user.status là ACTIVE thì cho login bình thường
       if (user.status === 'ACTIVE') {
         const accessToken = jwt.sign(
-          { userId: user.userId, role: user.role, status: user.status },
+          { userId: user.userId, role: user.role, status: user.status, storeId: user.storeId },
           JWT_SECRET,
           { expiresIn: '7d' }
         );

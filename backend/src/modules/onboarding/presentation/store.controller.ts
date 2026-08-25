@@ -19,6 +19,22 @@ export class StoreController {
         referralCode
       });
 
+      const jwt = require('jsonwebtoken');
+      const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
+      
+      const accessToken = jwt.sign(
+        { userId: req.user?.userId, role: req.user?.role, scope: 'access', storeId: store.id },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 7 * 24 * 3600000 // 7 days
+      });
+
       return res.status(201).json({
         message: 'Tạo cửa hàng thành công',
         store

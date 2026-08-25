@@ -186,6 +186,9 @@ export class AuthService {
       data: {
         passwordHash,
         status: 'ACTIVE'
+      },
+      include: {
+        store: true
       }
     });
 
@@ -193,7 +196,8 @@ export class AuthService {
       userId: updatedUser.id,
       email: updatedUser.email,
       role: updatedUser.role,
-      status: updatedUser.status
+      status: updatedUser.status,
+      storeId: updatedUser.store?.id
     };
   }
 
@@ -203,7 +207,8 @@ export class AuthService {
   async login(email: string, password: string) {
     const normalizedEmail = email.trim().toLowerCase();
     const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail }
+      where: { email: normalizedEmail },
+      include: { store: true }
     });
 
     if (!user) {
@@ -229,7 +234,8 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role: user.role,
-      status: user.status
+      status: user.status,
+      storeId: user.store?.id
     };
   }
 

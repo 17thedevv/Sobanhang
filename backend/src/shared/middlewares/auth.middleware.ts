@@ -11,6 +11,7 @@ declare global {
         userId: string;
         role?: string;
         scope?: string;
+        storeId?: string;
       };
     }
   }
@@ -58,7 +59,8 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
     req.user = {
       userId: decoded.userId,
       role: decoded.role,
-      scope: decoded.scope
+      scope: decoded.scope,
+      storeId: decoded.storeId
     };
     
     next();

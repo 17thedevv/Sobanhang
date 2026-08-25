@@ -25,19 +25,19 @@ const TabletLayout = () => {
         </div>
         
         <nav className="sidebar-nav">
-          <NavLink to="/dashboard" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Tổng quan">
+          <NavLink to="/dashboard" end className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Tổng quan">
             <Home size={24} />
           </NavLink>
           
-          <NavLink to="/pos" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Bán hàng">
+          <NavLink to="/dashboard/pos" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Bán hàng">
             <ShoppingCart size={24} />
           </NavLink>
           
-          <NavLink to="/products" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Sản phẩm">
+          <NavLink to="/dashboard/products" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Sản phẩm">
             <Package size={24} />
           </NavLink>
 
-          <NavLink to="/cashflow" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Sổ quỹ">
+          <NavLink to="/dashboard/cashflow" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Sổ quỹ">
             <DollarSign size={24} />
           </NavLink>
         </nav>
