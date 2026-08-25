@@ -56,6 +56,9 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      <Link to="/" className="back-to-home">
+        &larr; Quay lại Trang chủ
+      </Link>
       <div className="login-card">
         <h2 className="login-title">Đăng nhập Cửa Hàng Số</h2>
         <p className="login-subtitle">Vui lòng nhập thông tin để đăng nhập</p>

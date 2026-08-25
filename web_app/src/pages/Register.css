@@ -7,6 +7,28 @@
   font-family: 'Inter', sans-serif;
 }
 
+.back-to-home {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  color: #4f46e5;
+  text-decoration: none;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.back-to-home:hover {
+  color: #4338ca;
+  background: #f8fafc;
+}
+
 .register-card {
   background: white;
   padding: 40px;
