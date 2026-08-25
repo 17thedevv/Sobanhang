@@ -10,16 +10,16 @@ datasource db {
 }
 
 model User {
-  id           String         @id @default(uuid())
-  phone        String?        @unique
-  email        String?        @unique
+  id           String   @id @default(uuid())
+  phone        String?  @unique
+  email        String?  @unique
   passwordHash String?
-  status       String         @default("NEW") // NEW, REGISTERING, SHOP_CREATED, PASSWORD_NOT_SET, ACTIVE
-  role         String         @default("OWNER")
-  createdAt    DateTime       @default(now())
-  
-  store        Store?
-  oauthAccounts OAuthAccount[]
+  status       String   @default("NEW") // NEW, REGISTERING, SHOP_CREATED, PASSWORD_NOT_SET, ACTIVE
+  role         String   @default("OWNER")
+  createdAt    DateTime @default(now())
+
+  store             Store?
+  oauthAccounts     OAuthAccount[]
   onboardingSession OnboardingSession?
 }
 
@@ -30,23 +30,55 @@ model Store {
   industry  String
   createdAt DateTime @default(now())
 
-  owner     User     @relation(fields: [ownerId], references: [id])
-  products  Product[]
-  orders    Order[]
+  owner      User       @relation(fields: [ownerId], references: [id])
+  products   Product[]
+  orders     Order[]
+  categories Category[]
+  settings   String? // JSON string for store settings
 }
 
-model Product {
+model Category {
   id        String   @id @default(uuid())
   storeId   String
   name      String
-  price     Float
-  stock     Int
-  unit      String
-  imageUrl  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  store     Store    @relation(fields: [storeId], references: [id])
+  store    Store     @relation(fields: [storeId], references: [id])
+  products Product[]
+}
+
+model Product {
+  id               String   @id @default(uuid())
+  storeId          String
+  categoryId       String?
+  name             String
+  price            Float
+  promotionalPrice Float?
+  wholesalePrice   String? // JSON string for tiers
+  trackInventory   Boolean  @default(true)
+  stock            Int      @default(0)
+  unit             String
+  barcode          String?
+  imageUrl         String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  store      Store            @relation(fields: [storeId], references: [id])
+  category   Category?        @relation(fields: [categoryId], references: [id])
+  variants   ProductVariant[]
+  orderItems OrderItem[]
+}
+
+model ProductVariant {
+  id         String  @id @default(uuid())
+  productId  String
+  attributes String // JSON string e.g. {"Màu sắc": "Đỏ", "Size": "XL"}
+  price      Float? // Override base price if set
+  stock      Int     @default(0)
+  barcode    String?
+
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
 }
 
@@ -58,37 +90,39 @@ model Order {
   paymentMethod String   @default("CASH") // CASH, TRANSFER, CARD
   createdAt     DateTime @default(now())
 
-  store         Store    @relation(fields: [storeId], references: [id])
-  items         OrderItem[]
+  store Store       @relation(fields: [storeId], references: [id])
+  items OrderItem[]
 }
 
 model OrderItem {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   orderId   String
   productId String
+  variantId String?
   quantity  Int
   price     Float
 
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  order   Order           @relation(fields: [orderId], references: [id])
+  product Product         @relation(fields: [productId], references: [id])
+  variant ProductVariant? @relation(fields: [variantId], references: [id])
 }
 
 model OnboardingSession {
-  id                   String   @id @default(uuid())
-  userId               String   @unique
-  needs                String?  // JSON string
-  surveyAnswers        String?  // JSON string
+  id                   String  @id @default(uuid())
+  userId               String  @unique
+  needs                String? // JSON string
+  surveyAnswers        String? // JSON string
   onboardingPreference String?
-  status               String   @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+  status               String  @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
 
-  user                 User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 }
 
 model OtpVerification {
   id         String    @id @default(uuid())
   email      String
   codeHash   String
-  purpose    String    // e.g., "REGISTER", "FORGOT_PASSWORD"
+  purpose    String // e.g., "REGISTER", "FORGOT_PASSWORD"
   expiresAt  DateTime
   attempts   Int       @default(0)
   consumedAt DateTime?
@@ -100,7 +134,7 @@ model OAuthAccount {
   provider       String // e.g., "GOOGLE"
   providerUserId String
 
-  user           User   @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerUserId])
 }

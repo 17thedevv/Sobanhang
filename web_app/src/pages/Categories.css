@@ -1,0 +1,62 @@
+/* Categories.css */
+
+.categories-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+  background: transparent;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.categories-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.categories-table th {
+  text-align: left;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.categories-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+
+.small-modal {
+  max-width: 450px !important;
+}
+
+.confirm-modal .modal-body {
+  padding-bottom: 12px;
+}
+
+.confirm-modal .modal-body p {
+  font-size: 15px;
+  color: var(--text-main);
+  margin-bottom: 8px;
+}
