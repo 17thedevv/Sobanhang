@@ -3,9 +3,11 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, ShoppingCart, Package, Archive, Layers,
   DollarSign, Users, UserCircle, FileText, Settings,
-  LogOut, Search, Bell, HelpCircle, ChevronDown, ChevronRight, Menu
+  LogOut, Search, Bell, MessageCircle, ChevronDown, ChevronRight, Menu, Store
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import SupportModal from '../SupportModal';
+import SidebarDrawer from './SidebarDrawer';
 import './DesktopLayout.css';
 
 const DesktopLayout = () => {
@@ -14,6 +16,8 @@ const DesktopLayout = () => {
   const { user, logout } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showSupport, setShowSupport] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({
     sales: false,
     products: false,
@@ -179,6 +183,9 @@ const DesktopLayout = () => {
           </div>
 
           <div className="header-right">
+            <button className="icon-action-btn" onClick={() => setShowSidebar(true)}>
+              <Store size={20} color="#00B14F" />
+            </button>
             <div className="search-bar">
               <Search size={16} className="search-icon" />
               <input type="text" placeholder="Tìm trang, chức năng..." />
@@ -188,8 +195,9 @@ const DesktopLayout = () => {
             <button className="icon-action-btn">
               <Bell size={20} />
             </button>
-            <button className="icon-action-btn">
-              <HelpCircle size={20} />
+            <button className="icon-action-btn" style={{position: 'relative'}} onClick={() => setShowSupport(true)}>
+              <MessageCircle size={20} />
+              <span className="chat-badge" style={{position: 'absolute', top: -2, right: -2, backgroundColor: '#ef4444', color: 'white', fontSize: 10, borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>3</span>
             </button>
 
             <div className="user-profile-menu" onClick={() => setShowProfileMenu(!showProfileMenu)}>
@@ -218,6 +226,9 @@ const DesktopLayout = () => {
           <Outlet />
         </main>
       </div>
+
+      <SupportModal isOpen={showSupport} onClose={() => setShowSupport(false)} />
+      <SidebarDrawer isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
     </div>
   );
 };

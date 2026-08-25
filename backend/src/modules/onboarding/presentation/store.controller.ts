@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { storeService } from '../domain/store.service';
+import { prisma } from '../../../prisma';
 
 export class StoreController {
   async createStore(req: Request, res: Response) {
@@ -40,7 +41,63 @@ export class StoreController {
         store
       });
     } catch (error: any) {
-      return res.status(400).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getSettings(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) {
+        return res.status(400).json({ error: 'Cửa hàng không tồn tại' });
+      }
+
+      const store = await prisma.store.findUnique({
+        where: { id: storeId }
+      });
+
+      if (!store) {
+        return res.status(404).json({ error: 'Cửa hàng không tồn tại' });
+      }
+
+      const settings = store.settings ? JSON.parse(store.settings) : {};
+      return res.status(200).json(settings);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  async updateSettings(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) {
+        return res.status(400).json({ error: 'Cửa hàng không tồn tại' });
+      }
+
+      const { productSettings } = req.body;
+      
+      const store = await prisma.store.findUnique({
+        where: { id: storeId }
+      });
+
+      if (!store) {
+        return res.status(404).json({ error: 'Cửa hàng không tồn tại' });
+      }
+
+      const currentSettings = store.settings ? JSON.parse(store.settings) : {};
+      const newSettings = {
+        ...currentSettings,
+        ...(productSettings && { productSettings })
+      };
+
+      await prisma.store.update({
+        where: { id: storeId },
+        data: { settings: JSON.stringify(newSettings) }
+      });
+
+      return res.status(200).json({ message: 'Cập nhật cài đặt thành công', settings: newSettings });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
     }
   }
 }

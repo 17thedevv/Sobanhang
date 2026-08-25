@@ -19,6 +19,16 @@ export default function Products() {
     setIsModalOpen(true);
   };
 
+  const handleCopy = (product) => {
+    const copiedProduct = {
+      ...product,
+      id: undefined, // ensure it's a new product
+      name: `${product.name} - copy`
+    };
+    setEditingProduct(copiedProduct);
+    setIsModalOpen(true);
+  };
+
   const handleAddNew = () => {
     setEditingProduct(null);
     setIsModalOpen(true);
@@ -119,6 +129,7 @@ export default function Products() {
         <ProductModal 
           product={editingProduct} 
           onClose={() => setIsModalOpen(false)} 
+          onCopy={handleCopy}
         />
       )}
     </div>

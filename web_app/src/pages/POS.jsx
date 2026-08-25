@@ -1,22 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Search, Plus, Minus, PackageSearch, Receipt } from 'lucide-react';
 import InvoiceModal from '../components/InvoiceModal';
+import axios from 'axios';
 import './POS.css';
 
 export default function POS() {
   const { products, cart, addToCart, removeFromCart, clearCart, cartTotalAmount } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [categories, setCategories] = useState([]);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [isDebt, setIsDebt] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
   const [lastOrder, setLastOrder] = useState(null);
 
+  useEffect(() => {
+    axios.get('/api/categories').then(res => setCategories(res.data.categories || [])).catch(console.error);
+  }, []);
+
   const { checkout } = useApp();
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
+    return matchSearch && matchCategory;
+  });
 
   const cartItems = Object.values(cart);
 
@@ -53,6 +62,25 @@ export default function POS() {
             />
           </div>
         </header>
+
+        {/* Chip Filter theo danh mục (US-26) */}
+        <div className="category-chips">
+          <button 
+            className={`chip ${selectedCategory === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('all')}
+          >
+            Tất cả
+          </button>
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              className={`chip ${selectedCategory === cat.id ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
 
         {filteredProducts.length === 0 ? (
           <div className="empty-state">

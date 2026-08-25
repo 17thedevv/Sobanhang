@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -6,23 +6,32 @@ import {
   TrendingUp, ReceiptText, UserPlus, Wallet, 
   ShoppingCart, PlusSquare, LayoutGrid, PackagePlus,
   Hourglass, CheckCircle2, AlertTriangle, ArrowRight,
-  Eye, EyeOff
+  Eye, EyeOff, BookOpen, Users, Package, AppWindow,
+  X, MessageCircle, HeartHandshake
 } from 'lucide-react';
 import './Dashboard.css';
+import FloatingActionButton from '../components/FloatingActionButton';
+import SupportModal from '../components/SupportModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { dashboardStats } = useApp();
+  const { products, orders } = useApp();
   const { user } = useAuth();
 
-  const [showRevenue, setShowRevenue] = React.useState(() => {
-    return localStorage.getItem('showRevenue') !== 'false';
+  const [showRevenue, setShowRevenue] = useState(() => {
+    const saved = localStorage.getItem('sobanhang_showRevenue');
+    return saved !== null ? JSON.parse(saved) : true;
   });
+  
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [showFirstOrderBanner, setShowFirstOrderBanner] = useState(true);
 
   const toggleRevenue = () => {
     setShowRevenue(prev => {
       const newVal = !prev;
       localStorage.setItem('showRevenue', String(newVal));
+      localStorage.setItem('sobanhang_showRevenue', JSON.stringify(newVal));
       return newVal;
     });
   };
@@ -58,6 +67,28 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
+      {ordersCount === 0 && showFirstOrderBanner && (
+        <div className="first-order-banner">
+          <div className="banner-content">
+            <div className="banner-icon-bg">
+              <Package size={24} color="#00B14F" />
+            </div>
+            <div className="banner-text">
+              <h4>Hướng dẫn sử dụng Cửa Hàng Số</h4>
+              <p>Tạo đơn hàng đầu tiên của bạn ngay! Tặng 7 ngày sử dụng miễn phí.</p>
+            </div>
+          </div>
+          <div className="banner-actions">
+            <button className="btn-create-first-order" onClick={() => navigate('/dashboard/pos')}>
+              Tạo đơn hàng
+            </button>
+            <button className="btn-close-banner" onClick={() => setShowFirstOrderBanner(false)}>
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="section-header-row">
         <h2 className="section-title">Bức tranh kinh doanh</h2>
         <button className="btn-toggle-revenue" onClick={toggleRevenue} title={showRevenue ? "Ẩn số tiền" : "Hiện số tiền"}>
@@ -187,33 +218,35 @@ export default function Dashboard() {
           <div className="panel">
             <div className="panel-header">
               <div className="panel-title-group">
-                <TrendingUp size={18} color="#10b981" />
-                <h3>Thao tác nhanh</h3>
-              </div>
-            </div>
-            
-            <div className="quick-pos-banner">
-              <div className="pos-banner-text">
-                <h4>POS Bán hàng — tạo đơn nhanh tại quầy</h4>
-                <button className="btn-pos" onClick={() => navigate('/dashboard/pos')}>
-                  <ShoppingCart size={16} />
-                  Mở POS Bán hàng
-                </button>
+                <LayoutGrid size={18} color="#2563eb" />
+                <h3>Tính năng cho bạn</h3>
               </div>
             </div>
 
-            <div className="quick-actions-grid">
+            <div className="features-grid">
               <div className="action-btn" onClick={() => navigate('/dashboard/pos')}>
-                <div className="action-icon bg-green-light text-green"><PlusSquare size={24} /></div>
-                <span>Tạo đơn hàng</span>
-              </div>
-              <div className="action-btn mockup">
-                <div className="action-icon bg-blue-light text-blue"><LayoutGrid size={24} /></div>
-                <span>Tạo đơn tại bàn</span>
+                <div className="action-icon bg-green-light text-green"><ShoppingCart size={24} /></div>
+                <span>Bán hàng</span>
               </div>
               <div className="action-btn" onClick={() => navigate('/dashboard/products')}>
-                <div className="action-icon bg-blue-light text-blue"><PackagePlus size={24} /></div>
-                <span>Tạo sản phẩm mới</span>
+                <div className="action-icon bg-blue-light text-blue"><Package size={24} /></div>
+                <span>Sản phẩm</span>
+              </div>
+              <div className="action-btn mockup">
+                <div className="action-icon bg-yellow-light text-yellow"><Users size={24} /></div>
+                <span>Khách hàng</span>
+              </div>
+              <div className="action-btn" onClick={() => navigate('/dashboard/cashflow')}>
+                <div className="action-icon bg-purple-light text-purple"><Wallet size={24} /></div>
+                <span>Thu chi</span>
+              </div>
+              <div className="action-btn mockup">
+                <div className="action-icon" style={{background: '#ffe4e6', color: '#e11d48'}}><BookOpen size={24} /></div>
+                <span>Sổ nợ</span>
+              </div>
+              <div className="action-btn mockup">
+                <div className="action-icon bg-gray-light text-gray"><AppWindow size={24} /></div>
+                <span>Kho ứng dụng</span>
               </div>
             </div>
           </div>
@@ -231,6 +264,26 @@ export default function Dashboard() {
         </div>
 
       </div>
+      
+      {/* Banner Hỗ trợ */}
+      <div className="support-banner" onClick={() => setShowSupportModal(true)}>
+        <div className="support-icon">
+          <HeartHandshake size={24} color="#00B14F" />
+        </div>
+        <div className="support-text">
+          <h4>Bạn cần hỗ trợ?</h4>
+          <p>Nhắn tin ngay tại đây nhé!</p>
+        </div>
+        <div className="support-arrow">
+          <ArrowRight size={20} color="#999" />
+        </div>
+      </div>
+
+      {/* FAB Nút Tạp nhanh */}
+      <FloatingActionButton />
+
+      {/* Modal Hỗ trợ */}
+      <SupportModal isOpen={showSupportModal} onClose={() => setShowSupportModal(false)} />
     </div>
   );
 }

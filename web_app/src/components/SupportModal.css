@@ -1,0 +1,82 @@
+.support-modal {
+  width: 90%;
+  max-width: 400px;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.support-desc {
+  margin: 0 0 16px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.support-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.support-option-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.support-option-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.support-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.zalo .support-icon-wrapper {
+  background-color: #0068ff;
+}
+
+.zalo:hover {
+  border-color: #0068ff;
+}
+
+.messenger .support-icon-wrapper {
+  background-color: #0084ff;
+}
+
+.messenger:hover {
+  border-color: #0084ff;
+}
+
+.hotline .support-icon-wrapper {
+  background-color: #ef4444;
+}
+
+.hotline:hover {
+  border-color: #ef4444;
+}
+
+.support-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+  color: #333;
+}
+
+.support-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}

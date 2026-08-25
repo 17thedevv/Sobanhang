@@ -61,6 +61,8 @@ model Product {
   unit             String
   barcode          String?
   imageUrl         String?
+  upsellIds        String? // JSON string array of product IDs
+  showOnWeb        Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

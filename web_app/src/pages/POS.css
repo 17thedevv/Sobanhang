@@ -26,6 +26,44 @@
   border: none;
 }
 
+/* Category Chip Filter (US-26) */
+.category-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 12px 0;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.category-chips::-webkit-scrollbar {
+  height: 0;
+}
+
+.chip {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #e0e0e0;
+  background-color: white;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.chip:hover {
+  border-color: var(--sbh-green);
+  color: var(--sbh-green);
+}
+
+.chip.active {
+  background-color: var(--sbh-green);
+  color: white;
+  border-color: var(--sbh-green);
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
