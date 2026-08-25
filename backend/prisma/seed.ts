@@ -6,23 +6,14 @@ async function main() {
 
   const email = 'test@example.com';
   
-  // Kiểm tra xem đã có user test chưa
+  // Kiểm tra xem đã có user test chưa — nếu có thì SKIP (an toàn cho production)
   const existingUser = await prisma.user.findUnique({
     where: { email }
   });
 
   if (existingUser) {
-    console.log('⚠️  Test user đã tồn tại. Xóa dữ liệu cũ để seed lại...');
-    // Xóa toàn bộ dữ liệu cũ theo thứ tự đúng (tránh foreign key)
-    await prisma.orderItem.deleteMany({});
-    await prisma.order.deleteMany({});
-    await prisma.productVariant.deleteMany({});
-    await prisma.product.deleteMany({});
-    await prisma.category.deleteMany({});
-    await prisma.onboardingSession.deleteMany({});
-    await prisma.store.deleteMany({});
-    await prisma.user.deleteMany({});
-    console.log('   ✅ Dọn sạch dữ liệu cũ.\n');
+    console.log('✅ Dữ liệu đã tồn tại, bỏ qua seed.');
+    return;
   }
 
   // ══════════════════════════════════════════════════════
