@@ -95,7 +95,7 @@ export class AuthController {
 
   async login(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
+      const { email, password, rememberMe } = req.body;
       if (!email || !password) {
         return res.status(400).json({ error: 'Vui lòng cung cấp email và mật khẩu' });
       }
@@ -106,15 +106,20 @@ export class AuthController {
       const accessToken = jwt.sign(
         { userId: user.userId, role: user.role, scope: 'access' },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: rememberMe ? '30d' : '1d' } // Nếu không nhớ, chỉ lưu 1 ngày
       );
 
-      res.cookie('accessToken', accessToken, {
+      const cookieOptions: any = {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 7 * 24 * 3600000 // 7 days
-      });
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      };
+
+      if (rememberMe) {
+        cookieOptions.maxAge = 30 * 24 * 3600000; // 30 ngày
+      } // Nếu rememberMe là false, nó sẽ là Session Cookie (hoặc theo trình duyệt dọn dẹp)
+
+      res.cookie('accessToken', accessToken, cookieOptions);
 
       return res.status(200).json({ message: 'Đăng nhập thành công', user });
     } catch (error: any) {

@@ -10,6 +10,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +30,8 @@ const Login = () => {
     try {
       const response = await axios.post('/api/auth/login', {
         email,
-        password
+        password,
+        rememberMe
       });
       
       // Update global auth state
@@ -91,7 +93,16 @@ const Login = () => {
             </div>
           </div>
 
-          <div style={{ textAlign: 'right', marginTop: '8px' }}>
+          <div className="login-options" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '14px', color: '#666' }}>
+              <input 
+                type="checkbox" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                style={{ marginRight: '8px', cursor: 'pointer' }}
+              />
+              Ghi nhớ đăng nhập
+            </label>
             <Link to="/forgot-password" style={{ fontSize: '14px', color: '#0056b3', textDecoration: 'none' }}>
               Quên mật khẩu?
             </Link>
