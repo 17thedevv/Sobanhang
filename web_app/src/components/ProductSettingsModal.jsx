@@ -77,7 +77,7 @@ export default function ProductSettingsModal({ isOpen, onClose, onSave }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content settings-modal card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2><Settings size={20} /> Cài đặt sản phẩm</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><Settings size={20} /> Cài đặt sản phẩm</h2>
           <button className="btn-icon" onClick={onClose}><X size={20} /></button>
         </div>
 

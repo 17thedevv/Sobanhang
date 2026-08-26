@@ -9,7 +9,7 @@ import './SidebarDrawer.css';
 
 export default function SidebarDrawer({ isOpen, onClose }) {
   const { user, logout } = useAuth();
-  const [shopName, setShopName] = React.useState(user?.name || 'Chủ cửa hàng');
+  const [shopName, setShopName] = React.useState(user?.store?.name || 'Chủ cửa hàng');
 
   const handleEditName = async () => {
     const newName = window.prompt("Nhập tên Shop mới:", shopName);
