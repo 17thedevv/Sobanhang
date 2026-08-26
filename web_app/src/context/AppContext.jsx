@@ -128,18 +128,15 @@ export function AppProvider({ children }) {
   const cartTotalAmount = Object.values(cart).reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
   // Order Actions
-  const checkout = async (isDebt, paymentMethod) => {
+  const checkout = async (payload) => {
     try {
       const items = Object.values(cart).map(item => ({
         productId: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price
+        quantity: item.quantity
       }));
 
       const res = await axios.post('/api/orders', {
-        total: cartTotalAmount,
-        paymentMethod,
-        isDebt,
+        ...payload,
         items
       });
       

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Search, Plus, Minus, PackageSearch, Receipt } from 'lucide-react';
 import InvoiceModal from '../components/InvoiceModal';
+import CheckoutModal from '../components/CheckoutModal';
 import axios from 'axios';
 import './POS.css';
 
@@ -11,9 +12,9 @@ export default function POS() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [categories, setCategories] = useState([]);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
-  const [isDebt, setIsDebt] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('Tiền mặt');
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
+  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 
   useEffect(() => {
     axios.get('/api/categories').then(res => setCategories(res.data.categories || [])).catch(console.error);
@@ -32,13 +33,15 @@ export default function POS() {
 
   const [isCheckingOut, setIsCheckingOut] = useState(false);
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (payload) => {
     if (cartItems.length === 0) return;
     setIsCheckingOut(true);
     try {
-      const order = await checkout(isDebt, paymentMethod);
+      const order = await checkout(payload);
       setLastOrder(order);
+      setIsCheckoutModalOpen(false);
       setIsInvoiceOpen(true);
+      setIsMobileCartOpen(false); // Close mobile cart if open
     } catch (error) {
       console.error(error);
     } finally {
@@ -105,7 +108,15 @@ export default function POS() {
                     <span className="product-price">{product.price.toLocaleString('vi-VN')}đ</span>
                   </div>
                   {inCart > 0 && (
-                    <div className="product-badge">{inCart}</div>
+                    <div className="product-qty-overlay" onClick={(e) => e.stopPropagation()}>
+                      <button className="btn-icon small qty-btn" onClick={() => removeFromCart(product.id)}>
+                        <Minus size={16}/>
+                      </button>
+                      <span className="qty-value">{inCart}</span>
+                      <button className="btn-icon small qty-btn" onClick={() => addToCart(product)}>
+                        <Plus size={16}/>
+                      </button>
+                    </div>
                   )}
                 </div>
               );
@@ -114,10 +125,32 @@ export default function POS() {
         )}
       </div>
 
+      {/* Floating Bottom Bar (Mobile/Tablet) */}
+      <div className="floating-bottom-bar" onClick={() => setIsMobileCartOpen(true)}>
+        <div className="floating-bar-info">
+          <span className="item-count">{cartItems.length} sản phẩm</span>
+          <span className="total">{cartTotalAmount.toLocaleString('vi-VN')}đ</span>
+        </div>
+        <div 
+          className="floating-bar-action" 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (cartItems.length > 0) setIsCheckoutModalOpen(true);
+          }}
+        >
+          Thanh toán
+        </div>
+      </div>
+
       {/* Right side: Cart */}
-      <div className="pos-cart card">
+      <div className={`pos-cart card ${isMobileCartOpen ? 'mobile-open' : ''}`}>
         <div className="cart-header">
-          <h2>Giỏ hàng</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button className="btn-icon mobile-cart-close" onClick={() => setIsMobileCartOpen(false)}>
+              <Minus size={20} style={{ transform: 'rotate(90deg)' }} />
+            </button>
+            <h2>Giỏ hàng</h2>
+          </div>
           {cartItems.length > 0 && (
             <button className="btn-icon text-danger" onClick={clearCart}>Làm mới</button>
           )}
@@ -152,29 +185,25 @@ export default function POS() {
             <span className="total-amount">{cartTotalAmount.toLocaleString('vi-VN')}đ</span>
           </div>
           
-          <div className="payment-options">
-            <label className="checkbox-label">
-              <input type="checkbox" checked={isDebt} onChange={e => setIsDebt(e.target.checked)} />
-              Ghi nợ đơn này
-            </label>
-            
-            {!isDebt && (
-              <select className="input-field compact" value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
-                <option value="Tiền mặt">Tiền mặt</option>
-                <option value="Chuyển khoản">Chuyển khoản</option>
-              </select>
-            )}
-          </div>
-
           <button 
             className="btn-primary btn-checkout" 
-            disabled={cartItems.length === 0 || isCheckingOut}
-            onClick={handleCheckout}
+            disabled={cartItems.length === 0}
+            onClick={() => setIsCheckoutModalOpen(true)}
           >
-            {isCheckingOut ? 'ĐANG XỬ LÝ...' : (isDebt ? 'TẠO ĐƠN GHI NỢ' : 'THANH TOÁN')}
+            TIẾP TỤC THANH TOÁN
           </button>
         </div>
       </div>
+
+      {isCheckoutModalOpen && (
+        <CheckoutModal 
+          cartItems={cartItems}
+          cartTotalAmount={cartTotalAmount}
+          onClose={() => setIsCheckoutModalOpen(false)}
+          onCheckout={handleCheckout}
+          isCheckingOut={isCheckingOut}
+        />
+      )}
 
       {isInvoiceOpen && lastOrder && (
         <InvoiceModal order={lastOrder} onClose={() => setIsInvoiceOpen(false)} />

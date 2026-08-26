@@ -34,6 +34,7 @@ model Store {
   products   Product[]
   orders     Order[]
   categories Category[]
+  customers  Customer[]
   settings   String? // JSON string for store settings
 }
 
@@ -84,25 +85,47 @@ model ProductVariant {
   orderItems OrderItem[]
 }
 
-model Order {
-  id            String   @id @default(uuid())
-  storeId       String
-  total         Float
-  isDebt        Boolean  @default(false)
-  paymentMethod String   @default("CASH") // CASH, TRANSFER, CARD
-  createdAt     DateTime @default(now())
+model Customer {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  phone     String?
+  address   String?
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  store Store       @relation(fields: [storeId], references: [id])
-  items OrderItem[]
+  store  Store   @relation(fields: [storeId], references: [id])
+  orders Order[]
+}
+
+model Order {
+  id                String   @id @default(uuid())
+  storeId           String
+  customerId        String?
+  total             Float
+  discount          Float    @default(0)
+  shippingFee       Float    @default(0)
+  orderStatus       String   @default("COMPLETED") // DRAFT, CONFIRMED, COMPLETED, CANCELLED
+  paymentStatus     String   @default("PAID") // UNPAID, PAID, DEBT
+  fulfillmentStatus String   @default("DELIVERED") // NONE, PENDING_DELIVERY, DELIVERED
+  paymentSource     String? // CASH, BANK
+  createdAt         DateTime @default(now())
+
+  store    Store       @relation(fields: [storeId], references: [id])
+  customer Customer?   @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  variantId String?
-  quantity  Int
-  price     Float
+  id                  String  @id @default(uuid())
+  orderId             String
+  productId           String
+  variantId           String?
+  productNameSnapshot String
+  unitPrice           Float
+  quantity            Int
+  subtotal            Float
 
   order   Order           @relation(fields: [orderId], references: [id])
   product Product         @relation(fields: [productId], references: [id])

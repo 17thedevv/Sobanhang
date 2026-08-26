@@ -9,7 +9,11 @@ export default function InvoiceModal({ order, onClose }) {
       <div className="modal-content invoice-card" onClick={e => e.stopPropagation()}>
         <div className="invoice-header text-center">
           <CheckCircle2 size={56} className="text-success" style={{ margin: '0 auto 1rem' }} />
-          <h2>{order.isDebt ? 'TẠO ĐƠN GHI NỢ THÀNH CÔNG' : 'THANH TOÁN THÀNH CÔNG'}</h2>
+          <h2>
+            {order.paymentStatus === 'DEBT' ? 'TẠO ĐƠN GHI NỢ THÀNH CÔNG' : 
+             order.paymentStatus === 'UNPAID' ? 'TẠO ĐƠN GIAO SAU THÀNH CÔNG' : 
+             'THANH TOÁN THÀNH CÔNG'}
+          </h2>
           <p className="text-muted">Mã đơn: #{order.id.slice(0, 8).toUpperCase()}</p>
         </div>
 
@@ -21,32 +25,48 @@ export default function InvoiceModal({ order, onClose }) {
           <div className="invoice-details">
             <div className="detail-row">
               <span className="text-muted">Khách hàng</span>
-              <span className="font-medium">Khách lẻ</span>
+              <span className="font-medium">{order.customer ? order.customer.name : 'Khách lẻ'}</span>
             </div>
             <div className="detail-row">
               <span className="text-muted">Trạng thái</span>
-              <span className={`font-medium ${order.isDebt ? 'text-warning' : 'text-success'}`}>
-                {order.isDebt ? 'Chưa thanh toán' : 'Đã thanh toán'}
+              <span className={`font-medium ${order.paymentStatus === 'PAID' ? 'text-success' : 'text-warning'}`}>
+                {order.paymentStatus === 'PAID' ? 'Đã thanh toán' : 
+                 order.paymentStatus === 'DEBT' ? 'Ghi nợ' : 'Chưa thanh toán'}
               </span>
             </div>
-            {!order.isDebt && (
+            {order.paymentStatus === 'PAID' && order.paymentSource && (
               <div className="detail-row">
                 <span className="text-muted">Nguồn tiền</span>
-                <span className="font-medium">{order.paymentMethod}</span>
+                <span className="font-medium">
+                  {order.paymentSource === 'CASH' ? 'Tiền mặt' : 
+                   order.paymentSource === 'BANK' ? 'Chuyển khoản' : order.paymentSource}
+                </span>
               </div>
+            )}
+            {(order.discount > 0 || order.shippingFee > 0) && (
+              <>
+                <div className="detail-row">
+                  <span className="text-muted">Giảm giá</span>
+                  <span className="font-medium text-danger">-{order.discount.toLocaleString('vi-VN')}đ</span>
+                </div>
+                <div className="detail-row">
+                  <span className="text-muted">Vận chuyển</span>
+                  <span className="font-medium">+{order.shippingFee.toLocaleString('vi-VN')}đ</span>
+                </div>
+              </>
             )}
             <div className="detail-row">
               <span className="text-muted">Thời gian</span>
-              <span className="font-medium">{new Date(order.date).toLocaleString('vi-VN')}</span>
+              <span className="font-medium">{new Date(order.createdAt || new Date()).toLocaleString('vi-VN')}</span>
             </div>
           </div>
 
           <div className="invoice-items">
             <h4>Chi tiết ({order.items.length} món)</h4>
             {order.items.map(item => (
-              <div key={item.product.id} className="detail-row">
-                <span>{item.product.name} x{item.quantity}</span>
-                <span>{(item.product.price * item.quantity).toLocaleString('vi-VN')}đ</span>
+              <div key={item.id || item.productId} className="detail-row">
+                <span>{item.productNameSnapshot || item.product?.name} x{item.quantity}</span>
+                <span>{((item.unitPrice || item.price || 0) * item.quantity).toLocaleString('vi-VN')}đ</span>
               </div>
             ))}
           </div>

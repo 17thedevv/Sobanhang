@@ -9,6 +9,7 @@ import productsRoutes from './modules/products/presentation/products.routes';
 import categoriesRoutes from './modules/categories/presentation/categories.routes';
 import ordersRoutes from './modules/orders/presentation/orders.routes';
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes';
+import customerRoutes from './modules/customers/presentation/customer.routes';
 import cookieParser from 'cookie-parser';
 
 dotenv.config();
@@ -30,6 +31,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
+app.use('/api/customers', customerRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/stores', storeRoutes);
