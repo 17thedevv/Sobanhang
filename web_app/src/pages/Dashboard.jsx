@@ -90,10 +90,12 @@ export default function Dashboard() {
       )}
 
       <div className="section-header-row">
-        <h2 className="section-title">Bức tranh kinh doanh</h2>
-        <button className="btn-toggle-revenue" onClick={toggleRevenue} title={showRevenue ? "Ẩn số tiền" : "Hiện số tiền"}>
-          {showRevenue ? <EyeOff size={20} /> : <Eye size={20} />}
-        </button>
+        <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          Bức tranh kinh doanh
+          <button className="btn-toggle-revenue" onClick={toggleRevenue} title={showRevenue ? "Ẩn số tiền" : "Hiện số tiền"}>
+            {showRevenue ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </h2>
       </div>
       
       {/* 4 STATS CARDS */}
