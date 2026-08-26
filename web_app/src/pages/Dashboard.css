@@ -78,6 +78,7 @@
   font-weight: 700;
   color: var(--sbh-text-primary);
   margin: 0;
+  line-height: 1;
 }
 
 .section-header-row {
