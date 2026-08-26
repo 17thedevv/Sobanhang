@@ -74,12 +74,12 @@ export class AuthController {
       // Set accessToken mới
       res.cookie('accessToken', accessToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: 7 * 24 * 3600000 // 7 days
       });
 
-      return res.status(200).json({ message: 'Thiết lập mật khẩu thành công', user });
+      return res.status(200).json({ message: 'Thiết lập mật khẩu thành công', user, accessToken });
     } catch (error: any) {
       if (error.message.includes('tồn tại')) {
         return res.status(404).json({ error: error.message });
@@ -109,8 +109,8 @@ export class AuthController {
 
       const cookieOptions: any = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        secure: true,
+        sameSite: 'none'
       };
 
       if (rememberMe) {
@@ -119,7 +119,7 @@ export class AuthController {
 
       res.cookie('accessToken', accessToken, cookieOptions);
 
-      return res.status(200).json({ message: 'Đăng nhập thành công', user });
+      return res.status(200).json({ message: 'Đăng nhập thành công', user, accessToken });
     } catch (error: any) {
       if (error.message.includes('chính xác') || error.message.includes('đăng ký')) {
         return res.status(401).json({ error: error.message });
@@ -134,8 +134,8 @@ export class AuthController {
   async logout(req: Request, res: Response) {
     const cookieOptions: any = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+      secure: true,
+      sameSite: 'none'
     };
     res.clearCookie('accessToken', cookieOptions);
     res.clearCookie('setupToken', cookieOptions);

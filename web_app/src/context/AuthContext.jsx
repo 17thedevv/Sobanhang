@@ -34,6 +34,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('sbh_access_token');
       setUser(null);
     }
   };

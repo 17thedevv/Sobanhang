@@ -24,6 +24,14 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://sobanhang-api.onrender.com';
 
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('sbh_access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 import { AppProvider } from './context/AppContext';
 
 function App() {

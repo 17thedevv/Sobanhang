@@ -34,6 +34,10 @@ const Login = () => {
         rememberMe
       });
       
+      if (response.data.accessToken) {
+        localStorage.setItem('sbh_access_token', response.data.accessToken);
+      }
+      
       const meRes = await axios.get('/api/auth/me');
       // Update global auth state with the correct structure
       login(meRes.data.user);

@@ -18,7 +18,7 @@ declare global {
 }
 
 export const verifySetupToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies.setupToken;
+  const token = req.cookies.setupToken || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
     return res.status(401).json({ error: 'Không tìm thấy token cài đặt (setupToken)' });
@@ -43,7 +43,7 @@ export const verifySetupToken = (req: Request, res: Response, next: NextFunction
 };
 
 export const verifyAccessToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies.accessToken;
+  const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
   
   if (!token) {
     return res.status(401).json({ error: 'Chưa đăng nhập' });
@@ -70,7 +70,7 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
 };
 
 export const verifyResetToken = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies.resetToken;
+  const token = req.cookies.resetToken || req.headers.authorization?.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ error: 'Vui lòng xác minh mã OTP trước' });
