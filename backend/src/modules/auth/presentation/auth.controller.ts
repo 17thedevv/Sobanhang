@@ -191,7 +191,7 @@ export class AuthController {
       // Nếu user.status là ACTIVE thì cho login bình thường
       if (user.status === 'ACTIVE') {
         const accessToken = jwt.sign(
-          { userId: user.userId, role: user.role, status: user.status, storeId: user.storeId },
+          { userId: user.userId, role: user.role, status: user.status, storeId: user.storeId, scope: 'access' },
           JWT_SECRET,
           { expiresIn: '7d' }
         );

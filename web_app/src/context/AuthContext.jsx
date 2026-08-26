@@ -31,9 +31,10 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await axios.post('/api/auth/logout');
-      setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setUser(null);
     }
   };
 

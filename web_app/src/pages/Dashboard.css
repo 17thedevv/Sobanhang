@@ -158,6 +158,7 @@
   color: var(--sbh-text-primary);
   margin: 0 0 4px 0;
   line-height: 1.2;
+  min-height: 34px;
 }
 
 .card-compare {

@@ -22,7 +22,8 @@ export default function POS() {
   const { checkout } = useApp();
 
   const filteredProducts = products.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const term = searchTerm.toLowerCase();
+    const matchSearch = p.name.toLowerCase().includes(term) || (p.barcode && p.barcode.toLowerCase().includes(term));
     const matchCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
     return matchSearch && matchCategory;
   });

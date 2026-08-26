@@ -2,12 +2,26 @@ import React from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { 
   X, User, Settings, CreditCard, HelpCircle, LogOut, BookOpen, 
-  Headset, Users, Gift, Star, Package, UserCircle, Book, Plus, Store 
+  Headset, Users, Gift, Star, Package, UserCircle, Book, Plus, Store, Edit2
 } from 'lucide-react';
+import axios from 'axios';
 import './SidebarDrawer.css';
 
 export default function SidebarDrawer({ isOpen, onClose }) {
   const { user, logout } = useAuth();
+  const [shopName, setShopName] = React.useState(user?.name || 'Chủ cửa hàng');
+
+  const handleEditName = async () => {
+    const newName = window.prompt("Nhập tên Shop mới:", shopName);
+    if (newName && newName.trim() !== "") {
+      try {
+        await axios.put('/api/stores/updateName', { name: newName });
+        setShopName(newName);
+      } catch (err) {
+        alert('Có lỗi xảy ra khi đổi tên.');
+      }
+    }
+  };
 
   return (
     <>
@@ -34,7 +48,12 @@ export default function SidebarDrawer({ isOpen, onClose }) {
                 <User size={24} color="#00B14F" />
               </div>
               <div className="user-text">
-                <h3>{user?.name || 'Chủ cửa hàng'}</h3>
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <h3>{shopName}</h3>
+                  <button className="btn-icon" style={{padding: 4}} onClick={handleEditName}>
+                    <Edit2 size={14} color="#666" />
+                  </button>
+                </div>
                 <p>Gói cước: Miễn phí</p>
               </div>
             </div>

@@ -214,39 +214,57 @@ export default function ProductModal({ product, onClose, onCopy }) {
     setVariants(newVariants);
   };
 
+  const preventInvalidNumber = (e) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+      e.preventDefault();
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     
-    const productData = {
-      name,
-      price: Number(price),
-      unit,
-      categoryId: categoryId || null,
-      barcode: barcode || null,
-      promotionalPrice: promotionalPrice ? Number(promotionalPrice) : null,
-      trackInventory,
-      stock: trackInventory ? (Number(stock) || 0) : 0,
-      showOnWeb,
-      upsellIds: upsellIds.length > 0 ? JSON.stringify(upsellIds) : null,
-      wholesalePrice: enableWholesale ? wholesaleTiers.filter(t => t.minQuantity && t.price) : null,
-      variants: enableVariants ? variants.map(v => ({
-        attributes: v.attributesObj,
-        price: v.price ? Number(v.price) : null,
-        stock: v.stock ? Number(v.stock) : 0,
-        barcode: v.barcode || null
-      })) : []
-    };
-
-    let success = false;
-    if (product) {
-      success = await updateProduct({ ...product, ...productData });
-    } else {
-      success = await addProduct(productData);
+    if (!name.trim()) {
+      alert('Vui lòng nhập tên sản phẩm');
+      return;
     }
     
-    setLoading(false);
-    if (success) onClose();
+    setLoading(true);
+    try {
+      const productData = {
+        name,
+        price: Number(price),
+        unit,
+        categoryId: categoryId || null,
+        barcode: barcode || null,
+        promotionalPrice: promotionalPrice ? Number(promotionalPrice) : null,
+        trackInventory,
+        stock: trackInventory ? (Number(stock) || 0) : 0,
+        showOnWeb,
+        upsellIds: upsellIds.length > 0 ? JSON.stringify(upsellIds) : null,
+        wholesalePrice: enableWholesale ? wholesaleTiers.filter(t => t.minQuantity && t.price) : null,
+        variants: enableVariants ? variants.map(v => ({
+          attributes: v.attributesObj,
+          price: v.price ? Number(v.price) : null,
+          stock: v.stock ? Number(v.stock) : 0,
+          barcode: v.barcode || null
+        })) : []
+      };
+
+      let success = false;
+      if (product) {
+        success = await updateProduct({ ...product, ...productData });
+      } else {
+        success = await addProduct(productData);
+      }
+      
+      if (success) onClose();
+      else alert('Có lỗi xảy ra, vui lòng thử lại');
+    } catch (error) {
+      console.error(error);
+      alert('Lưu sản phẩm thất bại. Kiểm tra lại dữ liệu.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -280,7 +298,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="modal-body-scroll">
+        <form id="product-form" onSubmit={handleSubmit} className="modal-body-scroll">
           {/* Section 1: Basic Info */}
           <div className="form-section">
             <h3 className="section-title"><Package size={16}/> Thông tin cơ bản</h3>
@@ -339,7 +357,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
                     </div>
                     <span style={{padding: '0 8px', color: '#999'}}>=</span>
                     <div className="form-group mb-0">
-                      <input type="number" placeholder="Số lượng" className="input-field" value={conv.ratio} onChange={e => {
+                      <input type="number" placeholder="Số lượng" min="0" onKeyDown={preventInvalidNumber} className="input-field" value={conv.ratio} onChange={e => {
                         const newConvs = [...unitConversions];
                         newConvs[index].ratio = e.target.value;
                         setUnitConversions(newConvs);
@@ -371,12 +389,12 @@ export default function ProductModal({ product, onClose, onCopy }) {
             <div className="form-row">
               <div className="form-group">
                 <label>Giá bán lẻ *</label>
-                <input type="number" required min="0" className="input-field" value={price} onChange={e => setPrice(e.target.value)} />
+                <input type="number" required min="0" onKeyDown={preventInvalidNumber} className="input-field" value={price} onChange={e => setPrice(e.target.value)} />
               </div>
               {formSettings.showPromotionalPrice && (
                 <div className="form-group">
                   <label>Giá khuyến mãi</label>
-                  <input type="number" min="0" className="input-field" value={promotionalPrice} onChange={e => setPromotionalPrice(e.target.value)} />
+                  <input type="number" min="0" onKeyDown={preventInvalidNumber} className="input-field" value={promotionalPrice} onChange={e => setPromotionalPrice(e.target.value)} />
                 </div>
               )}
               {formSettings.showUnit && (
@@ -402,14 +420,14 @@ export default function ProductModal({ product, onClose, onCopy }) {
                     {wholesaleTiers.map((tier, index) => (
                       <div className="form-row align-items-center mb-2" key={index}>
                         <div className="form-group mb-0">
-                          <input type="number" placeholder="Từ số lượng..." className="input-field" value={tier.minQuantity} onChange={e => {
+                          <input type="number" placeholder="Từ số lượng..." min="0" onKeyDown={preventInvalidNumber} className="input-field" value={tier.minQuantity} onChange={e => {
                             const newTiers = [...wholesaleTiers];
                             newTiers[index].minQuantity = e.target.value;
                             setWholesaleTiers(newTiers);
                           }} />
                         </div>
                         <div className="form-group mb-0">
-                          <input type="number" placeholder="Giá sỉ..." className="input-field" value={tier.price} onChange={e => {
+                          <input type="number" placeholder="Giá sỉ..." min="0" onKeyDown={preventInvalidNumber} className="input-field" value={tier.price} onChange={e => {
                             const newTiers = [...wholesaleTiers];
                             newTiers[index].price = e.target.value;
                             setWholesaleTiers(newTiers);
@@ -445,7 +463,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
                 <div className="form-row">
                   <div className="form-group mb-0">
                     <label>Tồn kho hiện tại</label>
-                    <input type="number" min="0" className="input-field" value={stock} onChange={e => setStock(e.target.value)} placeholder="Nhập số lượng..." />
+                    <input type="number" min="0" onKeyDown={preventInvalidNumber} className="input-field" value={stock} onChange={e => setStock(e.target.value)} placeholder="Nhập số lượng..." />
                   </div>
                   {formSettings.showBarcode && (
                     <div className="form-group mb-0">
@@ -513,8 +531,8 @@ export default function ProductModal({ product, onClose, onCopy }) {
                         {variants.map((v, i) => (
                           <tr key={i}>
                             <td>{Object.values(v.attributesObj).join(' - ')}</td>
-                            <td><input type="number" className="input-field-sm" placeholder={price} value={v.price} onChange={e => updateVariant(i, 'price', e.target.value)} /></td>
-                            {trackInventory && <td><input type="number" className="input-field-sm" placeholder="0" value={v.stock} onChange={e => updateVariant(i, 'stock', e.target.value)} /></td>}
+                            <td><input type="number" min="0" onKeyDown={preventInvalidNumber} className="input-field-sm" placeholder={price} value={v.price} onChange={e => updateVariant(i, 'price', e.target.value)} /></td>
+                            {trackInventory && <td><input type="number" min="0" onKeyDown={preventInvalidNumber} className="input-field-sm" placeholder="0" value={v.stock} onChange={e => updateVariant(i, 'stock', e.target.value)} /></td>}
                             <td><input type="text" className="input-field-sm" placeholder="Mã..." value={v.barcode} onChange={e => updateVariant(i, 'barcode', e.target.value)} /></td>
                           </tr>
                         ))}
@@ -587,7 +605,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
 
         <div className="modal-footer-fixed">
           <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Hủy</button>
-          <button type="submit" className="btn-primary" onClick={handleSubmit} disabled={loading}>
+          <button type="submit" className="btn-primary" form="product-form" disabled={loading}>
             {loading ? 'Đang lưu...' : (product ? 'Cập nhật sản phẩm' : 'Lưu sản phẩm')}
           </button>
         </div>

@@ -14,6 +14,7 @@ const DesktopLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
@@ -188,8 +189,18 @@ const DesktopLayout = () => {
             </button>
             <div className="search-bar">
               <Search size={16} className="search-icon" />
-              <input type="text" placeholder="Tìm trang, chức năng..." />
-              <span className="search-shortcut">Ctrl K</span>
+              <input 
+                type="text" 
+                placeholder="Tìm sản phẩm..." 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
+                    navigate(`/dashboard/products?q=${encodeURIComponent(searchQuery)}`);
+                  }
+                }}
+              />
+              <span className="search-shortcut">Enter</span>
             </div>
             
             <button className="icon-action-btn">

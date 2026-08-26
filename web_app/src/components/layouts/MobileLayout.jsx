@@ -11,6 +11,7 @@ const MobileLayout = () => {
   const [showSupport, setShowSupport] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = async () => {
     try {
@@ -29,7 +30,17 @@ const MobileLayout = () => {
         </button>
         <div className="mobile-search-bar">
           <Search size={16} color="#999" />
-          <input type="text" placeholder="Tìm kiếm..." />
+          <input 
+            type="text" 
+            placeholder="Tìm kiếm..." 
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && searchQuery.trim()) {
+                navigate(`/dashboard/products?q=${encodeURIComponent(searchQuery)}`);
+              }
+            }}
+          />
         </div>
         <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
           <button className="btn-icon header-scan-btn" onClick={() => alert("Mở camera quét mã vạch")}>

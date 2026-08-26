@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Plus, Search, Edit2, Trash2, PackageSearch } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import ProductModal from '../components/ProductModal';
 import './Products.css';
 
 export default function Products() {
   const { products, deleteProduct } = useApp();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const term = searchTerm.toLowerCase();
+    return p.name.toLowerCase().includes(term) || (p.barcode && p.barcode.toLowerCase().includes(term));
+  });
 
   const handleEdit = (product) => {
     setEditingProduct(product);

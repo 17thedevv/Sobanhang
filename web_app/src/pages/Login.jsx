@@ -34,8 +34,9 @@ const Login = () => {
         rememberMe
       });
       
-      // Update global auth state
-      login(response.data.user);
+      const meRes = await axios.get('/api/auth/me');
+      // Update global auth state with the correct structure
+      login(meRes.data.user);
       
       navigate('/dashboard');
       

@@ -100,6 +100,24 @@ export class StoreController {
       return res.status(500).json({ error: error.message });
     }
   }
+  async updateStoreName(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      const { name } = req.body;
+      if (!storeId || !name) {
+        return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
+      }
+
+      await prisma.store.update({
+        where: { id: storeId },
+        data: { name }
+      });
+
+      return res.status(200).json({ message: 'Đổi tên thành công', name });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export const storeController = new StoreController();

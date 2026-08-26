@@ -30,11 +30,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
+  width: 100%;
 }
 
 .setting-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  padding-right: 16px;
 }
 
 .setting-label {

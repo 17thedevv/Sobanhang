@@ -52,6 +52,7 @@ export default function ProductSettingsModal({ isOpen, onClose, onSave }) {
       onClose();
     } catch (err) {
       console.error(err);
+      alert('Có lỗi xảy ra khi lưu cài đặt! Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
