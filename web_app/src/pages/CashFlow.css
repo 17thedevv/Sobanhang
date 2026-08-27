@@ -9,6 +9,11 @@
   box-shadow: var(--shadow-md);
 }
 
+.bg-primary-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, #20c997 100%);
+  color: white;
+}
+
 .fund-header {
   display: flex;
   justify-content: space-between;
@@ -91,4 +96,42 @@
 
 .drag-handle:hover {
   opacity: 1;
+}
+
+/* MODALS */
+.cashflow-page .modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.cashflow-page .modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 450px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.cashflow-page .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.cashflow-page .modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.cashflow-page .modal-body {
+  padding: 1.5rem;
 }

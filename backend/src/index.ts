@@ -8,11 +8,10 @@ import authRoutes from './modules/auth/presentation/auth.routes';
 import storeRoutes from './modules/onboarding/presentation/store.routes';
 import suggestionRoutes from './modules/onboarding/presentation/suggestion.routes';
 import preferenceRoutes from './modules/onboarding/presentation/preference.routes';
-import { productRoutes } from './modules/products/presentation/product.routes';
-import { onboardingRoutes } from './modules/onboarding/presentation/onboarding.routes';
 import { orderRoutes } from './modules/orders/presentation/orders.routes';
-import { customerRoutes } from './modules/customers/presentation/customer.routes';
+import customerRoutes from './modules/customers/presentation/customer.routes';
 import { cashbookRoutes } from './modules/cashbook/presentation/cashbook.routes';
+import productsRoutes from './modules/products/presentation/products.routes';
 import categoriesRoutes from './modules/categories/presentation/categories.routes';
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes';
 
@@ -33,9 +32,11 @@ app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
-app.use('/api/onboarding', onboardingRoutes);
+app.use('/api/onboarding/store', storeRoutes);
+app.use('/api/onboarding/suggestions', suggestionRoutes);
+app.use('/api/onboarding/preferences', preferenceRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/cashbook', cashbookRoutes);

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { DollarSign, ArrowUpRight, ArrowDownRight, Building2, Wallet, Plus, ArrowRightLeft } from 'lucide-react';
+import { DollarSign, ArrowUpRight, ArrowDownRight, Building2, Wallet, Plus, ArrowRightLeft, Eye, EyeOff } from 'lucide-react';
 import './CashFlow.css';
 
 export default function CashFlow() {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showTotal, setShowTotal] = useState(true);
   
   // Modals
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -105,17 +106,35 @@ export default function CashFlow() {
         </div>
       </header>
 
-      <div className="fund-summary-card card bg-primary-gradient text-white">
+      <div 
+        className="fund-summary-card card text-white" 
+        style={{ background: 'linear-gradient(135deg, #00B14F 0%, #20c997 100%)', color: 'white' }}
+      >
         <div className="fund-header">
           <span>Tổng quỹ hiện tại</span>
-          <Wallet size={24} />
+          <div className="d-flex align-items-center gap-2">
+            <button 
+              onClick={() => setShowTotal(!showTotal)}
+              className="btn text-white p-0"
+              style={{ opacity: 0.8, border: 'none', background: 'transparent' }}
+            >
+              {showTotal ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+            <Wallet size={24} />
+          </div>
         </div>
-        <h2 className="fund-total">{totalFund.toLocaleString('vi-VN')}đ</h2>
+        <h2 className="fund-total">
+          {showTotal ? `${totalFund.toLocaleString('vi-VN')}đ` : '******'}
+        </h2>
       </div>
 
       <div className="section-header d-flex justify-content-between align-items-center mt-3">
         <h3 className="section-title mb-0">Danh sách nguồn tiền</h3>
-        <button className="btn btn-primary btn-sm d-flex align-items-center gap-1" onClick={() => setShowCreateModal(true)}>
+        <button 
+          className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1" 
+          onClick={() => setShowCreateModal(true)}
+          style={{ width: 'fit-content' }}
+        >
           <Plus size={16} /> Thêm
         </button>
       </div>
@@ -138,7 +157,9 @@ export default function CashFlow() {
               </div>
               <div className="source-info flex-grow-1">
                 <h4>{source.name}</h4>
-                <span className="source-amount text-success">{source.balance.toLocaleString('vi-VN')}đ</span>
+                <span className="source-amount text-success">
+                  {showTotal ? `${source.balance.toLocaleString('vi-VN')}đ` : '******'}
+                </span>
               </div>
               <div className="drag-handle text-muted" style={{cursor: 'grab'}}>
                 =

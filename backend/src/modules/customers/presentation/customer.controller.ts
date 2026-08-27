@@ -4,7 +4,7 @@ import { prisma } from '../../../prisma';
 export class CustomerController {
   async getCustomers(req: Request, res: Response) {
     try {
-      const storeId = (req as any).storeId;
+      const storeId = req.user?.storeId;
       if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
 
       const customers = await prisma.customer.findMany({
@@ -21,7 +21,7 @@ export class CustomerController {
 
   async createCustomer(req: Request, res: Response) {
     try {
-      const storeId = (req as any).storeId;
+      const storeId = req.user?.storeId;
       if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
 
       const { name, phone, address, note } = req.body;

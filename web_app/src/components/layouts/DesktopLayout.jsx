@@ -190,7 +190,6 @@ const DesktopLayout = () => {
               <Store size={20} color="#00B14F" />
             </button>
             <div className="search-bar">
-              <Search size={16} className="search-icon" />
               <input 
                 type="text" 
                 placeholder="Tìm sản phẩm..." 
@@ -202,7 +201,17 @@ const DesktopLayout = () => {
                   }
                 }}
               />
-              <span className="search-shortcut">Enter</span>
+              <button 
+                className="search-shortcut btn p-1"
+                onClick={() => {
+                  if (searchQuery.trim()) {
+                    navigate(`/dashboard/products?q=${encodeURIComponent(searchQuery)}`);
+                  }
+                }}
+                title="Tìm kiếm (Enter)"
+              >
+                <Search size={16} />
+              </button>
             </div>
             
             <button className="icon-action-btn">

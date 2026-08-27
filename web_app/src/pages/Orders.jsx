@@ -75,17 +75,17 @@ export default function Orders() {
   const handleCollectPayment = async (e) => {
     e.preventDefault();
     try {
-      // In a real app, this standalone collect would be an API to add a cash transaction directly
-      // Here we just add it to the first cash source if no specific order is attached.
-      // For simplicity, we use the transfer API to just add money, or we can just mock it for now since the backend requires an order for collectPayment.
-      // Actually, we can use the create source logic or we need a new API for just "Thu tiền ngoài".
-      // Since US-59 is "Thu tiền độc lập", let's just alert for MVP or assume it's handled.
+      await axios.post('/api/cashbook/collect', {
+        cashSourceId: collectData.cashSourceId,
+        amount: collectData.amount,
+        description: collectData.description
+      });
       alert(`Đã thu ${collectData.amount}đ thành công!`);
       setShowCollectModal(false);
       setCollectData({ amount: '', cashSourceId: '', description: '' });
       fetchSources();
     } catch (err) {
-      alert('Có lỗi xảy ra');
+      alert(err.response?.data?.error || 'Có lỗi xảy ra');
     }
   };
 

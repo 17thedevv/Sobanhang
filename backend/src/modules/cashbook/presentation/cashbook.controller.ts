@@ -9,10 +9,25 @@ export class CashbookController {
         return res.status(403).json({ error: 'Shop not created yet' });
       }
 
-      const sources = await prisma.cashSource.findMany({
+      let sources = await prisma.cashSource.findMany({
         where: { storeId },
         orderBy: { order: 'asc' },
       });
+
+      if (sources.length === 0) {
+        // Tự động tạo nguồn tiền mặc định cho cửa hàng
+        const defaultSource = await prisma.cashSource.create({
+          data: {
+            storeId,
+            name: 'Tiền mặt',
+            type: 'CASH',
+            balance: 0,
+            isDefault: true,
+            order: 0,
+          }
+        });
+        sources = [defaultSource];
+      }
       return res.json({ sources });
     } catch (error: any) {
       console.error('Error fetching cash sources:', error);
@@ -162,6 +177,53 @@ export class CashbookController {
       return res.json({ success: true, ...result });
     } catch (error: any) {
       console.error('Error transferring money:', error);
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  async collectMoney(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) {
+        return res.status(403).json({ error: 'Shop not created yet' });
+      }
+
+      const { cashSourceId, amount, description } = req.body;
+      const collectAmount = parseFloat(amount);
+
+      if (!cashSourceId || isNaN(collectAmount) || collectAmount <= 0) {
+        return res.status(400).json({ error: 'Dữ liệu thu tiền không hợp lệ' });
+      }
+
+      const result = await prisma.$transaction(async (tx) => {
+        const source = await tx.cashSource.findUnique({
+          where: { id: cashSourceId, storeId }
+        });
+
+        if (!source) {
+          throw new Error('Không tìm thấy nguồn tiền');
+        }
+
+        const updatedSource = await tx.cashSource.update({
+          where: { id: cashSourceId },
+          data: { balance: { increment: collectAmount } }
+        });
+
+        await tx.cashTransaction.create({
+          data: {
+            cashSourceId,
+            amount: collectAmount,
+            type: 'IN',
+            description: description || 'Thu tiền ngoài',
+          }
+        });
+
+        return updatedSource;
+      });
+
+      return res.json({ success: true, source: result });
+    } catch (error: any) {
+      console.error('Error collecting money:', error);
       return res.status(500).json({ error: error.message });
     }
   }
