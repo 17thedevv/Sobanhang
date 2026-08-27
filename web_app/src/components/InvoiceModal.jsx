@@ -10,9 +10,9 @@ export default function InvoiceModal({ order, onClose }) {
         <div className="invoice-header text-center">
           <CheckCircle2 size={56} className="text-success" style={{ margin: '0 auto 1rem' }} />
           <h2>
-            {order.paymentStatus === 'DEBT' ? 'TẠO ĐƠN GHI NỢ THÀNH CÔNG' : 
-             order.paymentStatus === 'UNPAID' ? 'TẠO ĐƠN GIAO SAU THÀNH CÔNG' : 
-             'THANH TOÁN THÀNH CÔNG'}
+            {order.paymentStatus === 'PAID' ? 'HÓA ĐƠN BÁN HÀNG' : 
+             order.paymentStatus === 'UNPAID' ? 'HÓA ĐƠN TẠM TÍNH' : 
+             'HÓA ĐƠN GHI NỢ'}
           </h2>
           <p className="text-muted">Mã đơn: #{order.id.slice(0, 8).toUpperCase()}</p>
         </div>
