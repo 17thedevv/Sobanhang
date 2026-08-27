@@ -82,7 +82,7 @@ export default function Dashboard() {
             <button className="btn-create-first-order" onClick={() => navigate('/dashboard/pos')}>
               Tạo đơn hàng
             </button>
-            <button className="btn-close-banner" onClick={() => setShowFirstOrderBanner(false)}>
+            <button className="btn-close-banner" data-tooltip="Đóng" onClick={() => setShowFirstOrderBanner(false)}>
               <X size={20} />
             </button>
           </div>
@@ -92,7 +92,7 @@ export default function Dashboard() {
       <div className="section-header-row">
         <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           Bức tranh kinh doanh
-          <button className="btn-toggle-revenue" onClick={toggleRevenue} title={showRevenue ? "Ẩn số tiền" : "Hiện số tiền"}>
+          <button className="btn-toggle-revenue" onClick={toggleRevenue} data-tooltip={showRevenue ? "Ẩn số tiền" : "Hiện số tiền"}>
             {showRevenue ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </h2>

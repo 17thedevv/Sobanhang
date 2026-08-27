@@ -189,7 +189,7 @@ export default function Orders() {
           <div className="modal-content order-detail-modal">
             <div className="modal-header">
               <h2>Chi tiết Hóa đơn</h2>
-              <button className="btn-close" onClick={() => setSelectedOrder(null)}>×</button>
+              <button className="btn-close" data-tooltip="Đóng" onClick={() => setSelectedOrder(null)}>×</button>
             </div>
             <div className="modal-body p-0">
               <div className="p-3 border-bottom">
@@ -281,7 +281,7 @@ export default function Orders() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Thu Tiền (Độc lập)</h2>
-              <button className="btn-close" onClick={() => setShowCollectModal(false)}>×</button>
+              <button className="btn-close" data-tooltip="Đóng" onClick={() => setShowCollectModal(false)}>×</button>
             </div>
             <form onSubmit={handleCollectPayment} className="modal-body">
               <div className="form-group mb-3">

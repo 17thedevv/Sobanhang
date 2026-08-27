@@ -205,7 +205,7 @@ export default function POS() {
   const renderCheckoutView = () => (
     <div className="pos-checkout-view">
       <header className="checkout-header">
-        <button className="back-btn" onClick={() => setView('PRODUCTS')}>
+        <button className="back-btn" data-tooltip="Quay lại" onClick={() => setView('PRODUCTS')}>
           <ChevronLeft size={24} />
         </button>
         <h2 className="title">Xác nhận đơn</h2>
@@ -246,7 +246,7 @@ export default function POS() {
                     />
                     <button className="qty-btn add" onClick={() => addToCart(item.product)}><Plus size={12}/></button>
                   </div>
-                  <button className="remove-btn" onClick={() => {
+                  <button className="remove-btn" data-tooltip="Xóa khỏi đơn" onClick={() => {
                     // Quick hack to remove all: just set to 0
                     for(let i=0; i<item.quantity; i++) removeFromCart(item.product.id);
                   }}>
@@ -336,7 +336,7 @@ export default function POS() {
   const renderPaymentView = () => (
     <div className="pos-payment-view">
       <header className="checkout-header">
-        <button className="back-btn" onClick={() => setView('CHECKOUT')}>
+        <button className="back-btn" data-tooltip="Quay lại" onClick={() => setView('CHECKOUT')}>
           <ChevronLeft size={24} />
         </button>
         <h2 className="title">Thanh toán</h2>

@@ -118,6 +118,7 @@ export default function CashFlow() {
               onClick={() => setShowTotal(!showTotal)}
               className="btn text-white p-0"
               style={{ opacity: 0.8, border: 'none', background: 'transparent' }}
+              data-tooltip={showTotal ? "Ẩn số tiền" : "Hiện số tiền"}
             >
               {showTotal ? <EyeOff size={20} /> : <Eye size={20} />}
             </button>
@@ -186,7 +187,7 @@ export default function CashFlow() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Thêm Nguồn tiền</h2>
-              <button className="btn-close" onClick={() => setShowCreateModal(false)}>×</button>
+              <button className="btn-close" data-tooltip="Đóng" onClick={() => setShowCreateModal(false)}>×</button>
             </div>
             <form onSubmit={handleCreateSource} className="modal-body">
               {error && <div className="alert alert-danger p-2 mb-3">{error}</div>}
@@ -252,7 +253,7 @@ export default function CashFlow() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Chuyển tiền nội bộ</h2>
-              <button className="btn-close" onClick={() => setShowTransferModal(false)}>×</button>
+              <button className="btn-close" data-tooltip="Đóng" onClick={() => setShowTransferModal(false)}>×</button>
             </div>
             <form onSubmit={handleTransfer} className="modal-body">
               {error && <div className="alert alert-danger p-2 mb-3">{error}</div>}

@@ -556,6 +556,7 @@
 .debt-checkbox-label {
   display: flex !important;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   cursor: pointer;
   margin: 0 !important;
@@ -573,4 +574,74 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: #333;
+}
+
+/* RESPONSIVE - MOBILE DEVICES */
+@media (max-width: 768px) {
+  .pos-container.mobile-layout {
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .product-card {
+    min-height: 220px;
+  }
+
+  .pos-product-image {
+    min-height: 120px;
+  }
+
+  .pos-product-image svg {
+    width: 32px;
+    height: 32px;
+  }
+
+  .product-info {
+    padding: 8px 8px 6px;
+  }
+
+  .product-name {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+
+  .product-price {
+    font-size: 0.95rem;
+  }
+
+  .product-action {
+    padding: 0 8px 10px;
+  }
+
+  .add-btn {
+    padding: 6px 0;
+    font-size: 0.9rem;
+  }
+
+  .qty-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .qty-value-input {
+    font-size: 0.85rem;
+  }
+
+  .bottom-bar-fixed {
+    margin: 0 12px 12px;
+    bottom: 12px;
+    padding: 10px 12px;
+    width: calc(100% - 24px);
+  }
+
+  .cart-total {
+    font-size: 1rem;
+  }
 }
