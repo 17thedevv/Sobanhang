@@ -1,82 +1,150 @@
 .support-modal {
   width: 95%;
-  max-width: 550px;
+  max-width: 600px;
   background-color: white;
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border: none;
+}
+
+.support-modal .modal-header {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-bottom: 1px solid #bae6fd;
+  padding: 24px;
+}
+
+.support-modal .modal-header h3 {
+  color: #0369a1;
+  font-weight: 700;
+  font-size: 1.35rem;
+  margin: 0;
+}
+
+.support-modal .btn-close {
+  background: white;
+  border-radius: 50%;
+  padding: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: all 0.2s;
+}
+
+.support-modal .btn-close:hover {
+  background: #f1f5f9;
+  transform: scale(1.05);
+}
+
+.support-modal .modal-body {
+  padding: 28px 24px;
 }
 
 .support-desc {
-  margin: 0 0 16px 0;
-  color: #666;
-  font-size: 14px;
+  margin: 0 0 24px 0;
+  color: #475569;
+  font-size: 15px;
+  text-align: center;
+  font-weight: 500;
 }
 
 .support-options {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .support-option-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #eee;
+  gap: 20px;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .support-option-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+  border-color: transparent;
 }
 
+.support-option-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: transparent;
+  transition: background 0.3s;
+}
+
+.support-option-card.zalo:hover::before { background: #0068ff; }
+.support-option-card.messenger:hover::before { background: #0084ff; }
+.support-option-card.hotline:hover::before { background: #ef4444; }
+
 .support-icon-wrapper {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+}
+
+.support-option-card:hover .support-icon-wrapper {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .zalo .support-icon-wrapper {
-  background-color: #0068ff;
-}
-
-.zalo:hover {
-  border-color: #0068ff;
+  background: linear-gradient(135deg, #0068ff 0%, #3b82f6 100%);
+  box-shadow: 0 4px 12px rgba(0, 104, 255, 0.3);
 }
 
 .messenger .support-icon-wrapper {
-  background-color: #0084ff;
-}
-
-.messenger:hover {
-  border-color: #0084ff;
+  background: linear-gradient(135deg, #0084ff 0%, #60a5fa 100%);
+  box-shadow: 0 4px 12px rgba(0, 132, 255, 0.3);
 }
 
 .hotline .support-icon-wrapper {
-  background-color: #ef4444;
+  background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-.hotline:hover {
-  border-color: #ef4444;
+.support-info {
+  flex: 1;
 }
 
 .support-info h4 {
-  margin: 0 0 4px 0;
-  font-size: 15px;
-  color: #333;
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #1e293b;
+  font-weight: 600;
 }
 
 .support-info p {
   margin: 0;
-  font-size: 13px;
-  color: #666;
+  font-size: 13.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.support-arrow {
+  color: #cbd5e1;
+  transition: all 0.3s;
+}
+
+.support-option-card:hover .support-arrow {
+  color: #64748b;
+  transform: translateX(4px);
 }
