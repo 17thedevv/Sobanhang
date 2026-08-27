@@ -158,7 +158,7 @@ export default function POS() {
           const qty = cart[product.id]?.quantity || 0;
           return (
             <div key={product.id} className="product-card">
-              <div className="product-image-placeholder">
+              <div className="pos-product-image">
                 <PackageSearch size={24} color="#ccc" />
               </div>
               <div className="product-info">

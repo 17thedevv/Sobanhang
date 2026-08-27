@@ -95,7 +95,7 @@
   transition: all 0.2s ease;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-  min-height: 320px; /* Prevent cards from shrinking */
+  min-height: 360px; /* Make cards taller as requested */
 }
 
 .product-card:hover {
@@ -103,9 +103,10 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-.product-image-placeholder {
-  height: 180px;
-  min-height: 180px;
+.pos-product-image {
+  width: 100%; /* Ensure it spans full width */
+  height: 200px;
+  min-height: 200px;
   flex-shrink: 0;
   background: #f8f9fa;
   display: flex;
@@ -115,7 +116,7 @@
   color: #adb5bd;
 }
 
-.product-image-placeholder svg {
+.pos-product-image svg {
   margin: auto;
   display: block;
   width: 48px;
