@@ -79,17 +79,16 @@
 }
 
 .product-card {
-  background: #f8f9fa;
+  background: white;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   transition: all 0.2s ease;
+  min-height: 240px; /* Ensure enough height for all contents */
 }
 .product-card:hover {
-  background: #f1f3f5;
-  border-color: #d1d5db;
+  border-color: #00b14f;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
@@ -102,8 +101,10 @@
 }
 
 .product-info {
-  padding: 8px 12px;
-  flex: 1;
+  padding: 12px;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-name {
@@ -123,7 +124,8 @@
 }
 
 .product-action {
-  padding: 0 12px 12px;
+  padding: 12px;
+  margin-top: auto;
 }
 
 .add-btn {
