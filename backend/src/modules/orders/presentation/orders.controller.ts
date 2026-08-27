@@ -40,15 +40,15 @@ export class OrdersController {
         customerId, 
         discount = 0, 
         shippingFee = 0, 
-        paymentSource 
+        cashSourceId 
       } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ error: 'Giỏ hàng trống' });
       }
 
-      if (type === 'QUICK_SALE' && !paymentSource) {
-        return res.status(400).json({ error: 'Bán nhanh bắt buộc chọn nguồn tiền (paymentSource)' });
+      if (type === 'QUICK_SALE' && !cashSourceId) {
+        return res.status(400).json({ error: 'Bán nhanh bắt buộc chọn nguồn tiền (cashSourceId)' });
       }
 
       if (type === 'DEBT_SALE' && !customerId) {
@@ -120,7 +120,7 @@ export class OrdersController {
             orderStatus,
             paymentStatus,
             fulfillmentStatus,
-            paymentSource: paymentSource || null,
+            cashSourceId: cashSourceId || null,
             items: {
               create: orderItemsData
             }
@@ -147,7 +147,23 @@ export class OrdersController {
           });
         }
 
-        // 3. (Future) Create Ledger Entry if PAID
+        // 3. Create Ledger Entry if PAID
+        if (paymentStatus === 'PAID' && cashSourceId) {
+          await tx.cashSource.update({
+            where: { id: cashSourceId },
+            data: { balance: { increment: finalTotal } }
+          });
+          
+          await tx.cashTransaction.create({
+            data: {
+              cashSourceId,
+              amount: finalTotal,
+              type: 'IN',
+              referenceId: order.id,
+              description: `Thanh toán đơn hàng ${order.id.split('-')[0]}`,
+            }
+          });
+        }
         
         // 4. (Future) Update Customer Debt Aggregation if DEBT_SALE
 
@@ -158,6 +174,138 @@ export class OrdersController {
     } catch (error: any) {
       console.error(error);
       return res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getOrderById(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      const { id } = req.params;
+      
+      const order = await prisma.order.findFirst({
+        where: { id, storeId },
+        include: {
+          items: {
+            include: { product: true }
+          },
+          customer: true,
+          cashSource: true
+        }
+      });
+
+      if (!order) {
+        return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+      }
+
+      return res.json({ order });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
+  async cancelOrder(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      const { id } = req.params;
+
+      const result = await prisma.$transaction(async (tx) => {
+        const order = await tx.order.findFirst({
+          where: { id, storeId },
+          include: { items: true }
+        });
+
+        if (!order) throw new Error('Không tìm thấy đơn hàng');
+        if (order.orderStatus === 'CANCELLED') throw new Error('Đơn hàng đã bị hủy');
+
+        // Restore stock
+        for (const item of order.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } }
+          });
+        }
+
+        // Revert cash transaction if PAID
+        if (order.paymentStatus === 'PAID' && order.cashSourceId) {
+          await tx.cashSource.update({
+            where: { id: order.cashSourceId },
+            data: { balance: { decrement: order.total } }
+          });
+          
+          await tx.cashTransaction.create({
+            data: {
+              cashSourceId: order.cashSourceId,
+              amount: order.total,
+              type: 'OUT',
+              referenceId: order.id,
+              description: `Hoàn tiền hủy đơn hàng ${order.id.split('-')[0]}`,
+            }
+          });
+        }
+
+        // Update order status
+        return await tx.order.update({
+          where: { id },
+          data: { 
+            orderStatus: 'CANCELLED',
+            fulfillmentStatus: 'NONE'
+          }
+        });
+      });
+
+      return res.json({ order: result, message: 'Đã hủy đơn hàng' });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async collectPayment(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      const { id } = req.params;
+      const { cashSourceId } = req.body;
+
+      if (!cashSourceId) {
+        return res.status(400).json({ error: 'Vui lòng chọn nguồn tiền' });
+      }
+
+      const result = await prisma.$transaction(async (tx) => {
+        const order = await tx.order.findFirst({
+          where: { id, storeId }
+        });
+
+        if (!order) throw new Error('Không tìm thấy đơn hàng');
+        if (order.paymentStatus === 'PAID') throw new Error('Đơn hàng đã được thanh toán');
+
+        // Update cash source
+        await tx.cashSource.update({
+          where: { id: cashSourceId },
+          data: { balance: { increment: order.total } }
+        });
+        
+        await tx.cashTransaction.create({
+          data: {
+            cashSourceId,
+            amount: order.total,
+            type: 'IN',
+            referenceId: order.id,
+            description: `Thu tiền nợ/giao sau đơn hàng ${order.id.split('-')[0]}`,
+          }
+        });
+
+        // Update order
+        return await tx.order.update({
+          where: { id },
+          data: { 
+            paymentStatus: 'PAID',
+            cashSourceId: cashSourceId
+          }
+        });
+      });
+
+      return res.json({ order: result, message: 'Thu tiền thành công' });
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message });
     }
   }
 }

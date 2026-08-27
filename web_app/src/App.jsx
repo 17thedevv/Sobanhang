@@ -14,6 +14,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
 import POS from './pages/POS';
+import Orders from './pages/Orders';
 import CashFlow from './pages/CashFlow';
 import LandingPage from './pages/LandingPage';
 import { AuthProvider } from './context/AuthContext';
@@ -61,6 +62,7 @@ function App() {
               <Route path="products" element={<Products />} />
               <Route path="categories" element={<Categories />} />
               <Route path="pos" element={<POS />} />
+              <Route path="orders" element={<Orders />} />
               <Route path="cashflow" element={<CashFlow />} />
             </Route>
           </Routes>

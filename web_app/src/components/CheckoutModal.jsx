@@ -16,7 +16,9 @@ export default function CheckoutModal({
   
   const [discount, setDiscount] = useState(0);
   const [shippingFee, setShippingFee] = useState(0);
-  const [paymentSource, setPaymentSource] = useState('CASH');
+  
+  const [cashSources, setCashSources] = useState([]);
+  const [selectedCashSourceId, setSelectedCashSourceId] = useState('');
 
   // Quick add customer form
   const [isAddingCustomer, setIsAddingCustomer] = useState(false);
@@ -25,6 +27,7 @@ export default function CheckoutModal({
 
   useEffect(() => {
     fetchCustomers();
+    fetchCashSources();
   }, []);
 
   const fetchCustomers = async () => {
@@ -33,6 +36,19 @@ export default function CheckoutModal({
       setCustomers(res.data.customers || []);
     } catch (err) {
       console.error('Lỗi khi tải khách hàng', err);
+    }
+  };
+
+  const fetchCashSources = async () => {
+    try {
+      const res = await axios.get('/api/cashbook/sources');
+      const sources = res.data.sources || [];
+      setCashSources(sources);
+      if (sources.length > 0) {
+        setSelectedCashSourceId(sources[0].id);
+      }
+    } catch (err) {
+      console.error('Lỗi khi tải sổ quỹ', err);
     }
   };
 
@@ -66,7 +82,7 @@ export default function CheckoutModal({
       customerId: selectedCustomerId || null,
       discount: Number(discount),
       shippingFee: Number(shippingFee),
-      paymentSource: type === 'QUICK_SALE' ? paymentSource : null
+      cashSourceId: type === 'QUICK_SALE' ? selectedCashSourceId : null
     });
   };
 
@@ -204,20 +220,15 @@ export default function CheckoutModal({
 
               <div className="payment-source-selector mt-4">
                 <label className="text-sm font-medium mb-2" style={{display: 'block'}}>Nguồn tiền (Dành cho Bán nhanh)</label>
-                <div style={{display: 'flex', gap: '0.5rem'}}>
-                  <button 
-                    className={`payment-btn ${paymentSource === 'CASH' ? 'active' : ''}`}
-                    onClick={() => setPaymentSource('CASH')}
-                  >
-                    Tiền mặt
-                  </button>
-                  <button 
-                    className={`payment-btn ${paymentSource === 'BANK' ? 'active' : ''}`}
-                    onClick={() => setPaymentSource('BANK')}
-                  >
-                    Chuyển khoản
-                  </button>
-                </div>
+                <select 
+                  className="form-control"
+                  value={selectedCashSourceId}
+                  onChange={(e) => setSelectedCashSourceId(e.target.value)}
+                >
+                  {cashSources.map(s => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.balance.toLocaleString()}đ)</option>
+                  ))}
+                </select>
               </div>
             </div>
 

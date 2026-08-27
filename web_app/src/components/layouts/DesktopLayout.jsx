@@ -81,7 +81,9 @@ const DesktopLayout = () => {
                   <NavLink to="/dashboard/pos" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
                     Mở POS Bán hàng
                   </NavLink>
-                  <div className="sub-nav-item mockup">Quản lý đơn hàng</div>
+                  <NavLink to="/dashboard/orders" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
+                    Quản lý đơn hàng
+                  </NavLink>
                 </div>
               )}
             </div>

@@ -1,0 +1,81 @@
+.orders-page {
+  padding-bottom: 80px;
+}
+
+.order-card {
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.order-id {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.order-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.customer-info strong {
+  display: block;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+.order-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.order-detail-modal {
+  max-width: 500px;
+}
+
+.order-detail-modal .modal-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* Badge styles */
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--success-color);
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.badge-secondary {
+  background: var(--bg-color);
+  color: var(--text-muted);
+}
