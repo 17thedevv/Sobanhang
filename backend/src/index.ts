@@ -1,15 +1,19 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+
+// Routes imports
 import authRoutes from './modules/auth/presentation/auth.routes';
 import storeRoutes from './modules/onboarding/presentation/store.routes';
 import suggestionRoutes from './modules/onboarding/presentation/suggestion.routes';
 import preferenceRoutes from './modules/onboarding/presentation/preference.routes';
+import { orderRoutes } from './modules/orders/presentation/orders.routes';
+import customerRoutes from './modules/customers/presentation/customer.routes';
+import { cashbookRoutes } from './modules/cashbook/presentation/cashbook.routes';
 import productsRoutes from './modules/products/presentation/products.routes';
 import categoriesRoutes from './modules/categories/presentation/categories.routes';
-import ordersRoutes from './modules/orders/presentation/orders.routes';
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes';
-import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -30,7 +34,12 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
-app.use('/api/orders', ordersRoutes);
+app.use('/api/onboarding/store', storeRoutes);
+app.use('/api/onboarding/suggestions', suggestionRoutes);
+app.use('/api/onboarding/preferences', preferenceRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/cashbook', cashbookRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/stores', storeRoutes);
 app.use('/api/onboarding/suggestions', suggestionRoutes);

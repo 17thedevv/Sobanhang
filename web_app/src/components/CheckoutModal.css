@@ -1,0 +1,234 @@
+.modal-content.checkout-modal {
+  width: 900px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.checkout-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: var(--bg-body);
+}
+
+@media (max-width: 768px) {
+  .checkout-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+
+.checkout-section {
+  flex: 3;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.checkout-summary-section {
+  flex: 2;
+  padding: 1.5rem;
+  background: white;
+  border-left: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.section-block {
+  background: white;
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-block h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-dark);
+}
+
+/* Customer Selection */
+.customer-selection {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.customer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.customer-item:hover {
+  background: var(--gray-50);
+}
+
+.customer-item input[type="radio"] {
+  accent-color: var(--primary);
+  width: 18px;
+  height: 18px;
+}
+
+.customer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cost Inputs */
+.cost-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Summary Card */
+.summary-card {
+  background: var(--gray-50);
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+}
+
+.summary-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px dashed var(--border-light);
+  margin: 1rem 0;
+}
+
+.summary-row.final-total {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.payment-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-light);
+  background: white;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.payment-btn.active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* Checkout Actions */
+.checkout-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-checkout-action {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.btn-checkout-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.btn-checkout-action:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-checkout-action .action-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.2);
+}
+
+.btn-checkout-action .action-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.btn-checkout-action .action-text strong {
+  font-size: 1.1rem;
+  margin-bottom: 0.2rem;
+}
+
+.btn-checkout-action .action-text span {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.quick-sale {
+  background: var(--primary);
+  color: white;
+}
+
+.delivery-later {
+  background: #f59e0b; /* Amber */
+  color: white;
+}
+
+.debt-sale {
+  background: #ef4444; /* Red */
+  color: white;
+}

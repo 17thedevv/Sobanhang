@@ -34,6 +34,8 @@ model Store {
   products   Product[]
   orders     Order[]
   categories Category[]
+  customers  Customer[]
+  cashSources CashSource[]
   settings   String? // JSON string for store settings
 }
 
@@ -84,25 +86,48 @@ model ProductVariant {
   orderItems OrderItem[]
 }
 
-model Order {
-  id            String   @id @default(uuid())
-  storeId       String
-  total         Float
-  isDebt        Boolean  @default(false)
-  paymentMethod String   @default("CASH") // CASH, TRANSFER, CARD
-  createdAt     DateTime @default(now())
+model Customer {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  phone     String?
+  address   String?
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  store Store       @relation(fields: [storeId], references: [id])
-  items OrderItem[]
+  store  Store   @relation(fields: [storeId], references: [id])
+  orders Order[]
+}
+
+model Order {
+  id                String   @id @default(uuid())
+  storeId           String
+  customerId        String?
+  total             Float
+  discount          Float    @default(0)
+  shippingFee       Float    @default(0)
+  orderStatus       String   @default("COMPLETED") // DRAFT, CONFIRMED, COMPLETED, CANCELLED
+  paymentStatus     String   @default("PAID") // UNPAID, PAID, DEBT
+  fulfillmentStatus String   @default("DELIVERED") // NONE, PENDING_DELIVERY, DELIVERED
+  cashSourceId      String?
+  createdAt         DateTime @default(now())
+
+  store      Store       @relation(fields: [storeId], references: [id])
+  customer   Customer?   @relation(fields: [customerId], references: [id])
+  cashSource CashSource? @relation(fields: [cashSourceId], references: [id])
+  items      OrderItem[]
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  productId String
-  variantId String?
-  quantity  Int
-  price     Float
+  id                  String  @id @default(uuid())
+  orderId             String
+  productId           String
+  variantId           String?
+  productNameSnapshot String
+  unitPrice           Float
+  quantity            Int
+  subtotal            Float
 
   order   Order           @relation(fields: [orderId], references: [id])
   product Product         @relation(fields: [productId], references: [id])
@@ -139,4 +164,32 @@ model OAuthAccount {
   user User @relation(fields: [userId], references: [id])
 
   @@unique([provider, providerUserId])
+}
+
+model CashSource {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  type      String   @default("CASH") // CASH, BANK, EWALLET
+  balance   Float    @default(0)
+  isDefault Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store        Store             @relation(fields: [storeId], references: [id])
+  orders       Order[]
+  transactions CashTransaction[]
+}
+
+model CashTransaction {
+  id           String   @id @default(uuid())
+  cashSourceId String
+  amount       Float
+  type         String // IN, OUT
+  referenceId  String? // Order ID or other ref
+  description  String?
+  createdAt    DateTime @default(now())
+
+  cashSource CashSource @relation(fields: [cashSourceId], references: [id])
 }

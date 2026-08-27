@@ -94,8 +94,8 @@ export function AppProvider({ children }) {
       const existing = prev[product.id];
       if (existing) {
         if (existing.quantity >= product.stock) {
-          alert('Vượt quá số lượng tồn kho!');
-          return prev;
+          alert(`Kho chỉ còn ${product.stock} sản phẩm!`);
+          return { ...prev, [product.id]: { ...existing, quantity: product.stock } };
         }
         return { ...prev, [product.id]: { ...existing, quantity: existing.quantity + 1 } };
       }
@@ -122,24 +122,37 @@ export function AppProvider({ children }) {
     });
   };
 
+  const updateCartQuantity = (product, quantity) => {
+    setCart(prev => {
+      const numQty = parseInt(quantity, 10);
+      if (isNaN(numQty) || numQty <= 0) {
+        const newCart = { ...prev };
+        delete newCart[product.id];
+        return newCart;
+      }
+      if (numQty > product.stock) {
+        alert(`Kho chỉ còn ${product.stock} sản phẩm!`);
+        return { ...prev, [product.id]: { product, quantity: product.stock } };
+      }
+      return { ...prev, [product.id]: { product, quantity: numQty } };
+    });
+  };
+
   const clearCart = () => setCart({});
 
   const cartItemsCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
   const cartTotalAmount = Object.values(cart).reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
   // Order Actions
-  const checkout = async (isDebt, paymentMethod) => {
+  const checkout = async (payload) => {
     try {
       const items = Object.values(cart).map(item => ({
         productId: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price
+        quantity: item.quantity
       }));
 
       const res = await axios.post('/api/orders', {
-        total: cartTotalAmount,
-        paymentMethod,
-        isDebt,
+        ...payload,
         items
       });
       
@@ -162,7 +175,7 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider value={{
       products, addProduct, updateProduct, deleteProduct,
-      cart, addToCart, removeFromCart, clearCart, cartItemsCount, cartTotalAmount,
+      cart, addToCart, removeFromCart, updateCartQuantity, clearCart, cartItemsCount, cartTotalAmount,
       orders, checkout,
       dashboardStats, refreshDashboard: fetchDashboardStats
     }}>
