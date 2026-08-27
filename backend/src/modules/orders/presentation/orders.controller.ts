@@ -16,7 +16,8 @@ export class OrdersController {
             include: {
               product: true
             }
-          }
+          },
+          customer: true
         },
         orderBy: { createdAt: 'desc' }
       });

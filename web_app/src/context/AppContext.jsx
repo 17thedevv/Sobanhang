@@ -94,8 +94,8 @@ export function AppProvider({ children }) {
       const existing = prev[product.id];
       if (existing) {
         if (existing.quantity >= product.stock) {
-          alert('Vượt quá số lượng tồn kho!');
-          return prev;
+          alert(`Kho chỉ còn ${product.stock} sản phẩm!`);
+          return { ...prev, [product.id]: { ...existing, quantity: product.stock } };
         }
         return { ...prev, [product.id]: { ...existing, quantity: existing.quantity + 1 } };
       }
@@ -119,6 +119,22 @@ export function AppProvider({ children }) {
         delete newCart[productId];
       }
       return newCart;
+    });
+  };
+
+  const updateCartQuantity = (product, quantity) => {
+    setCart(prev => {
+      const numQty = parseInt(quantity, 10);
+      if (isNaN(numQty) || numQty <= 0) {
+        const newCart = { ...prev };
+        delete newCart[product.id];
+        return newCart;
+      }
+      if (numQty > product.stock) {
+        alert(`Kho chỉ còn ${product.stock} sản phẩm!`);
+        return { ...prev, [product.id]: { product, quantity: product.stock } };
+      }
+      return { ...prev, [product.id]: { product, quantity: numQty } };
     });
   };
 
@@ -159,7 +175,7 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider value={{
       products, addProduct, updateProduct, deleteProduct,
-      cart, addToCart, removeFromCart, clearCart, cartItemsCount, cartTotalAmount,
+      cart, addToCart, removeFromCart, updateCartQuantity, clearCart, cartItemsCount, cartTotalAmount,
       orders, checkout,
       dashboardStats, refreshDashboard: fetchDashboardStats
     }}>

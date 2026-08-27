@@ -155,11 +155,23 @@
   color: #00b14f;
 }
 
-.qty-value {
+.qty-value-input {
   flex: 1;
   text-align: center;
   font-weight: 500;
   font-size: 0.95rem;
+  border: none;
+  width: 100%;
+  min-width: 0;
+  -moz-appearance: textfield;
+}
+.qty-value-input::-webkit-outer-spin-button,
+.qty-value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.qty-value-input:focus {
+  outline: none;
 }
 
 .bottom-bar-fixed {
@@ -466,3 +478,50 @@
   font-weight: 500;
   cursor: pointer;
 }
+
+/* Custom UI Additions */
+.btn-add-source {
+  background: #e8f5e9;
+  color: #00b14f;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-add-source:hover {
+  background: #c8e6c9;
+}
+
+.debt-checkbox-group {
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  margin-top: 24px;
+}
+
+.debt-checkbox-label {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin: 0 !important;
+}
+
+.custom-checkbox {
+  width: 24px;
+  height: 24px;
+  accent-color: #00b14f;
+  cursor: pointer;
+  margin: 0;
+}
+
+.checkbox-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+

@@ -121,7 +121,8 @@ export default function Orders() {
 
   const filteredOrders = orders.filter(o => 
     o.id.toLowerCase().includes(search.toLowerCase()) || 
-    (o.customer?.name || '').toLowerCase().includes(search.toLowerCase())
+    (o.customer?.name || '').toLowerCase().includes(search.toLowerCase()) ||
+    (o.customer?.phone || '').toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -131,8 +132,8 @@ export default function Orders() {
           <h1 className="page-title">Sổ Đơn hàng</h1>
           <p className="page-subtitle">Quản lý hóa đơn và thu nợ</p>
         </div>
-        <div className="header-actions">
-          <button className="btn btn-outline-primary btn-sm me-2" onClick={handleExportCSV}>
+        <div className="header-actions d-flex align-items-center gap-2">
+          <button className="btn btn-outline-primary btn-sm" onClick={handleExportCSV}>
             <Download size={16} /> <span className="d-none d-sm-inline ms-1">Xuất Excel</span>
           </button>
           <button className="btn btn-primary btn-sm" onClick={() => setShowCollectModal(true)}>
@@ -145,7 +146,7 @@ export default function Orders() {
         <Search size={18} className="search-icon" />
         <input 
           type="text" 
-          placeholder="Tìm theo tên khách hàng hoặc mã đơn..." 
+          placeholder="Tìm theo mã đơn, tên hoặc số điện thoại khách hàng..." 
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="form-control"

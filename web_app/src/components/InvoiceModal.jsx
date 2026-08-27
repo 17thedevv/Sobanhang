@@ -7,6 +7,9 @@ export default function InvoiceModal({ order, onClose }) {
   return (
     <div className="modal-overlay glass" onClick={onClose}>
       <div className="modal-content invoice-card" onClick={e => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose}>
+          <X size={24} />
+        </button>
         <div className="invoice-header text-center">
           <CheckCircle2 size={56} className="text-success" style={{ margin: '0 auto 1rem' }} />
           <h2>

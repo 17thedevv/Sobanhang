@@ -9,7 +9,7 @@ import axios from 'axios';
 import './POS.css';
 
 export default function POS() {
-  const { products, cart, addToCart, removeFromCart, clearCart, checkout } = useApp();
+  const { products, cart, addToCart, removeFromCart, updateCartQuantity, clearCart, checkout } = useApp();
   
   // States cho Lọc / Tìm kiếm
   const [searchTerm, setSearchTerm] = useState('');
@@ -166,7 +166,13 @@ export default function POS() {
                 {qty > 0 ? (
                   <div className="qty-counter">
                     <button className="qty-btn" onClick={() => removeFromCart(product.id)}><Minus size={14}/></button>
-                    <span className="qty-value">{qty}</span>
+                    <input 
+                      type="number" 
+                      className="qty-value-input" 
+                      value={qty} 
+                      onChange={(e) => updateCartQuantity(product, e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                    />
                     <button className="qty-btn add" onClick={() => addToCart(product)}><Plus size={14}/></button>
                   </div>
                 ) : (
@@ -228,7 +234,13 @@ export default function POS() {
                 <div className="item-actions">
                   <div className="qty-counter small">
                     <button className="qty-btn" onClick={() => removeFromCart(item.product.id)}><Minus size={12}/></button>
-                    <span className="qty-value">{item.quantity}</span>
+                    <input 
+                      type="number" 
+                      className="qty-value-input" 
+                      value={item.quantity} 
+                      onChange={(e) => updateCartQuantity(item.product, e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                    />
                     <button className="qty-btn add" onClick={() => addToCart(item.product)}><Plus size={12}/></button>
                   </div>
                   <button className="remove-btn" onClick={() => {
@@ -338,9 +350,8 @@ export default function POS() {
           </div>
 
           <div className="form-group mt-3">
-            <label className="d-flex justify-content-between">
+            <label className="d-flex justify-content-between align-items-center" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Nguồn tiền nhận</span>
-              <button className="btn-link p-0" onClick={() => alert('Đến Sổ quỹ để thêm nguồn tiền mới')}>+ Thêm</button>
             </label>
             <select 
               className="form-control"
@@ -354,14 +365,15 @@ export default function POS() {
             </select>
           </div>
 
-          <div className="form-group mt-4">
-            <label className="checkbox-label" style={{ fontSize: '1.1rem' }}>
+          <div className="form-group mt-4 debt-checkbox-group">
+            <label className="debt-checkbox-label">
               <input 
                 type="checkbox" 
                 checked={isDebt} 
                 onChange={e => setIsDebt(e.target.checked)} 
+                className="custom-checkbox"
               />
-              Ghi nợ đơn này
+              <span className="checkbox-text">Ghi nợ đơn này</span>
             </label>
             {isDebt && !selectedCustomer && (
               <div className="text-danger mt-1 text-sm">
