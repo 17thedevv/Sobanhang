@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { DollarSign, ArrowUpRight, ArrowDownRight, Building2, Wallet, Plus, ArrowRightLeft, Eye, EyeOff } from 'lucide-react';
+import { numberToWords } from '../utils/numberToWords';
 import './CashFlow.css';
 
 export default function CashFlow() {
@@ -218,11 +219,15 @@ export default function CashFlow() {
               <div className="form-group mb-3">
                 <label>Số dư ban đầu</label>
                 <input 
-                  type="number" 
+                  type="text" 
                   className="form-control" 
-                  value={newSource.balance} 
-                  onChange={e => setNewSource({...newSource, balance: Number(e.target.value)})}
+                  value={newSource.balance ? Number(newSource.balance).toLocaleString('vi-VN') : ''} 
+                  onChange={e => {
+                    const rawValue = e.target.value.replace(/\D/g, '');
+                    setNewSource({...newSource, balance: rawValue ? Number(rawValue) : 0});
+                  }}
                 />
+                {newSource.balance > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(newSource.balance)}</div>}
               </div>
 
               <div className="form-group mb-4">
@@ -285,13 +290,16 @@ export default function CashFlow() {
               <div className="form-group mb-3">
                 <label>Số tiền chuyển</label>
                 <input 
-                  type="number" 
+                  type="text" 
                   className="form-control" 
                   required 
-                  min="1"
-                  value={transfer.amount || ''} 
-                  onChange={e => setTransfer({...transfer, amount: Number(e.target.value)})}
+                  value={transfer.amount ? Number(transfer.amount).toLocaleString('vi-VN') : ''} 
+                  onChange={e => {
+                    const rawValue = e.target.value.replace(/\D/g, '');
+                    setTransfer({...transfer, amount: rawValue ? Number(rawValue) : 0});
+                  }}
                 />
+                {transfer.amount > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(transfer.amount)}</div>}
               </div>
 
               <button type="submit" className="btn btn-primary w-100 mt-2">Xác nhận chuyển</button>

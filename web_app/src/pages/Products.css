@@ -25,7 +25,8 @@
 
 .products-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 12px;
 }
 
 .products-table th {
@@ -39,16 +40,38 @@
   letter-spacing: 0.5px;
 }
 
+.products-table tbody tr {
+  background: #f8f9fa;
+  transition: background 0.2s;
+}
+
+.products-table tbody tr:hover {
+  background: #f1f3f5;
+}
+
 .products-table td {
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
   vertical-align: middle;
+}
+
+.products-table td:first-child {
+  border-left: 2px solid #000;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.products-table td:last-child {
+  border-right: 2px solid #000;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 .product-image-placeholder {
   width: 48px;
   height: 48px;
-  background: #f0f0f0;
+  background: #e9ecef;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -66,6 +89,7 @@
 .actions-cell {
   text-align: right;
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
 }

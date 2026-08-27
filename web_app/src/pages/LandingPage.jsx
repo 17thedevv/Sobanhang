@@ -1,8 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './LandingPage.css';
 
 const LandingPage = () => {
+  const { user } = useAuth();
+  
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="landing-page">
       <header className="landing-header">

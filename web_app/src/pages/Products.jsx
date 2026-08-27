@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Plus, Search, Edit2, Trash2, PackageSearch } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, PackageSearch, Eye } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import ProductModal from '../components/ProductModal';
+import ConfirmModal from '../components/ConfirmModal';
 import './Products.css';
 
 export default function Products() {
@@ -11,14 +12,28 @@ export default function Products() {
   const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [isReadOnly, setIsReadOnly] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+
+  useEffect(() => {
+    setSearchTerm(searchParams.get('q') || '');
+  }, [searchParams]);
 
   const filteredProducts = products.filter(p => {
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return true;
     return p.name.toLowerCase().includes(term) || (p.barcode && p.barcode.toLowerCase().includes(term));
   });
 
   const handleEdit = (product) => {
     setEditingProduct(product);
+    setIsReadOnly(false);
+    setIsModalOpen(true);
+  };
+
+  const handleView = (product) => {
+    setEditingProduct(product);
+    setIsReadOnly(true);
     setIsModalOpen(true);
   };
 
@@ -29,11 +44,13 @@ export default function Products() {
       name: `${product.name} - copy`
     };
     setEditingProduct(copiedProduct);
+    setIsReadOnly(false);
     setIsModalOpen(true);
   };
 
   const handleAddNew = () => {
     setEditingProduct(null);
+    setIsReadOnly(false);
     setIsModalOpen(true);
   };
 
@@ -112,13 +129,20 @@ export default function Products() {
                       )}
                     </td>
                     <td>{product.trackInventory ? `${totalStock} ${product.unit}` : 'Không theo dõi'}</td>
-                    <td className="actions-cell">
-                      <button className="btn-icon" onClick={() => handleEdit(product)}>
-                        <Edit2 size={18} />
-                      </button>
-                      <button className="btn-icon text-danger" onClick={() => deleteProduct(product.id)}>
-                        <Trash2 size={18} />
-                      </button>
+                    <td>
+                      <div className="d-flex align-items-center justify-content-end gap-2">
+                        <button className="btn-icon" data-tooltip="Xem chi tiết" onClick={() => handleView(product)}>
+                          <Eye size={18} />
+                        </button>
+                        <button className="btn-icon" data-tooltip="Sửa sản phẩm" onClick={() => handleEdit(product)}>
+                          <Edit2 size={18} />
+                        </button>
+                        <button className="btn-icon text-danger" data-tooltip="Xóa sản phẩm" onClick={() => {
+                          setProductToDelete(product);
+                        }}>
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )})}
@@ -133,8 +157,19 @@ export default function Products() {
           product={editingProduct} 
           onClose={() => setIsModalOpen(false)} 
           onCopy={handleCopy}
+          isReadOnly={isReadOnly}
+          onEdit={() => setIsReadOnly(false)}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!productToDelete}
+        title="Xác nhận xóa"
+        message={`Bạn có chắc chắn muốn xóa sản phẩm "${productToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmText="Xóa sản phẩm"
+        onConfirm={() => deleteProduct(productToDelete.id)}
+        onCancel={() => setProductToDelete(null)}
+      />
     </div>
   );
 }

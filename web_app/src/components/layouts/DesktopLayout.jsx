@@ -190,9 +190,10 @@ const DesktopLayout = () => {
               <Store size={20} color="#00B14F" />
             </button>
             <div className="search-bar">
+              <Search size={20} className="text-muted" />
               <input 
                 type="text" 
-                placeholder="Tìm sản phẩm..." 
+                placeholder="Tìm kiếm tính năng, sản phẩm..." 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={e => {
@@ -201,18 +202,18 @@ const DesktopLayout = () => {
                   }
                 }}
               />
-              <button 
-                className="search-shortcut btn p-1"
-                onClick={() => {
-                  if (searchQuery.trim()) {
-                    navigate(`/dashboard/products?q=${encodeURIComponent(searchQuery)}`);
-                  }
-                }}
-                title="Tìm kiếm (Enter)"
-              >
-                <Search size={16} />
-              </button>
-            </div>
+                <button 
+                  className="search-shortcut btn p-1"
+                  onClick={() => {
+                    if (searchQuery.trim()) {
+                      navigate(`/dashboard/products?q=${encodeURIComponent(searchQuery)}`);
+                    }
+                  }}
+                  data-tooltip="Tìm kiếm (Enter)"
+                >
+                  <Search size={16} />
+                </button>
+              </div>
             
             <button className="icon-action-btn">
               <Bell size={20} />

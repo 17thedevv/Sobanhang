@@ -79,17 +79,23 @@
 }
 
 .product-card {
-  background: white;
+  background: #f8f9fa;
   border-radius: 8px;
-  border: 1px solid #eee;
+  border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: all 0.2s ease;
+}
+.product-card:hover {
+  background: #f1f3f5;
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .product-image-placeholder {
   height: 100px;
-  background: #f8f9fa;
+  background: #e9ecef;
   display: flex;
   align-items: center;
   justify-content: center;

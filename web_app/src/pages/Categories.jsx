@@ -38,10 +38,11 @@ const Categories = () => {
     }
     
     try {
+      const trimmedName = name.trim();
       if (editingCategory) {
-        await axios.put(`/api/categories/${editingCategory.id}`, { name });
+        await axios.put(`/api/categories/${editingCategory.id}`, { name: trimmedName });
       } else {
-        await axios.post('/api/categories', { name });
+        await axios.post('/api/categories', { name: trimmedName });
       }
       setShowModal(false);
       setName('');
@@ -73,7 +74,7 @@ const Categories = () => {
   };
 
   const filteredCategories = categories.filter(c => 
-    c.name.toLowerCase().includes(search.toLowerCase())
+    c.name.toLowerCase().includes(search.trim().toLowerCase())
   );
 
   return (

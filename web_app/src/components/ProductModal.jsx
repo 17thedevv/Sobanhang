@@ -3,9 +3,11 @@ import { useApp } from '../context/AppContext';
 import { X, Plus, Trash2, Tag, Percent, Archive, Package, Barcode, Copy, Settings } from 'lucide-react';
 import axios from 'axios';
 import ProductSettingsModal from './ProductSettingsModal';
+import ConfirmModal from './ConfirmModal';
+import { numberToWords } from '../utils/numberToWords';
 import './ProductModal.css';
 
-export default function ProductModal({ product, onClose, onCopy }) {
+export default function ProductModal({ product, onClose, onCopy, isReadOnly, onEdit }) {
   const { addProduct, updateProduct, deleteProduct } = useApp();
   
   // Basic info
@@ -42,6 +44,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formSettings, setFormSettings] = useState({
     showImage: true, showBarcode: true, showUnit: true,
     showPromotionalPrice: true, showWholesalePrice: true, showUnitConversion: false,
@@ -231,7 +234,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
     setLoading(true);
     try {
       const productData = {
-        name,
+        name: name.trim(),
         price: Number(price),
         unit,
         categoryId: categoryId || null,
@@ -251,7 +254,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
       };
 
       let success = false;
-      if (product) {
+      if (product && product.id) {
         success = await updateProduct({ ...product, ...productData });
       } else {
         success = await addProduct(productData);
@@ -271,24 +274,20 @@ export default function ProductModal({ product, onClose, onCopy }) {
     <div className="modal-overlay glass" onClick={onClose}>
       <div className="modal-content product-modal-large card" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới'}</h2>
+          <h2>{isReadOnly ? 'Chi tiết sản phẩm' : (product ? 'Cập nhật sản phẩm' : 'Thêm sản phẩm mới')}</h2>
           <div className="modal-header-actions">
-            <button type="button" className="btn-icon" title="Cài đặt form" onClick={() => setShowSettingsModal(true)}>
+            <button type="button" className="btn-icon" data-tooltip="Cài đặt form" onClick={() => setShowSettingsModal(true)}>
               <Settings size={18} />
             </button>
             {product && (
               <>
-                <button type="button" className="btn-icon" title="Sao chép sản phẩm" onClick={() => {
+                <button type="button" className="btn-icon" data-tooltip="Sao chép sản phẩm" onClick={() => {
                   if (onCopy) onCopy(product);
-                  onClose();
                 }}>
                   <Copy size={18} />
                 </button>
-                <button type="button" className="btn-icon text-danger" title="Xóa sản phẩm" onClick={async () => {
-                  if (window.confirm('Bạn có chắc muốn xóa sản phẩm này?')) {
-                    await deleteProduct(product.id);
-                    onClose();
-                  }
+                <button type="button" className="btn-icon text-danger" data-tooltip="Xóa sản phẩm" onClick={() => {
+                  setShowDeleteConfirm(true);
                 }}>
                   <Trash2 size={18} />
                 </button>
@@ -299,6 +298,7 @@ export default function ProductModal({ product, onClose, onCopy }) {
         </div>
 
         <form id="product-form" onSubmit={handleSubmit} className="modal-body-scroll">
+          <fieldset disabled={isReadOnly} style={{ border: 'none', padding: 0, margin: 0 }}>
           {/* Section 1: Basic Info */}
           <div className="form-section">
             <h3 className="section-title"><Package size={16}/> Thông tin cơ bản</h3>
@@ -389,12 +389,31 @@ export default function ProductModal({ product, onClose, onCopy }) {
             <div className="form-row">
               <div className="form-group">
                 <label>Giá bán lẻ *</label>
-                <input type="number" required min="0" onKeyDown={preventInvalidNumber} className="input-field" value={price} onChange={e => setPrice(e.target.value)} />
+                <input 
+                  type="text" 
+                  required 
+                  className="input-field" 
+                  value={price ? Number(price).toLocaleString('vi-VN') : ''} 
+                  onChange={e => {
+                    const rawValue = e.target.value.replace(/\D/g, '');
+                    setPrice(rawValue);
+                  }} 
+                />
+                {price > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(price)}</div>}
               </div>
               {formSettings.showPromotionalPrice && (
                 <div className="form-group">
                   <label>Giá khuyến mãi</label>
-                  <input type="number" min="0" onKeyDown={preventInvalidNumber} className="input-field" value={promotionalPrice} onChange={e => setPromotionalPrice(e.target.value)} />
+                  <input 
+                    type="text" 
+                    className="input-field" 
+                    value={promotionalPrice ? Number(promotionalPrice).toLocaleString('vi-VN') : ''} 
+                    onChange={e => {
+                      const rawValue = e.target.value.replace(/\D/g, '');
+                      setPromotionalPrice(rawValue);
+                    }} 
+                  />
+                  {promotionalPrice > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(promotionalPrice)}</div>}
                 </div>
               )}
               {formSettings.showUnit && (
@@ -427,11 +446,12 @@ export default function ProductModal({ product, onClose, onCopy }) {
                           }} />
                         </div>
                         <div className="form-group mb-0">
-                          <input type="number" placeholder="Giá sỉ..." min="0" onKeyDown={preventInvalidNumber} className="input-field" value={tier.price} onChange={e => {
+                          <input type="text" placeholder="Giá sỉ..." className="input-field" value={tier.price ? Number(tier.price).toLocaleString('vi-VN') : ''} onChange={e => {
                             const newTiers = [...wholesaleTiers];
-                            newTiers[index].price = e.target.value;
+                            newTiers[index].price = e.target.value.replace(/\D/g, '');
                             setWholesaleTiers(newTiers);
                           }} />
+                          {tier.price > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(tier.price)}</div>}
                         </div>
                         <button type="button" className="btn-icon delete" onClick={() => setWholesaleTiers(wholesaleTiers.filter((_, i) => i !== index))}>
                           <Trash2 size={16} />
@@ -601,13 +621,20 @@ export default function ProductModal({ product, onClose, onCopy }) {
               )}
             </div>
           )}
+          </fieldset>
         </form>
 
         <div className="modal-footer-fixed">
-          <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Hủy</button>
-          <button type="submit" className="btn-primary" form="product-form" disabled={loading}>
-            {loading ? 'Đang lưu...' : (product ? 'Cập nhật sản phẩm' : 'Lưu sản phẩm')}
-          </button>
+          {isReadOnly ? (
+            <button type="button" className="btn-secondary" style={{width: '100%'}} onClick={onClose}>Đóng</button>
+          ) : (
+            <>
+              <button type="button" className="btn-secondary" onClick={onClose} disabled={loading}>Hủy</button>
+              <button type="submit" className="btn-primary" form="product-form" disabled={loading}>
+                {loading ? 'Đang lưu...' : (product ? 'Cập nhật sản phẩm' : 'Lưu sản phẩm')}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -616,6 +643,20 @@ export default function ProductModal({ product, onClose, onCopy }) {
         onClose={() => setShowSettingsModal(false)}
         onSave={(newSettings) => setFormSettings(newSettings)}
       />
+
+      {product && (
+        <ConfirmModal
+          isOpen={showDeleteConfirm}
+          title="Xác nhận xóa"
+          message={`Bạn có chắc muốn xóa sản phẩm "${product.name}" không? Hành động này không thể hoàn tác.`}
+          confirmText="Xóa sản phẩm"
+          onConfirm={async () => {
+            await deleteProduct(product.id);
+            onClose();
+          }}
+          onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
     </div>
   );
 }

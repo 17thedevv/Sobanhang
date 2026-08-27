@@ -25,25 +25,25 @@ const TabletLayout = () => {
         </div>
         
         <nav className="sidebar-nav">
-          <NavLink to="/dashboard" end className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Tổng quan">
+          <NavLink to="/dashboard" end className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} data-tooltip="Tổng quan">
             <Home size={24} />
           </NavLink>
           
-          <NavLink to="/dashboard/pos" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Bán hàng">
+          <NavLink to="/dashboard/pos" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} data-tooltip="Bán hàng">
             <ShoppingCart size={24} />
           </NavLink>
           
-          <NavLink to="/dashboard/products" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Sản phẩm">
+          <NavLink to="/dashboard/products" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} data-tooltip="Sản phẩm">
             <Package size={24} />
           </NavLink>
 
-          <NavLink to="/dashboard/cashflow" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} title="Sổ quỹ">
+          <NavLink to="/dashboard/cashflow" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} data-tooltip="Sổ quỹ">
             <DollarSign size={24} />
           </NavLink>
         </nav>
 
-        <div className="sidebar-footer">
-          <button className="btn-logout compact" onClick={handleLogout} title="Đăng xuất">
+        <div className="sidebar-footer compact">
+          <button className="btn-logout compact" onClick={handleLogout} data-tooltip="Đăng xuất">
             <LogOut size={24} />
           </button>
         </div>

@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import InvoiceModal from '../components/InvoiceModal';
 import axios from 'axios';
+import { numberToWords } from '../utils/numberToWords';
 import './POS.css';
 
 export default function POS() {
@@ -52,7 +53,7 @@ export default function POS() {
 
   // Filter Products
   const filteredProducts = products.filter(p => {
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.trim().toLowerCase();
     const matchSearch = p.name.toLowerCase().includes(term) || (p.barcode && p.barcode.toLowerCase().includes(term));
     const matchCategory = selectedCategory === 'all' || p.categoryId === selectedCategory;
     return matchSearch && matchCategory;
@@ -128,7 +129,9 @@ export default function POS() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
-          <ScanLine size={20} className="text-muted cursor-pointer ml-auto" title="Quét mã vạch" />
+          <button className="btn-icon ml-auto" data-tooltip="Quét mã vạch" style={{padding: 4, width: 'auto', height: 'auto', display: 'flex'}}>
+            <ScanLine size={20} className="text-muted" />
+          </button>
         </div>
       </header>
 
@@ -272,24 +275,36 @@ export default function POS() {
 
           <div className="meta-row">
             <span className="meta-label">Giảm giá</span>
-            <input 
-              type="number" 
-              className="meta-input text-right"
-              placeholder="0"
-              value={discount || ''}
-              onChange={(e) => setDiscount(e.target.value)}
-            />
+            <div>
+              <input 
+                type="text" 
+                className="meta-input text-right"
+                placeholder="0"
+                value={discount ? Number(discount).toLocaleString('vi-VN') : ''}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/\D/g, '');
+                  setDiscount(rawValue);
+                }}
+              />
+              {discount > 0 && <div className="text-muted text-sm fst-italic text-right mt-1">{numberToWords(discount)}</div>}
+            </div>
           </div>
 
           <div className="meta-row">
             <span className="meta-label">Vận chuyển</span>
-            <input 
-              type="number" 
-              className="meta-input text-right"
-              placeholder="0"
-              value={shippingFee || ''}
-              onChange={(e) => setShippingFee(e.target.value)}
-            />
+            <div>
+              <input 
+                type="text" 
+                className="meta-input text-right"
+                placeholder="0"
+                value={shippingFee ? Number(shippingFee).toLocaleString('vi-VN') : ''}
+                onChange={(e) => {
+                  const rawValue = e.target.value.replace(/\D/g, '');
+                  setShippingFee(rawValue);
+                }}
+              />
+              {shippingFee > 0 && <div className="text-muted text-sm fst-italic text-right mt-1">{numberToWords(shippingFee)}</div>}
+            </div>
           </div>
         </div>
       </div>
@@ -337,11 +352,15 @@ export default function POS() {
           <div className="form-group">
             <label>Tiền khách đưa</label>
             <input 
-              type="number" 
+              type="text" 
               className="form-control"
-              value={amountPaid}
-              onChange={e => setAmountPaid(e.target.value)}
+              value={amountPaid ? Number(amountPaid).toLocaleString('vi-VN') : ''}
+              onChange={e => {
+                const rawValue = e.target.value.replace(/\D/g, '');
+                setAmountPaid(rawValue);
+              }}
             />
+            {amountPaid > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(amountPaid)}</div>}
             {Number(amountPaid) > finalTotal && (
               <div className="change-due mt-1 text-success">
                 Tiền thừa trả khách: {(Number(amountPaid) - finalTotal).toLocaleString('vi-VN')}đ
