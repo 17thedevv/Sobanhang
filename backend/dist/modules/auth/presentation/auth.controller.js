@@ -57,11 +57,11 @@ class AuthController {
             // Set accessToken mới
             res.cookie('accessToken', accessToken, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: true,
+                sameSite: 'none',
                 maxAge: 7 * 24 * 3600000 // 7 days
             });
-            return res.status(200).json({ message: 'Thiết lập mật khẩu thành công', user });
+            return res.status(200).json({ message: 'Thiết lập mật khẩu thành công', user, accessToken });
         }
         catch (error) {
             if (error.message.includes('tồn tại')) {
@@ -85,14 +85,14 @@ class AuthController {
             );
             const cookieOptions = {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+                secure: true,
+                sameSite: 'none'
             };
             if (rememberMe) {
                 cookieOptions.maxAge = 30 * 24 * 3600000; // 30 ngày
             } // Nếu rememberMe là false, nó sẽ là Session Cookie (hoặc theo trình duyệt dọn dẹp)
             res.cookie('accessToken', accessToken, cookieOptions);
-            return res.status(200).json({ message: 'Đăng nhập thành công', user });
+            return res.status(200).json({ message: 'Đăng nhập thành công', user, accessToken });
         }
         catch (error) {
             if (error.message.includes('chính xác') || error.message.includes('đăng ký')) {
@@ -107,8 +107,8 @@ class AuthController {
     async logout(req, res) {
         const cookieOptions = {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+            secure: true,
+            sameSite: 'none'
         };
         res.clearCookie('accessToken', cookieOptions);
         res.clearCookie('setupToken', cookieOptions);
@@ -157,7 +157,7 @@ class AuthController {
             const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
             // Nếu user.status là ACTIVE thì cho login bình thường
             if (user.status === 'ACTIVE') {
-                const accessToken = jsonwebtoken_1.default.sign({ userId: user.userId, role: user.role, status: user.status, storeId: user.storeId }, JWT_SECRET, { expiresIn: '7d' });
+                const accessToken = jsonwebtoken_1.default.sign({ userId: user.userId, role: user.role, status: user.status, storeId: user.storeId, scope: 'access' }, JWT_SECRET, { expiresIn: '7d' });
                 res.cookie('accessToken', accessToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',

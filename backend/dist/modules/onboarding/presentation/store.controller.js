@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.storeController = exports.StoreController = void 0;
 const store_service_1 = require("../domain/store.service");
+const prisma_1 = require("../../../prisma");
 class StoreController {
     async createStore(req, res) {
         try {
@@ -32,7 +33,71 @@ class StoreController {
             });
         }
         catch (error) {
-            return res.status(400).json({ error: error.message });
+            return res.status(500).json({ error: error.message });
+        }
+    }
+    async getSettings(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId) {
+                return res.status(400).json({ error: 'Cửa hàng không tồn tại' });
+            }
+            const store = await prisma_1.prisma.store.findUnique({
+                where: { id: storeId }
+            });
+            if (!store) {
+                return res.status(404).json({ error: 'Cửa hàng không tồn tại' });
+            }
+            const settings = store.settings ? JSON.parse(store.settings) : {};
+            return res.status(200).json(settings);
+        }
+        catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+    async updateSettings(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId) {
+                return res.status(400).json({ error: 'Cửa hàng không tồn tại' });
+            }
+            const { productSettings } = req.body;
+            const store = await prisma_1.prisma.store.findUnique({
+                where: { id: storeId }
+            });
+            if (!store) {
+                return res.status(404).json({ error: 'Cửa hàng không tồn tại' });
+            }
+            const currentSettings = store.settings ? JSON.parse(store.settings) : {};
+            const newSettings = {
+                ...currentSettings,
+                ...(productSettings && { productSettings })
+            };
+            await prisma_1.prisma.store.update({
+                where: { id: storeId },
+                data: { settings: JSON.stringify(newSettings) }
+            });
+            return res.status(200).json({ message: 'Cập nhật cài đặt thành công', settings: newSettings });
+        }
+        catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
+    async updateStoreName(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            const { name } = req.body;
+            if (!storeId || !name) {
+                return res.status(400).json({ error: 'Dữ liệu không hợp lệ' });
+            }
+            await prisma_1.prisma.store.update({
+                where: { id: storeId },
+                data: { name }
+            });
+            return res.status(200).json({ message: 'Đổi tên thành công', name });
+        }
+        catch (error) {
+            return res.status(500).json({ error: error.message });
         }
     }
 }

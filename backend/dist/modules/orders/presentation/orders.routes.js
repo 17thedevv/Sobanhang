@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.orderRoutes = void 0;
 const express_1 = require("express");
 const orders_controller_1 = require("./orders.controller");
 const auth_middleware_1 = require("../../../shared/middlewares/auth.middleware");
@@ -8,4 +9,8 @@ const controller = new orders_controller_1.OrdersController();
 router.use(auth_middleware_1.verifyAccessToken);
 router.get('/', controller.getOrders);
 router.post('/', controller.createOrder);
+router.get('/:id', controller.getOrderById);
+router.put('/:id/cancel', controller.cancelOrder);
+router.put('/:id/collect-payment', controller.collectPayment);
+exports.orderRoutes = router;
 exports.default = router;

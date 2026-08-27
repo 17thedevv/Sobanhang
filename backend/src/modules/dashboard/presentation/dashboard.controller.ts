@@ -50,7 +50,7 @@ export class DashboardController {
           };
         }
         productSales[pId].quantity += item.quantity;
-        productSales[pId].revenue += item.quantity * item.price;
+        productSales[pId].revenue += item.quantity * item.unitPrice;
       });
 
       const topProducts = Object.values(productSales)

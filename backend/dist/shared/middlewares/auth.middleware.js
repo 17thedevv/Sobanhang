@@ -7,7 +7,7 @@ exports.verifyResetToken = exports.verifyAccessToken = exports.verifySetupToken 
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_key_sobanhang';
 const verifySetupToken = (req, res, next) => {
-    const token = req.cookies.setupToken;
+    const token = req.cookies.setupToken || req.headers.authorization?.split(' ')[1];
     if (!token) {
         return res.status(401).json({ error: 'Không tìm thấy token cài đặt (setupToken)' });
     }
@@ -28,7 +28,7 @@ const verifySetupToken = (req, res, next) => {
 };
 exports.verifySetupToken = verifySetupToken;
 const verifyAccessToken = (req, res, next) => {
-    const token = req.cookies.accessToken;
+    const token = req.cookies.accessToken || req.headers.authorization?.split(' ')[1];
     if (!token) {
         return res.status(401).json({ error: 'Chưa đăng nhập' });
     }
@@ -51,7 +51,7 @@ const verifyAccessToken = (req, res, next) => {
 };
 exports.verifyAccessToken = verifyAccessToken;
 const verifyResetToken = (req, res, next) => {
-    const token = req.cookies.resetToken;
+    const token = req.cookies.resetToken || req.headers.authorization?.split(' ')[1];
     if (!token) {
         return res.status(401).json({ error: 'Vui lòng xác minh mã OTP trước' });
     }

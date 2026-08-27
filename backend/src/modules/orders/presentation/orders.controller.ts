@@ -57,7 +57,7 @@ export class OrdersController {
       }
 
       let total = 0;
-      const orderItemsData = [];
+      const orderItemsData: any[] = [];
 
       // Check stock and prepare order items
       for (const item of items) {
@@ -180,8 +180,8 @@ export class OrdersController {
 
   async getOrderById(req: Request, res: Response) {
     try {
-      const storeId = req.user?.storeId;
-      const { id } = req.params;
+      const storeId = req.user?.storeId as string;
+      const id = req.params.id as string;
       
       const order = await prisma.order.findFirst({
         where: { id, storeId },
@@ -206,11 +206,11 @@ export class OrdersController {
 
   async cancelOrder(req: Request, res: Response) {
     try {
-      const storeId = req.user?.storeId;
-      const { id } = req.params;
+      const storeId = req.user?.storeId as string;
+      const id = req.params.id as string;
 
-      const result = await prisma.$transaction(async (tx) => {
-        const order = await tx.order.findFirst({
+      const result = await prisma.$transaction(async (tx: any) => {
+        const order: any = await tx.order.findFirst({
           where: { id, storeId },
           include: { items: true }
         });
@@ -262,16 +262,16 @@ export class OrdersController {
 
   async collectPayment(req: Request, res: Response) {
     try {
-      const storeId = req.user?.storeId;
-      const { id } = req.params;
+      const storeId = req.user?.storeId as string;
+      const id = req.params.id as string;
       const { cashSourceId } = req.body;
 
       if (!cashSourceId) {
         return res.status(400).json({ error: 'Vui lòng chọn nguồn tiền' });
       }
 
-      const result = await prisma.$transaction(async (tx) => {
-        const order = await tx.order.findFirst({
+      const result = await prisma.$transaction(async (tx: any) => {
+        const order: any = await tx.order.findFirst({
           where: { id, storeId }
         });
 

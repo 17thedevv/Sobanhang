@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cashbookRoutes = void 0;
+const express_1 = require("express");
+const cashbook_controller_1 = require("./cashbook.controller");
+const auth_middleware_1 = require("../../../shared/middlewares/auth.middleware");
+const router = (0, express_1.Router)();
+const cashbookController = new cashbook_controller_1.CashbookController();
+router.use(auth_middleware_1.verifyAccessToken);
+router.get('/sources', cashbookController.getSources.bind(cashbookController));
+router.post('/sources', cashbookController.createSource.bind(cashbookController));
+router.put('/sources/:id/order', cashbookController.updateSourceOrder.bind(cashbookController));
+router.post('/transfer', cashbookController.transferMoney.bind(cashbookController));
+router.post('/collect', cashbookController.collectMoney.bind(cashbookController));
+exports.cashbookRoutes = router;
