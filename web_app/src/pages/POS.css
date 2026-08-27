@@ -95,6 +95,7 @@
   transition: all 0.2s ease;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  min-height: 320px; /* Prevent cards from shrinking */
 }
 
 .product-card:hover {
@@ -104,6 +105,8 @@
 
 .product-image-placeholder {
   height: 180px;
+  min-height: 180px;
+  flex-shrink: 0;
   background: #f8f9fa;
   display: flex;
   align-items: center;
@@ -228,6 +231,7 @@
   padding: 12px 16px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 177, 79, 0.3);
+  z-index: 100;
 }
 
 .cart-badge {
