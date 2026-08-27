@@ -186,7 +186,7 @@ const DesktopLayout = () => {
           </div>
 
           <div className="header-right">
-            <button className="icon-action-btn" onClick={() => setShowSidebar(true)}>
+            <button className="icon-action-btn" onClick={() => setShowSidebar(true)} data-tooltip="Cửa hàng" data-tooltip-pos="bottom">
               <Store size={20} color="#00B14F" />
             </button>
             <div className="search-bar">
@@ -210,15 +210,16 @@ const DesktopLayout = () => {
                     }
                   }}
                   data-tooltip="Tìm kiếm (Enter)"
+                  data-tooltip-pos="bottom"
                 >
                   <Search size={16} />
                 </button>
               </div>
             
-            <button className="icon-action-btn">
+            <button className="icon-action-btn" data-tooltip="Thông báo" data-tooltip-pos="bottom">
               <Bell size={20} />
             </button>
-            <button className="icon-action-btn" style={{position: 'relative'}} onClick={() => setShowSupport(true)}>
+            <button className="icon-action-btn" style={{position: 'relative'}} onClick={() => setShowSupport(true)} data-tooltip="Hỗ trợ" data-tooltip-pos="bottom">
               <MessageCircle size={20} />
               <span className="chat-badge" style={{position: 'absolute', top: -2, right: -2, backgroundColor: '#ef4444', color: 'white', fontSize: 10, borderRadius: '50%', width: 14, height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>3</span>
             </button>
