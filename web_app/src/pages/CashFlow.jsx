@@ -192,7 +192,7 @@ export default function CashFlow() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Thêm Nguồn tiền</h2>
-              <button className="btn-icon" data-tooltip="Đóng" onClick={() => setShowCreateModal(false)}>
+              <button className="btn-icon" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setShowCreateModal(false)}>
                 <X size={20} />
               </button>
             </div>
@@ -260,7 +260,7 @@ export default function CashFlow() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Chuyển tiền nội bộ</h2>
-              <button className="btn-icon" data-tooltip="Đóng" onClick={() => setShowTransferModal(false)}>
+              <button className="btn-icon" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setShowTransferModal(false)}>
                 <X size={20} />
               </button>
             </div>
