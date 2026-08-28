@@ -18,7 +18,8 @@ const DesktopLayout = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showSupport, setShowSupport] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [showStoreDrawer, setShowStoreDrawer] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState({
     sales: false,
     products: false,
@@ -47,7 +48,7 @@ const DesktopLayout = () => {
   return (
     <div className="layout-container desktop-layout">
       {/* SIDEBAR */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isNavCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-header">
           <div className="logo-box">
             <span className="logo-icon">$</span>
@@ -175,7 +176,7 @@ const DesktopLayout = () => {
         {/* HEADER */}
         <header className="top-header">
           <div className="header-left">
-            <Menu size={20} className="header-icon-btn" />
+            <Menu size={20} className="header-icon-btn" onClick={() => setIsNavCollapsed(!isNavCollapsed)} />
             <span className="header-title">
               {location.pathname === '/dashboard' ? 'Tổng quan' : 
                location.pathname.includes('/pos') ? 'Bán hàng (POS)' : 
@@ -186,7 +187,7 @@ const DesktopLayout = () => {
           </div>
 
           <div className="header-right">
-            <button className="icon-action-btn" onClick={() => setShowSidebar(true)} data-tooltip="Cửa hàng" data-tooltip-pos="bottom">
+            <button className="icon-action-btn" onClick={() => setShowStoreDrawer(true)} data-tooltip="Cửa hàng" data-tooltip-pos="bottom">
               <Store size={20} color="#00B14F" />
             </button>
             <div className="search-bar">
@@ -252,7 +253,7 @@ const DesktopLayout = () => {
       </div>
 
       <SupportModal isOpen={showSupport} onClose={() => setShowSupport(false)} />
-      <SidebarDrawer isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
+      <SidebarDrawer isOpen={showStoreDrawer} onClose={() => setShowStoreDrawer(false)} />
     </div>
   );
 };
