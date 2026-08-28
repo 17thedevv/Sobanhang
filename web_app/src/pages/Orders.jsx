@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FileText, Download, DollarSign, Search, ChevronRight, X, Copy, Check, Share2 } from 'lucide-react';
+import { Search, Eye, Filter, Download, Plus, Clock, CheckCircle, Truck, DollarSign, RefreshCw, X, FileText, ChevronRight, Copy, Check, Share2 } from 'lucide-react';
 import { useResponsive } from '../hooks/useMediaQuery';
 import './Orders.css';
 
@@ -189,7 +189,9 @@ export default function Orders() {
           <div className="modal-content order-detail-modal">
             <div className="modal-header">
               <h2>Chi tiết Hóa đơn</h2>
-              <button className="btn-close" data-tooltip="Đóng" onClick={() => setSelectedOrder(null)}>×</button>
+              <button className="btn-icon" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setSelectedOrder(null)}>
+                <X size={20} />
+              </button>
             </div>
             <div className="modal-body p-0">
               <div className="p-3 border-bottom">
@@ -281,7 +283,9 @@ export default function Orders() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Thu Tiền (Độc lập)</h2>
-              <button className="btn-close" data-tooltip="Đóng" onClick={() => setShowCollectModal(false)}>×</button>
+              <button className="btn-icon" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setShowCollectModal(false)}>
+                <X size={20} />
+              </button>
             </div>
             <form onSubmit={handleCollectPayment} className="modal-body">
               <div className="form-group mb-3">

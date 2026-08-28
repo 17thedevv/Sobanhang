@@ -82,7 +82,7 @@ export default function Dashboard() {
             <button className="btn-create-first-order" onClick={() => navigate('/dashboard/pos')}>
               Tạo đơn hàng
             </button>
-            <button className="btn-close-banner" data-tooltip="Đóng" onClick={() => setShowFirstOrderBanner(false)}>
+            <button className="btn-close-banner" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setShowFirstOrderBanner(false)}>
               <X size={20} />
             </button>
           </div>

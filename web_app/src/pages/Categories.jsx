@@ -94,7 +94,7 @@ const Categories = () => {
         <div className="error-alert mb-4">
           <AlertCircle size={18} />
           <span>{error}</span>
-          <button className="close-btn" data-tooltip="Đóng" onClick={() => setError('')}><X size={16}/></button>
+          <button className="close-btn" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setError('')}><X size={16}/></button>
         </div>
       )}
 
@@ -159,7 +159,7 @@ const Categories = () => {
           <div className="modal-content card small-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h3>{editingCategory ? 'Sửa danh mục' : 'Thêm danh mục mới'}</h3>
-              <button className="btn-icon" data-tooltip="Đóng" onClick={() => setShowModal(false)}>
+              <button className="btn-icon" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setShowModal(false)}>
                 <X size={20} />
               </button>
             </div>
@@ -195,7 +195,7 @@ const Categories = () => {
           <div className="modal-content card small-modal confirm-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-header border-0">
               <h3 className="text-danger">Xác nhận xóa</h3>
-              <button className="btn-icon" data-tooltip="Đóng" onClick={() => setDeleteConfirm(null)}>
+              <button className="btn-icon" data-tooltip="Đóng" data-tooltip-pos="bottom" onClick={() => setDeleteConfirm(null)}>
                 <X size={20} />
               </button>
             </div>
