@@ -79,7 +79,7 @@ const Categories = () => {
 
   return (
     <div className="page-container categories-page">
-      <header className="page-header">
+      <header className="page-header d-flex justify-content-between align-items-center mb-3">
         <div>
           <h1 className="page-title">Danh mục</h1>
           <p className="page-subtitle">Quản lý và phân loại các mặt hàng của bạn</p>

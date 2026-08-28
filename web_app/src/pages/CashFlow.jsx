@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { DollarSign, ArrowUpRight, ArrowDownRight, Building2, Wallet, Plus, ArrowRightLeft, Eye, EyeOff } from 'lucide-react';
+import { DollarSign, ArrowUpRight, ArrowDownRight, Building2, Wallet, Plus, ArrowRightLeft, Eye, EyeOff, X } from 'lucide-react';
 import { numberToWords } from '../utils/numberToWords';
 import './CashFlow.css';
+
+const formatCurrency = (val) => {
+  if (!val && val !== 0) return '';
+  return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
 
 export default function CashFlow() {
   const [sources, setSources] = useState([]);
@@ -187,7 +192,9 @@ export default function CashFlow() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Thêm Nguồn tiền</h2>
-              <button className="btn-close" data-tooltip="Đóng" onClick={() => setShowCreateModal(false)}>×</button>
+              <button className="btn-icon" data-tooltip="Đóng" onClick={() => setShowCreateModal(false)}>
+                <X size={20} />
+              </button>
             </div>
             <form onSubmit={handleCreateSource} className="modal-body">
               {error && <div className="alert alert-danger p-2 mb-3">{error}</div>}
@@ -222,10 +229,10 @@ export default function CashFlow() {
                 <input 
                   type="text" 
                   className="form-control" 
-                  value={newSource.balance ? Number(newSource.balance).toLocaleString('vi-VN') : ''} 
+                  value={newSource.balance === 0 ? '0' : formatCurrency(newSource.balance)} 
                   onChange={e => {
                     const rawValue = e.target.value.replace(/\D/g, '');
-                    setNewSource({...newSource, balance: rawValue ? Number(rawValue) : 0});
+                    setNewSource({...newSource, balance: rawValue ? parseInt(rawValue, 10) : 0});
                   }}
                 />
                 {newSource.balance > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(newSource.balance)}</div>}
@@ -253,7 +260,9 @@ export default function CashFlow() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Chuyển tiền nội bộ</h2>
-              <button className="btn-close" data-tooltip="Đóng" onClick={() => setShowTransferModal(false)}>×</button>
+              <button className="btn-icon" data-tooltip="Đóng" onClick={() => setShowTransferModal(false)}>
+                <X size={20} />
+              </button>
             </div>
             <form onSubmit={handleTransfer} className="modal-body">
               {error && <div className="alert alert-danger p-2 mb-3">{error}</div>}
@@ -294,10 +303,10 @@ export default function CashFlow() {
                   type="text" 
                   className="form-control" 
                   required 
-                  value={transfer.amount ? Number(transfer.amount).toLocaleString('vi-VN') : ''} 
+                  value={transfer.amount === 0 ? '' : formatCurrency(transfer.amount)} 
                   onChange={e => {
                     const rawValue = e.target.value.replace(/\D/g, '');
-                    setTransfer({...transfer, amount: rawValue ? Number(rawValue) : 0});
+                    setTransfer({...transfer, amount: rawValue ? parseInt(rawValue, 10) : 0});
                   }}
                 />
                 {transfer.amount > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(transfer.amount)}</div>}

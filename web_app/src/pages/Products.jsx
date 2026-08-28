@@ -56,7 +56,7 @@ export default function Products() {
 
   return (
     <div className="page-container">
-      <header className="page-header">
+      <header className="page-header d-flex justify-content-between align-items-center mb-3">
         <div>
           <h1 className="page-title">Sản phẩm</h1>
           <p className="page-subtitle">Quản lý danh sách sản phẩm và kho hàng</p>
