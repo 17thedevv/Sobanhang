@@ -17,6 +17,9 @@ import POS from './pages/POS';
 import Orders from './pages/Orders';
 import CashFlow from './pages/CashFlow';
 import LandingPage from './pages/LandingPage';
+import DebtLedger from './pages/DebtLedger';
+import DebtTransactionForm from './pages/DebtTransactionForm';
+import CustomerDebtDetail from './pages/CustomerDebtDetail';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
@@ -64,6 +67,9 @@ function App() {
               <Route path="pos" element={<POS />} />
               <Route path="orders" element={<Orders />} />
               <Route path="cashflow" element={<CashFlow />} />
+              <Route path="debt" element={<DebtLedger />} />
+              <Route path="debt/new" element={<DebtTransactionForm />} />
+              <Route path="debt/customer/:customerId" element={<CustomerDebtDetail />} />
             </Route>
           </Routes>
         </BrowserRouter>

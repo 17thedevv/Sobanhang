@@ -3,7 +3,7 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Home, ShoppingCart, Package, Archive, Layers,
   DollarSign, Users, UserCircle, FileText, Settings,
-  LogOut, Search, Bell, MessageCircle, ChevronDown, ChevronRight, Menu, Store
+  LogOut, Search, Bell, MessageCircle, ChevronDown, ChevronRight, Menu, Store, BookOpen
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import SupportModal from '../SupportModal';
@@ -144,6 +144,11 @@ const DesktopLayout = () => {
               <span>Tài chính</span>
               <ChevronRight size={16} className="nav-chevron" />
             </NavLink>
+            <NavLink to="/dashboard/debt" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+              <BookOpen size={18} className="nav-icon" />
+              <span>Sổ nợ</span>
+              <ChevronRight size={16} className="nav-chevron" />
+            </NavLink>
             <div className="nav-item mockup">
               <Users size={18} className="nav-icon" />
               <span>Đối tác</span>
@@ -182,7 +187,8 @@ const DesktopLayout = () => {
                location.pathname.includes('/pos') ? 'Bán hàng (POS)' : 
                location.pathname.includes('/products') ? 'Hàng hóa' : 
                location.pathname.includes('/categories') ? 'Danh mục' : 
-               location.pathname.includes('/cashflow') ? 'Tài chính' : 'Bảng điều khiển'}
+               location.pathname.includes('/cashflow') ? 'Tài chính' : 
+               location.pathname.includes('/debt') ? 'Sổ nợ' : 'Bảng điều khiển'}
             </span>
           </div>
 

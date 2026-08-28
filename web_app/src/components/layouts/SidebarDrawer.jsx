@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
   X, User, Settings, CreditCard, HelpCircle, LogOut, BookOpen, 
@@ -9,6 +10,7 @@ import './SidebarDrawer.css';
 
 export default function SidebarDrawer({ isOpen, onClose }) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [shopName, setShopName] = React.useState(user?.store?.name || 'Chủ cửa hàng');
 
   const handleEditName = async () => {
@@ -69,6 +71,10 @@ export default function SidebarDrawer({ isOpen, onClose }) {
           </div>
 
           <div className="drawer-menu">
+            <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/debt'); onClose(); }}>
+              <BookOpen size={20} color="#666" />
+              <span>Sổ nợ</span>
+            </div>
             <div className="drawer-menu-item">
               <BookOpen size={20} color="#666" />
               <span>Hướng dẫn dùng Số</span>

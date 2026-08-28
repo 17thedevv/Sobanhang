@@ -36,7 +36,9 @@ model Store {
   categories Category[]
   customers  Customer[]
   cashSources CashSource[]
-  settings   String? // JSON string for store settings
+  settings         String? // JSON string for store settings
+  debtTransactions DebtTransaction[]
+  debtReminders    DebtReminder[]
 }
 
 model Category {
@@ -96,8 +98,10 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  store  Store   @relation(fields: [storeId], references: [id])
-  orders Order[]
+  store            Store   @relation(fields: [storeId], references: [id])
+  orders           Order[]
+  debtTransactions DebtTransaction[]
+  debtReminders    DebtReminder[]
 }
 
 model Order {
@@ -177,9 +181,10 @@ model CashSource {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  store        Store             @relation(fields: [storeId], references: [id])
-  orders       Order[]
-  transactions CashTransaction[]
+  store            Store             @relation(fields: [storeId], references: [id])
+  orders           Order[]
+  transactions     CashTransaction[]
+  debtTransactions DebtTransaction[]
 }
 
 model CashTransaction {
@@ -192,4 +197,38 @@ model CashTransaction {
   createdAt    DateTime @default(now())
 
   cashSource CashSource @relation(fields: [cashSourceId], references: [id])
+}
+
+model DebtTransaction {
+  id             String      @id @default(uuid())
+  storeId        String
+  customerId     String
+  direction      String      // "GAVE" (Tôi đã đưa = Phải thu) | "RECEIVED" (Tôi đã nhận = Phải trả)
+  amount         Float
+  balance        Float       // Dư nợ sau giao dịch này
+  cashSourceId   String?
+  note           String?
+  transactionDate DateTime   @default(now())
+  attachments    String?     // JSON array of file URLs
+  parentId       String?     // Liên kết với giao dịch nợ gốc (cho thanh toán)
+  type           String      @default("DEBT") // "DEBT" | "PAYMENT"
+  createdAt      DateTime    @default(now())
+
+  store      Store      @relation(fields: [storeId], references: [id])
+  customer   Customer   @relation(fields: [customerId], references: [id])
+  cashSource CashSource? @relation(fields: [cashSourceId], references: [id])
+  parent     DebtTransaction?  @relation("DebtPaymentLink", fields: [parentId], references: [id])
+  children   DebtTransaction[] @relation("DebtPaymentLink")
+}
+
+model DebtReminder {
+  id           String   @id @default(uuid())
+  storeId      String
+  customerId   String
+  reminderDate DateTime
+  status       String   @default("PENDING") // "PENDING" | "SENT" | "OVERDUE"
+  createdAt    DateTime @default(now())
+
+  store    Store    @relation(fields: [storeId], references: [id])
+  customer Customer @relation(fields: [customerId], references: [id])
 }
