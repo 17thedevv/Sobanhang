@@ -47,7 +47,7 @@ export class CustomerController {
       const { id } = req.params;
 
       const customer = await prisma.customer.findUnique({
-        where: { id },
+        where: { id: id as string },
         include: {
           groups: true,
           tags: true,
@@ -116,7 +116,7 @@ export class CustomerController {
       } = req.body;
 
       const existing = await prisma.customer.findUnique({
-        where: { id },
+        where: { id: id as string },
         include: { invoiceInfo: true }
       });
       if (!existing || existing.storeId !== storeId) {
@@ -124,7 +124,7 @@ export class CustomerController {
       }
 
       const updated = await prisma.customer.update({
-        where: { id },
+        where: { id: id as string },
         data: {
           name, phone, address, note, email, avatarUrl, isSupplier, gender,
           birthday: birthday ? new Date(birthday) : null,
@@ -150,12 +150,12 @@ export class CustomerController {
       if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.params;
 
-      const existing = await prisma.customer.findUnique({ where: { id }});
+      const existing = await prisma.customer.findUnique({ where: { id: id as string }});
       if (!existing || existing.storeId !== storeId) {
         return res.status(404).json({ error: 'Not found' });
       }
 
-      await prisma.customer.delete({ where: { id } });
+      await prisma.customer.delete({ where: { id: id as string } });
       return res.json({ success: true });
     } catch (error) {
       console.error('Error deleting customer:', error);
@@ -171,13 +171,13 @@ export class CustomerController {
       const { id } = req.params;
       const { content } = req.body;
 
-      const existing = await prisma.customer.findUnique({ where: { id }});
+      const existing = await prisma.customer.findUnique({ where: { id: id as string }});
       if (!existing || existing.storeId !== storeId) {
         return res.status(404).json({ error: 'Not found' });
       }
 
       const note = await prisma.customerNote.create({
-        data: { customerId: id, content }
+        data: { customerId: id as string, content }
       });
       return res.status(201).json({ note });
     } catch (error) {
@@ -209,7 +209,7 @@ export class CustomerController {
       const { id } = req.params;
 
       const group = await prisma.customerGroup.findUnique({
-        where: { id },
+        where: { id: id as string },
         include: { customers: true }
       });
       if (!group || group.storeId !== storeId) return res.status(404).json({ error: 'Not found' });
@@ -227,11 +227,11 @@ export class CustomerController {
       const { id } = req.params;
       const { customerIds } = req.body;
 
-      const group = await prisma.customerGroup.findUnique({ where: { id }});
+      const group = await prisma.customerGroup.findUnique({ where: { id: id as string }});
       if (!group || group.storeId !== storeId) return res.status(404).json({ error: 'Not found' });
 
       await prisma.customerGroup.update({
-        where: { id },
+        where: { id: id as string },
         data: {
           customers: { connect: customerIds.map((cId: string) => ({ id: cId })) }
         }
@@ -249,11 +249,11 @@ export class CustomerController {
       const { id } = req.params;
       const { customerIds } = req.body;
 
-      const group = await prisma.customerGroup.findUnique({ where: { id }});
+      const group = await prisma.customerGroup.findUnique({ where: { id: id as string }});
       if (!group || group.storeId !== storeId) return res.status(404).json({ error: 'Not found' });
 
       await prisma.customerGroup.update({
-        where: { id },
+        where: { id: id as string },
         data: {
           customers: { disconnect: customerIds.map((cId: string) => ({ id: cId })) }
         }
@@ -286,10 +286,10 @@ export class CustomerController {
       if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.params;
 
-      const group = await prisma.customerGroup.findUnique({ where: { id }});
+      const group = await prisma.customerGroup.findUnique({ where: { id: id as string }});
       if (!group || group.storeId !== storeId) return res.status(404).json({ error: 'Not found' });
 
-      await prisma.customerGroup.delete({ where: { id } });
+      await prisma.customerGroup.delete({ where: { id: id as string } });
       return res.json({ success: true });
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });
@@ -333,10 +333,10 @@ export class CustomerController {
       if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
       const { id } = req.params;
 
-      const tag = await prisma.customerTag.findUnique({ where: { id }});
+      const tag = await prisma.customerTag.findUnique({ where: { id: id as string }});
       if (!tag || tag.storeId !== storeId) return res.status(404).json({ error: 'Not found' });
 
-      await prisma.customerTag.delete({ where: { id } });
+      await prisma.customerTag.delete({ where: { id: id as string } });
       return res.json({ success: true });
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error' });

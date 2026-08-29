@@ -218,8 +218,8 @@ export class DebtController {
       }
 
       const reminder = await prisma.debtReminder.updateMany({
-        where: { id, storeId },
-        data: { status }
+        where: { id: id as string, storeId: storeId as string },
+        data: { status: status as string }
       });
 
       if (reminder.count === 0) {
