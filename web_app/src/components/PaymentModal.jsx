@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
-import { X, DollarSign } from 'lucide-react';
+import { X, DollarSign, Image as ImageIcon } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from '../context/ToastContext';
+import MoneyInput from './MoneyInput';
+import { formatMoneyVND } from '../utils/moneyUtils';
 
 export default function PaymentModal({ isOpen, onClose, activeDebts, preSelectedDebt, customerId, onSuccess }) {
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
     amount: '',
     cashSourceId: '',
     parentId: preSelectedDebt?.id || (activeDebts.length === 1 ? activeDebts[0].id : ''),
-    note: ''
+    note: '',
+    attachments: []
   });
 
   useEffect(() => {
@@ -43,18 +48,18 @@ export default function PaymentModal({ isOpen, onClose, activeDebts, preSelected
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.parentId) {
-      alert('Vui lòng chọn khoản nợ để thanh toán');
+      toast.warning('Vui lòng chọn khoản nợ để thanh toán');
       return;
     }
     
     const amountNum = parseFloat(formData.amount);
     if (!amountNum || amountNum <= 0) {
-      alert('Vui lòng nhập số tiền hợp lệ');
+      toast.warning('Vui lòng nhập số tiền hợp lệ');
       return;
     }
 
     if (amountNum > selectedDebtObj.balance) {
-      alert('Số tiền thanh toán không được lớn hơn dư nợ hiện tại');
+      toast.warning('Số tiền thanh toán không được lớn hơn dư nợ hiện tại');
       return;
     }
 
@@ -66,13 +71,14 @@ export default function PaymentModal({ isOpen, onClose, activeDebts, preSelected
         amount: amountNum,
         cashSourceId: formData.cashSourceId || null,
         note: formData.note,
+        attachments: formData.attachments.length > 0 ? formData.attachments : undefined,
         type: 'PAYMENT',
         parentId: formData.parentId
       });
-      alert('Thanh toán thành công!');
+      toast.success('Thanh toán thành công!');
       onSuccess();
     } catch (err) {
-      alert(err.response?.data?.error || 'Có lỗi xảy ra');
+      toast.error(err.response?.data?.error || 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
     }
@@ -101,7 +107,7 @@ export default function PaymentModal({ isOpen, onClose, activeDebts, preSelected
               <option value="">-- Chọn khoản nợ --</option>
               {activeDebts.map(d => (
                 <option key={d.id} value={d.id}>
-                  {new Date(d.transactionDate).toLocaleDateString('vi-VN')} - {d.direction === 'GAVE' ? 'Phải thu' : 'Phải trả'} {d.balance.toLocaleString('vi-VN')}đ
+                  {new Date(d.transactionDate).toLocaleDateString('vi-VN')} - {d.direction === 'GAVE' ? 'Phải thu' : 'Phải trả'} {formatMoneyVND(d.balance)}
                 </option>
               ))}
             </select>
@@ -111,28 +117,26 @@ export default function PaymentModal({ isOpen, onClose, activeDebts, preSelected
             <label className="form-label text-muted small fw-bold text-uppercase d-flex justify-content-between">
               <span>Số tiền thanh toán</span>
               {selectedDebtObj && (
-                <span className="text-primary cursor-pointer" onClick={() => setFormData({...formData, amount: selectedDebtObj.balance.toString()})}>
+                <span className="text-primary cursor-pointer" onClick={() => setFormData({...formData, amount: selectedDebtObj.balance})}>
                   Trả toàn bộ
                 </span>
               )}
             </label>
-            <div className="input-group">
-              <span className="input-group-text bg-white border-end-0">
-                <DollarSign size={18} className="text-muted" />
-              </span>
-              <input 
-                type="number" 
-                className="form-control border-start-0 ps-0 fs-5 fw-bold text-primary" 
-                placeholder="0"
+            <div className="d-flex align-items-center gap-2">
+              <DollarSign size={18} className="text-muted" />
+              <MoneyInput
                 value={formData.amount}
-                onChange={e => setFormData({...formData, amount: e.target.value})}
+                onChange={val => setFormData({...formData, amount: val})}
+                className="form-control fs-5 fw-bold text-primary"
+                placeholder="0"
+                showWords={true}
                 required
               />
-              <span className="input-group-text bg-white">đ</span>
+              <span className="text-muted fw-bold">đ</span>
             </div>
-            {selectedDebtObj && parseFloat(formData.amount) > 0 && parseFloat(formData.amount) < selectedDebtObj.balance && (
+            {selectedDebtObj && formData.amount > 0 && formData.amount < selectedDebtObj.balance && (
               <div className="text-muted small mt-1">
-                Còn lại sau thanh toán: {(selectedDebtObj.balance - parseFloat(formData.amount)).toLocaleString('vi-VN')}đ
+                Còn lại sau thanh toán: {formatMoneyVND(selectedDebtObj.balance - formData.amount)}
               </div>
             )}
           </div>
@@ -158,6 +162,38 @@ export default function PaymentModal({ isOpen, onClose, activeDebts, preSelected
               value={formData.note}
               onChange={e => setFormData({...formData, note: e.target.value})}
             />
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label text-muted small fw-bold">Đính kèm chứng từ</label>
+            <div className="d-flex flex-wrap gap-2 mb-2">
+              {formData.attachments.map((url, idx) => (
+                <div key={idx} className="position-relative border rounded overflow-hidden" style={{ width: 64, height: 64 }}>
+                  <img src={url} alt="đính kèm" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button 
+                    type="button"
+                    className="btn-close btn-close-white position-absolute top-0 end-0 bg-danger m-1 p-1"
+                    style={{ fontSize: 10 }}
+                    onClick={() => {
+                      const newAtt = [...formData.attachments];
+                      newAtt.splice(idx, 1);
+                      setFormData({...formData, attachments: newAtt});
+                    }}
+                  ></button>
+                </div>
+              ))}
+              <button 
+                type="button" 
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                style={{ width: 64, height: 64 }}
+                onClick={() => {
+                  const fakeUrl = `https://picsum.photos/seed/${Math.random()}/200/300`;
+                  setFormData({...formData, attachments: [...formData.attachments, fakeUrl]});
+                }}
+              >
+                <ImageIcon size={24} className="text-muted" />
+              </button>
+            </div>
           </div>
 
           <button type="submit" className="btn btn-primary w-100 py-2 fw-bold" disabled={loading}>

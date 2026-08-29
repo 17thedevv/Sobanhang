@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ArrowLeft, UserPlus, FileText, Calendar, DollarSign, Edit3 } from 'lucide-react';
+import { ArrowLeft, UserPlus, FileText, Calendar, DollarSign, Edit3, Image as ImageIcon, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import CustomerSelectModal from '../components/CustomerSelectModal';
+import { useToast } from '../context/ToastContext';
+import MoneyInput from '../components/MoneyInput';
 
 export default function DebtTransactionForm() {
   const navigate = useNavigate();
+  const toast = useToast();
   const [sources, setSources] = useState([]);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,7 +19,8 @@ export default function DebtTransactionForm() {
     amount: '',
     cashSourceId: '',
     transactionDate: new Date().toISOString().substring(0, 10),
-    note: ''
+    note: '',
+    attachments: []
   });
 
   useEffect(() => {
@@ -39,11 +43,11 @@ export default function DebtTransactionForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.customer) {
-      alert('Vui lòng chọn khách hàng');
+      toast.warning('Vui lòng chọn khách hàng');
       return;
     }
     if (!formData.amount || formData.amount <= 0) {
-      alert('Vui lòng nhập số tiền hợp lệ');
+      toast.warning('Vui lòng nhập số tiền hợp lệ');
       return;
     }
 
@@ -55,12 +59,13 @@ export default function DebtTransactionForm() {
         amount: parseFloat(formData.amount),
         cashSourceId: formData.cashSourceId || null,
         transactionDate: formData.transactionDate,
-        note: formData.note
+        note: formData.note,
+        attachments: formData.attachments.length > 0 ? formData.attachments : undefined
       });
-      alert('Ghi giao dịch nợ thành công!');
+      toast.success('Ghi giao dịch nợ thành công!');
       navigate('/dashboard/debt');
     } catch (err) {
-      alert(err.response?.data?.error || 'Có lỗi xảy ra');
+      toast.error(err.response?.data?.error || 'Có lỗi xảy ra');
     } finally {
       setLoading(false);
     }
@@ -83,14 +88,14 @@ export default function DebtTransactionForm() {
             className={`btn flex-grow-1 ${formData.direction === 'GAVE' ? 'btn-success text-white' : 'btn-light text-muted'}`}
             onClick={() => setFormData({...formData, direction: 'GAVE'})}
           >
-            Tôi đã đưa (Phải thu)
+            Khách nợ tôi
           </button>
           <button 
             type="button"
             className={`btn flex-grow-1 ${formData.direction === 'RECEIVED' ? 'btn-danger text-white' : 'btn-light text-muted'}`}
             onClick={() => setFormData({...formData, direction: 'RECEIVED'})}
           >
-            Tôi đã nhận (Phải trả)
+            Tôi nợ khách
           </button>
         </div>
 
@@ -115,19 +120,17 @@ export default function DebtTransactionForm() {
         {/* Amount Input */}
         <div className="card p-3 mb-3">
           <label className="form-label text-muted small fw-bold text-uppercase">Số tiền</label>
-          <div className="input-group">
-            <span className="input-group-text bg-white border-end-0">
-              <DollarSign size={18} className="text-muted" />
-            </span>
-            <input 
-              type="number" 
-              className="form-control border-start-0 ps-0 fs-4 fw-bold" 
-              placeholder="0"
+          <div className="d-flex align-items-center gap-2">
+            <DollarSign size={18} className="text-muted" />
+            <MoneyInput
               value={formData.amount}
-              onChange={e => setFormData({...formData, amount: e.target.value})}
+              onChange={val => setFormData({...formData, amount: val})}
+              className="form-control fs-4 fw-bold"
+              placeholder="0"
+              showWords={true}
               required
             />
-            <span className="input-group-text bg-white">đ</span>
+            <span className="text-muted fw-bold">đ</span>
           </div>
         </div>
 
@@ -168,6 +171,38 @@ export default function DebtTransactionForm() {
                 onChange={e => setFormData({...formData, note: e.target.value})}
               />
             </div>
+          </div>
+          <div className="mt-3">
+            <label className="form-label text-muted small fw-bold">Đính kèm chứng từ</label>
+            <div className="d-flex flex-wrap gap-2 mb-2">
+              {formData.attachments.map((url, idx) => (
+                <div key={idx} className="position-relative border rounded overflow-hidden" style={{ width: 64, height: 64 }}>
+                  <img src={url} alt="đính kèm" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <button 
+                    type="button"
+                    className="btn-close btn-close-white position-absolute top-0 end-0 bg-danger m-1 p-1"
+                    style={{ fontSize: 10 }}
+                    onClick={() => {
+                      const newAtt = [...formData.attachments];
+                      newAtt.splice(idx, 1);
+                      setFormData({...formData, attachments: newAtt});
+                    }}
+                  ></button>
+                </div>
+              ))}
+              <button 
+                type="button" 
+                className="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                style={{ width: 64, height: 64 }}
+                onClick={() => {
+                  const fakeUrl = `https://picsum.photos/seed/${Math.random()}/200/300`;
+                  setFormData({...formData, attachments: [...formData.attachments, fakeUrl]});
+                }}
+              >
+                <ImageIcon size={24} className="text-muted" />
+              </button>
+            </div>
+            <div className="small text-muted">Hỗ trợ tải ảnh hóa đơn, biên lai (Mock)</div>
           </div>
         </div>
 

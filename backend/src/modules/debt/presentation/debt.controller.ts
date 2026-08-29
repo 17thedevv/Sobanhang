@@ -96,7 +96,7 @@ export class DebtController {
       const storeId = req.user?.storeId;
       if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
 
-      const { customerId, direction, amount, cashSourceId, note, transactionDate, type, parentId } = req.body;
+      const { customerId, direction, amount, cashSourceId, note, transactionDate, type, parentId, attachments } = req.body;
 
       if (!customerId || !amount || amount <= 0) {
         return res.status(400).json({ error: 'Invalid data' });
@@ -127,6 +127,7 @@ export class DebtController {
             balance: newBalance, // Dư nợ còn lại của khoản này
             cashSourceId, note,
             transactionDate: transactionDate ? new Date(transactionDate) : undefined,
+            attachments: attachments ? JSON.stringify(attachments) : null,
             type: 'PAYMENT',
             parentId
           }
@@ -143,6 +144,7 @@ export class DebtController {
             balance: amount, // Dư nợ ban đầu bằng số tiền
             cashSourceId, note,
             transactionDate: transactionDate ? new Date(transactionDate) : undefined,
+            attachments: attachments ? JSON.stringify(attachments) : null,
             type: 'DEBT'
           }
         });
@@ -156,4 +158,79 @@ export class DebtController {
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  // 5. GET /api/debt/reminders
+  async getReminders(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
+
+      const reminders = await prisma.debtReminder.findMany({
+        where: { storeId },
+        include: { customer: true },
+        orderBy: { reminderDate: 'asc' }
+      });
+
+      return res.json({ reminders });
+    } catch (error) {
+      console.error('Error fetching reminders:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // 6. POST /api/debt/reminders
+  async createReminder(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
+
+      const { customerId, reminderDate } = req.body;
+
+      if (!customerId || !reminderDate) {
+        return res.status(400).json({ error: 'Invalid data' });
+      }
+
+      const reminder = await prisma.debtReminder.create({
+        data: {
+          storeId,
+          customerId,
+          reminderDate: new Date(reminderDate)
+        }
+      });
+
+      return res.status(201).json({ reminder });
+    } catch (error) {
+      console.error('Error creating reminder:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // 7. PUT /api/debt/reminders/:id/status
+  async updateReminderStatus(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!status || !['PENDING', 'SENT', 'OVERDUE'].includes(status)) {
+         return res.status(400).json({ error: 'Invalid status' });
+      }
+
+      const reminder = await prisma.debtReminder.updateMany({
+        where: { id, storeId },
+        data: { status }
+      });
+
+      if (reminder.count === 0) {
+        return res.status(404).json({ error: 'Reminder not found' });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating reminder:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
 }
+

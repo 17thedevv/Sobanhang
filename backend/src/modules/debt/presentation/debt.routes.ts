@@ -13,4 +13,8 @@ router.get('/customers', debtController.getDebtCustomers);
 router.get('/customers/:customerId/transactions', debtController.getCustomerTransactions);
 router.post('/transactions', debtController.createTransaction);
 
+router.get('/reminders', debtController.getReminders);
+router.post('/reminders', debtController.createReminder);
+router.put('/reminders/:id/status', debtController.updateReminderStatus);
+
 export const debtRoutes = router;
