@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { X, Search, Plus, User, FileText, CreditCard, Truck, Banknote } from 'lucide-react';
 import axios from 'axios';
 import './CheckoutModal.css';
+import { useToast } from '../context/ToastContext';
+import MoneyInput from './MoneyInput';
+import { formatMoneyVND } from '../utils/moneyUtils';
 
 export default function CheckoutModal({ 
   onClose, 
@@ -11,6 +14,7 @@ export default function CheckoutModal({
   isCheckingOut 
 }) {
   const [customers, setCustomers] = useState([]);
+  const toast = useToast();
   const [searchCustomer, setSearchCustomer] = useState('');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
   
@@ -53,7 +57,7 @@ export default function CheckoutModal({
   };
 
   const handleAddCustomer = async () => {
-    if (!newCustomerName) return alert('Vui lòng nhập tên khách hàng');
+    if (!newCustomerName) { toast.warning('Vui lòng nhập tên khách hàng'); return; }
     try {
       const res = await axios.post('/api/customers', {
         name: newCustomerName,
@@ -65,7 +69,7 @@ export default function CheckoutModal({
       setNewCustomerName('');
       setNewCustomerPhone('');
     } catch (err) {
-      alert(err.response?.data?.error || 'Lỗi thêm khách hàng');
+      toast.error(err.response?.data?.error || 'Lỗi thêm khách hàng');
     }
   };
 
@@ -172,24 +176,22 @@ export default function CheckoutModal({
             <div className="section-block mt-4">
               <h3><FileText size={18} /> Chi phí</h3>
               <div className="cost-inputs">
-                <div className="input-group">
+              <div className="input-group">
                   <label>Giảm giá (đ)</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    value={discount} 
-                    onChange={e => setDiscount(Math.max(0, Number(e.target.value)))}
-                    min="0"
+                  <MoneyInput
+                    value={discount}
+                    onChange={val => setDiscount(Math.max(0, val))}
+                    className="input-field"
+                    showWords={false}
                   />
                 </div>
                 <div className="input-group">
                   <label>Phí vận chuyển (đ)</label>
-                  <input 
-                    type="number" 
-                    className="input-field" 
-                    value={shippingFee} 
-                    onChange={e => setShippingFee(Math.max(0, Number(e.target.value)))}
-                    min="0"
+                  <MoneyInput
+                    value={shippingFee}
+                    onChange={val => setShippingFee(Math.max(0, val))}
+                    className="input-field"
+                    showWords={false}
                   />
                 </div>
               </div>

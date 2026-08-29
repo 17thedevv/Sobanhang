@@ -7,6 +7,8 @@ import {
 import InvoiceModal from '../components/InvoiceModal';
 import axios from 'axios';
 import { numberToWords } from '../utils/numberToWords';
+import { formatMoneyVND } from '../utils/moneyUtils';
+import MoneyInput from '../components/MoneyInput';
 import './POS.css';
 
 export default function POS() {
@@ -275,36 +277,24 @@ export default function POS() {
 
           <div className="meta-row">
             <span className="meta-label">Giảm giá</span>
-            <div>
-              <input 
-                type="text" 
-                className="meta-input text-right"
-                placeholder="0"
-                value={discount ? Number(discount).toLocaleString('vi-VN') : ''}
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/\D/g, '');
-                  setDiscount(rawValue);
-                }}
-              />
-              {discount > 0 && <div className="text-muted text-sm fst-italic text-right mt-1">{numberToWords(discount)}</div>}
-            </div>
+            <MoneyInput
+              value={discount}
+              onChange={val => setDiscount(val)}
+              className="meta-input text-right"
+              placeholder="0"
+              showWords={true}
+            />
           </div>
 
           <div className="meta-row">
             <span className="meta-label">Vận chuyển</span>
-            <div>
-              <input 
-                type="text" 
-                className="meta-input text-right"
-                placeholder="0"
-                value={shippingFee ? Number(shippingFee).toLocaleString('vi-VN') : ''}
-                onChange={(e) => {
-                  const rawValue = e.target.value.replace(/\D/g, '');
-                  setShippingFee(rawValue);
-                }}
-              />
-              {shippingFee > 0 && <div className="text-muted text-sm fst-italic text-right mt-1">{numberToWords(shippingFee)}</div>}
-            </div>
+            <MoneyInput
+              value={shippingFee}
+              onChange={val => setShippingFee(val)}
+              className="meta-input text-right"
+              placeholder="0"
+              showWords={true}
+            />
           </div>
         </div>
       </div>
@@ -312,7 +302,7 @@ export default function POS() {
       <div className="checkout-footer">
         <div className="summary-row">
           <span>Tổng cộng</span>
-          <span className="final-total">{finalTotal.toLocaleString('vi-VN')}đ</span>
+          <span className="final-total">{formatMoneyVND(finalTotal)}</span>
         </div>
         <div className="checkout-actions">
           <button 
@@ -345,25 +335,21 @@ export default function POS() {
       <div className="payment-body">
         <div className="payment-summary">
           <h3>Tổng tiền cần thu</h3>
-          <div className="payment-total">{finalTotal.toLocaleString('vi-VN')}đ</div>
+          <div className="payment-total">{formatMoneyVND(finalTotal)}</div>
         </div>
 
         <div className="payment-form">
           <div className="form-group">
             <label>Tiền khách đưa</label>
-            <input 
-              type="text" 
+            <MoneyInput
+              value={amountPaid}
+              onChange={val => setAmountPaid(val)}
               className="form-control"
-              value={amountPaid ? Number(amountPaid).toLocaleString('vi-VN') : ''}
-              onChange={e => {
-                const rawValue = e.target.value.replace(/\D/g, '');
-                setAmountPaid(rawValue);
-              }}
+              showWords={true}
             />
-            {amountPaid > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(amountPaid)}</div>}
             {Number(amountPaid) > finalTotal && (
               <div className="change-due mt-1 text-success">
-                Tiền thừa trả khách: {(Number(amountPaid) - finalTotal).toLocaleString('vi-VN')}đ
+                Tiền thừa trả khách: {formatMoneyVND(Number(amountPaid) - finalTotal)}
               </div>
             )}
           </div>

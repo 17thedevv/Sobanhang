@@ -20,6 +20,11 @@ import LandingPage from './pages/LandingPage';
 import DebtLedger from './pages/DebtLedger';
 import DebtTransactionForm from './pages/DebtTransactionForm';
 import CustomerDebtDetail from './pages/CustomerDebtDetail';
+import DebtReminders from './pages/DebtReminders';
+import CustomerList from './pages/CustomerList';
+import CustomerForm from './pages/CustomerForm';
+import CustomerDetail from './pages/CustomerDetail';
+import GroupDetail from './pages/GroupDetail';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
@@ -37,10 +42,12 @@ axios.interceptors.request.use(config => {
 });
 
 import { AppProvider } from './context/AppContext';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <AppProvider>
         <BrowserRouter>
           <Routes>
@@ -69,11 +76,18 @@ function App() {
               <Route path="cashflow" element={<CashFlow />} />
               <Route path="debt" element={<DebtLedger />} />
               <Route path="debt/new" element={<DebtTransactionForm />} />
+              <Route path="debt/reminders" element={<DebtReminders />} />
               <Route path="debt/customer/:customerId" element={<CustomerDebtDetail />} />
+              <Route path="customers" element={<CustomerList />} />
+              <Route path="customers/new" element={<CustomerForm />} />
+              <Route path="customers/:customerId" element={<CustomerDetail />} />
+              <Route path="customers/:customerId/edit" element={<CustomerForm />} />
+              <Route path="customers/groups/:groupId" element={<GroupDetail />} />
             </Route>
           </Routes>
         </BrowserRouter>
       </AppProvider>
+      </ToastProvider>
     </AuthProvider>
   );
 }
