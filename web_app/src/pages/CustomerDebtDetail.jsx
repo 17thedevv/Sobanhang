@@ -1,16 +1,21 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ArrowLeft, Share2, DollarSign, Calendar, FileText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Share2, DollarSign, Calendar, FileText, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PaymentModal from '../components/PaymentModal';
+import ReminderModal from '../components/ReminderModal';
+import { Bell } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 export default function CustomerDebtDetail() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
   const [selectedDebt, setSelectedDebt] = useState(null); // Optional: if paying specific debt
 
   const fetchTransactions = async () => {
@@ -43,7 +48,7 @@ export default function CustomerDebtDetail() {
   const isPayable = netDebt < 0;
 
   const handleShare = () => {
-    alert('Tính năng chia sẻ đang phát triển');
+    toast.info('Tính năng chia sẻ đang phát triển');
   };
 
   const handleOpenPayment = () => {
@@ -78,9 +83,14 @@ export default function CustomerDebtDetail() {
           {Math.abs(netDebt).toLocaleString('vi-VN')}đ
         </h1>
         {netDebt !== 0 && (
-          <button className="btn btn-primary" onClick={handleOpenPayment}>
-            Thanh toán
-          </button>
+          <div className="d-flex justify-content-center gap-2 mt-3">
+            <button className="btn btn-outline-primary" onClick={() => setShowReminderModal(true)}>
+              <Bell size={18} className="me-1" /> Nhắc nợ
+            </button>
+            <button className="btn btn-primary" onClick={handleOpenPayment}>
+              Thanh toán
+            </button>
+          </div>
         )}
       </div>
 
@@ -109,6 +119,13 @@ export default function CustomerDebtDetail() {
               colorClass = isGave ? 'text-danger' : 'text-success';
             }
 
+            let parsedAttachments = [];
+            if (t.attachments) {
+              try {
+                parsedAttachments = JSON.parse(t.attachments);
+              } catch (e) {}
+            }
+
             return (
               <div key={t.id} className="card p-3 mb-2 d-flex flex-row justify-content-between align-items-center">
                 <div>
@@ -123,6 +140,15 @@ export default function CustomerDebtDetail() {
                     <div className="text-muted small mt-1 d-flex align-items-center">
                       <FileText size={14} className="me-1" />
                       {t.note}
+                    </div>
+                  )}
+                  {parsedAttachments.length > 0 && (
+                    <div className="d-flex flex-wrap gap-1 mt-2">
+                      {parsedAttachments.map((url, idx) => (
+                        <a key={idx} href={url} target="_blank" rel="noreferrer" className="border rounded overflow-hidden" style={{ width: 40, height: 40, display: 'block' }}>
+                          <img src={url} alt="đính kèm" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </a>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -156,6 +182,15 @@ export default function CustomerDebtDetail() {
             setShowPaymentModal(false);
             fetchTransactions();
           }}
+        />
+      )}
+
+      {showReminderModal && (
+        <ReminderModal
+          isOpen={showReminderModal}
+          onClose={() => setShowReminderModal(false)}
+          customerId={customerId}
+          onSuccess={() => setShowReminderModal(false)}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Home, ShoppingCart, Package, DollarSign, LogOut, BookOpen } from 'lucide-react';
+import { Home, ShoppingCart, Package, DollarSign, LogOut, BookOpen, Users } from 'lucide-react';
 import './DesktopLayout.css'; // Dùng chung CSS base của Desktop nhưng sẽ custom bằng CSS
 
 const TabletLayout = () => {
@@ -43,6 +43,10 @@ const TabletLayout = () => {
 
           <NavLink to="/dashboard/debt" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} data-tooltip="Sổ nợ">
             <BookOpen size={24} />
+          </NavLink>
+
+          <NavLink to="/dashboard/customers" className={({ isActive }) => `nav-item compact ${isActive ? 'active' : ''}`} data-tooltip="Khách hàng">
+            <Users size={24} />
           </NavLink>
         </nav>
 

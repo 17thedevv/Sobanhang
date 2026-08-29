@@ -35,6 +35,8 @@ model Store {
   orders     Order[]
   categories Category[]
   customers  Customer[]
+  customerGroups CustomerGroup[]
+  customerTags   CustomerTag[]
   cashSources CashSource[]
   settings         String? // JSON string for store settings
   debtTransactions DebtTransaction[]
@@ -95,6 +97,11 @@ model Customer {
   phone     String?
   address   String?
   note      String?
+  avatarUrl String?
+  email     String?
+  isSupplier Boolean @default(false)
+  birthday  DateTime?
+  gender    String?   // "MALE", "FEMALE", "OTHER"
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -102,6 +109,56 @@ model Customer {
   orders           Order[]
   debtTransactions DebtTransaction[]
   debtReminders    DebtReminder[]
+
+  groups           CustomerGroup[]
+  tags             CustomerTag[]
+  invoiceInfo      InvoiceInfo?
+  notes            CustomerNote[]
+}
+
+model CustomerGroup {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  createdAt DateTime @default(now())
+
+  store     Store      @relation(fields: [storeId], references: [id])
+  customers Customer[]
+}
+
+model CustomerTag {
+  id        String   @id @default(uuid())
+  storeId   String
+  name      String
+  createdAt DateTime @default(now())
+
+  store     Store      @relation(fields: [storeId], references: [id])
+  customers Customer[]
+}
+
+model InvoiceInfo {
+  id           String   @id @default(uuid())
+  customerId   String   @unique
+  type         String   // "INDIVIDUAL", "COMPANY"
+  buyerName    String?
+  taxCode      String?
+  idCard       String?
+  address      String?
+  contactEmail String?
+  contactPhone String?
+  bankName     String?
+  bankAccount  String?
+
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model CustomerNote {
+  id         String   @id @default(uuid())
+  customerId String
+  content    String
+  createdAt  DateTime @default(now())
+
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
 model Order {

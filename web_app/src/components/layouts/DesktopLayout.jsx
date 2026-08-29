@@ -149,11 +149,11 @@ const DesktopLayout = () => {
               <span>Sổ nợ</span>
               <ChevronRight size={16} className="nav-chevron" />
             </NavLink>
-            <div className="nav-item mockup">
+            <NavLink to="/dashboard/customers" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
               <Users size={18} className="nav-icon" />
-              <span>Đối tác</span>
+              <span>Khách hàng</span>
               <ChevronRight size={16} className="nav-chevron" />
-            </div>
+            </NavLink>
             <div className="nav-item mockup">
               <UserCircle size={18} className="nav-icon" />
               <span>Nhân viên</span>
@@ -188,7 +188,8 @@ const DesktopLayout = () => {
                location.pathname.includes('/products') ? 'Hàng hóa' : 
                location.pathname.includes('/categories') ? 'Danh mục' : 
                location.pathname.includes('/cashflow') ? 'Tài chính' : 
-               location.pathname.includes('/debt') ? 'Sổ nợ' : 'Bảng điều khiển'}
+               location.pathname.includes('/debt') ? 'Sổ nợ' : 
+               location.pathname.includes('/customers') ? 'Khách hàng' : 'Bảng điều khiển'}
             </span>
           </div>
 

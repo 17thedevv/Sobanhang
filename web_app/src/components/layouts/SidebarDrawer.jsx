@@ -75,6 +75,10 @@ export default function SidebarDrawer({ isOpen, onClose }) {
               <BookOpen size={20} color="#666" />
               <span>Sổ nợ</span>
             </div>
+            <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/customers'); onClose(); }}>
+              <Users size={20} color="#666" />
+              <span>Khách hàng</span>
+            </div>
             <div className="drawer-menu-item">
               <BookOpen size={20} color="#666" />
               <span>Hướng dẫn dùng Số</span>
