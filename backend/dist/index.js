@@ -18,6 +18,7 @@ const cashbook_routes_1 = require("./modules/cashbook/presentation/cashbook.rout
 const products_routes_1 = __importDefault(require("./modules/products/presentation/products.routes"));
 const categories_routes_1 = __importDefault(require("./modules/categories/presentation/categories.routes"));
 const dashboard_routes_1 = __importDefault(require("./modules/dashboard/presentation/dashboard.routes"));
+const debt_routes_1 = require("./modules/debt/presentation/debt.routes");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
@@ -44,6 +45,7 @@ app.use('/api/dashboard', dashboard_routes_1.default);
 app.use('/api/stores', store_routes_1.default);
 app.use('/api/onboarding/suggestions', suggestion_routes_1.default);
 app.use('/api/onboarding/preference', preference_routes_1.default);
+app.use('/api/debt', debt_routes_1.debtRoutes);
 app.get('/health', (req, res) => {
     res.json({ status: 'OK' });
 });

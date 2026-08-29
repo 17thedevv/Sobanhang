@@ -1,0 +1,218 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DebtController = void 0;
+const prisma_1 = require("../../../prisma");
+class DebtController {
+    // 1. GET /api/debt/summary
+    async getSummary(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            const transactions = await prisma_1.prisma.debtTransaction.findMany({
+                where: { storeId, type: 'DEBT', balance: { gt: 0 } }
+            });
+            let totalReceivables = 0; // Phải thu (GAVE)
+            let totalPayables = 0; // Phải trả (RECEIVED)
+            transactions.forEach(t => {
+                if (t.direction === 'GAVE') {
+                    totalReceivables += t.balance;
+                }
+                else if (t.direction === 'RECEIVED') {
+                    totalPayables += t.balance;
+                }
+            });
+            return res.json({ totalReceivables, totalPayables });
+        }
+        catch (error) {
+            console.error('Error fetching debt summary:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    // 2. GET /api/debt/customers
+    async getDebtCustomers(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            // Get all active debts
+            const activeDebts = await prisma_1.prisma.debtTransaction.findMany({
+                where: { storeId, type: 'DEBT', balance: { gt: 0 } },
+                include: { customer: true }
+            });
+            // Group by customer
+            const customerMap = new Map();
+            activeDebts.forEach(t => {
+                const cId = t.customerId;
+                if (!customerMap.has(cId)) {
+                    customerMap.set(cId, {
+                        customer: t.customer,
+                        totalReceivables: 0,
+                        totalPayables: 0
+                    });
+                }
+                const data = customerMap.get(cId);
+                if (t.direction === 'GAVE') {
+                    data.totalReceivables += t.balance;
+                }
+                else if (t.direction === 'RECEIVED') {
+                    data.totalPayables += t.balance;
+                }
+            });
+            const customersWithDebt = Array.from(customerMap.values());
+            return res.json({ customers: customersWithDebt });
+        }
+        catch (error) {
+            console.error('Error fetching debt customers:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    // 3. GET /api/debt/customers/:customerId/transactions
+    async getCustomerTransactions(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            const customerId = req.params.customerId;
+            const transactions = await prisma_1.prisma.debtTransaction.findMany({
+                where: { storeId, customerId },
+                orderBy: { transactionDate: 'desc' },
+                include: { cashSource: true }
+            });
+            return res.json({ transactions });
+        }
+        catch (error) {
+            console.error('Error fetching customer transactions:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    // 4. POST /api/debt/transactions
+    async createTransaction(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            const { customerId, direction, amount, cashSourceId, note, transactionDate, type, parentId, attachments } = req.body;
+            if (!customerId || !amount || amount <= 0) {
+                return res.status(400).json({ error: 'Invalid data' });
+            }
+            if (type === 'PAYMENT') {
+                // Xử lý thanh toán
+                if (!parentId) {
+                    return res.status(400).json({ error: 'Thanh toán cần chọn giao dịch gốc (parentId)' });
+                }
+                const parentDebt = await prisma_1.prisma.debtTransaction.findUnique({ where: { id: parentId } });
+                if (!parentDebt || parentDebt.storeId !== storeId || parentDebt.balance < amount) {
+                    return res.status(400).json({ error: 'Giao dịch gốc không hợp lệ hoặc số tiền vượt quá dư nợ' });
+                }
+                // Cập nhật dư nợ của giao dịch gốc
+                const newBalance = parentDebt.balance - amount;
+                await prisma_1.prisma.debtTransaction.update({
+                    where: { id: parentId },
+                    data: { balance: newBalance }
+                });
+                // Tạo giao dịch thanh toán
+                const payment = await prisma_1.prisma.debtTransaction.create({
+                    data: {
+                        storeId, customerId, direction, amount,
+                        balance: newBalance, // Dư nợ còn lại của khoản này
+                        cashSourceId, note,
+                        transactionDate: transactionDate ? new Date(transactionDate) : undefined,
+                        attachments: attachments ? JSON.stringify(attachments) : null,
+                        type: 'PAYMENT',
+                        parentId
+                    }
+                });
+                // TODO: Cập nhật số dư nguồn tiền (CashSource) nếu cần thiết
+                return res.status(201).json({ transaction: payment });
+            }
+            else {
+                // Ghi nợ mới
+                const debt = await prisma_1.prisma.debtTransaction.create({
+                    data: {
+                        storeId, customerId, direction, amount,
+                        balance: amount, // Dư nợ ban đầu bằng số tiền
+                        cashSourceId, note,
+                        transactionDate: transactionDate ? new Date(transactionDate) : undefined,
+                        attachments: attachments ? JSON.stringify(attachments) : null,
+                        type: 'DEBT'
+                    }
+                });
+                // TODO: Cập nhật số dư nguồn tiền (CashSource) nếu cần thiết
+                return res.status(201).json({ transaction: debt });
+            }
+        }
+        catch (error) {
+            console.error('Error creating debt transaction:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    // 5. GET /api/debt/reminders
+    async getReminders(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            const reminders = await prisma_1.prisma.debtReminder.findMany({
+                where: { storeId },
+                include: { customer: true },
+                orderBy: { reminderDate: 'asc' }
+            });
+            return res.json({ reminders });
+        }
+        catch (error) {
+            console.error('Error fetching reminders:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    // 6. POST /api/debt/reminders
+    async createReminder(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            const { customerId, reminderDate } = req.body;
+            if (!customerId || !reminderDate) {
+                return res.status(400).json({ error: 'Invalid data' });
+            }
+            const reminder = await prisma_1.prisma.debtReminder.create({
+                data: {
+                    storeId,
+                    customerId,
+                    reminderDate: new Date(reminderDate)
+                }
+            });
+            return res.status(201).json({ reminder });
+        }
+        catch (error) {
+            console.error('Error creating reminder:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+    // 7. PUT /api/debt/reminders/:id/status
+    async updateReminderStatus(req, res) {
+        try {
+            const storeId = req.user?.storeId;
+            if (!storeId)
+                return res.status(401).json({ error: 'Unauthorized' });
+            const { id } = req.params;
+            const { status } = req.body;
+            if (!status || !['PENDING', 'SENT', 'OVERDUE'].includes(status)) {
+                return res.status(400).json({ error: 'Invalid status' });
+            }
+            const reminder = await prisma_1.prisma.debtReminder.updateMany({
+                where: { id: id, storeId: storeId },
+                data: { status: status }
+            });
+            if (reminder.count === 0) {
+                return res.status(404).json({ error: 'Reminder not found' });
+            }
+            return res.json({ success: true });
+        }
+        catch (error) {
+            console.error('Error updating reminder:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+}
+exports.DebtController = DebtController;
