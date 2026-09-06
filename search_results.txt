@@ -1,0 +1,5 @@
+--- Phase 1 ---
+sequence item 6: expected str instance, float found
+
+--- Phase 2 ---
+sequence item 9: expected str instance, float found

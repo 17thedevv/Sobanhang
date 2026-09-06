@@ -6,11 +6,13 @@ import {
   Headset, Users, Gift, Star, Package, UserCircle, Book, Plus, Store, Edit2
 } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from '../../context/ToastContext';
 import './SidebarDrawer.css';
 
 export default function SidebarDrawer({ isOpen, onClose }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   const [shopName, setShopName] = React.useState(user?.store?.name || 'Chủ cửa hàng');
 
   const handleEditName = async () => {
@@ -20,7 +22,7 @@ export default function SidebarDrawer({ isOpen, onClose }) {
         await axios.put('/api/stores/updateName', { name: newName });
         setShopName(newName);
       } catch (err) {
-        alert('Có lỗi xảy ra khi đổi tên.');
+        toast.error('Có lỗi xảy ra khi đổi tên.');
       }
     }
   };
@@ -78,6 +80,10 @@ export default function SidebarDrawer({ isOpen, onClose }) {
             <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/customers'); onClose(); }}>
               <Users size={20} color="#666" />
               <span>Khách hàng</span>
+            </div>
+            <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/stock-receipts'); onClose(); }}>
+              <Package size={20} color="#666" />
+              <span>Nhập kho</span>
             </div>
             <div className="drawer-menu-item">
               <BookOpen size={20} color="#666" />

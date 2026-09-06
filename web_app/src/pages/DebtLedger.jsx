@@ -3,6 +3,8 @@ import axios from 'axios';
 import { Search, Plus, Filter, Download, DollarSign, BookOpen, User, ChevronRight, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import useDebounce from '../hooks/useDebounce';
+import { useMemo } from 'react';
 import './Orders.css'; // Reuse CSS from Orders if possible, or create Debt.css
 
 export default function DebtLedger() {
@@ -13,6 +15,7 @@ export default function DebtLedger() {
   const [search, setSearch] = useState('');
   const [filterMode, setFilterMode] = useState('ALL'); // ALL, RECEIVABLE, PAYABLE, SETTLED
   const [sortMode, setSortMode] = useState('AMOUNT_DESC'); // AMOUNT_DESC, AMOUNT_ASC, NAME_ASC
+  const debouncedSearch = useDebounce(search, 300);
   
   const navigate = useNavigate();
 
@@ -35,37 +38,43 @@ export default function DebtLedger() {
     fetchDebtData();
   }, []);
 
-  let processedCustomers = customers.map(c => {
-    const netDebt = c.totalReceivables - c.totalPayables;
-    return { ...c, netDebt };
-  });
+  const processedCustomers = useMemo(() => {
+    let result = customers.map(c => {
+      const netDebt = c.totalReceivables - c.totalPayables;
+      return { ...c, netDebt };
+    });
 
-  // Filter
-  if (filterMode === 'RECEIVABLE') {
-    processedCustomers = processedCustomers.filter(c => c.netDebt > 0);
-  } else if (filterMode === 'PAYABLE') {
-    processedCustomers = processedCustomers.filter(c => c.netDebt < 0);
-  } else if (filterMode === 'SETTLED') {
-    processedCustomers = processedCustomers.filter(c => c.netDebt === 0);
-  }
-
-  // Search
-  processedCustomers = processedCustomers.filter(c => 
-    c.customer?.name?.toLowerCase().includes(search.toLowerCase()) || 
-    c.customer?.phone?.toLowerCase().includes(search.toLowerCase())
-  );
-
-  // Sort
-  processedCustomers.sort((a, b) => {
-    if (sortMode === 'NAME_ASC') {
-      return a.customer.name.localeCompare(b.customer.name);
-    } else if (sortMode === 'AMOUNT_DESC') {
-      return Math.abs(b.netDebt) - Math.abs(a.netDebt);
-    } else if (sortMode === 'AMOUNT_ASC') {
-      return Math.abs(a.netDebt) - Math.abs(b.netDebt);
+    // Filter
+    if (filterMode === 'RECEIVABLE') {
+      result = result.filter(c => c.netDebt > 0);
+    } else if (filterMode === 'PAYABLE') {
+      result = result.filter(c => c.netDebt < 0);
+    } else if (filterMode === 'SETTLED') {
+      result = result.filter(c => c.netDebt === 0);
     }
-    return 0;
-  });
+
+    // Search
+    if (debouncedSearch) {
+      result = result.filter(c => 
+        c.customer?.name?.toLowerCase().includes(debouncedSearch.toLowerCase()) || 
+        c.customer?.phone?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      if (sortMode === 'NAME_ASC') {
+        return a.customer.name.localeCompare(b.customer.name);
+      } else if (sortMode === 'AMOUNT_DESC') {
+        return Math.abs(b.netDebt) - Math.abs(a.netDebt);
+      } else if (sortMode === 'AMOUNT_ASC') {
+        return Math.abs(a.netDebt) - Math.abs(b.netDebt);
+      }
+      return 0;
+    });
+
+    return result;
+  }, [customers, filterMode, debouncedSearch, sortMode]);
 
   const handleExportCSV = () => {
     if (processedCustomers.length === 0) {

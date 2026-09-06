@@ -1,6 +1,21 @@
 import pandas as pd
-with open('docs_output.txt', 'w', encoding='utf-8') as f:
-    df = pd.read_excel('docs/QuanLyBanHang_EPIC 1.xlsx', sheet_name=None)
-    for k, v in df.items():
-        f.write(f'\n--- Sheet: {k} ---\n')
-        f.write(v.to_string())
+import sys
+
+excel_file = "docs/QuanLyBanHang_Phase2.xlsx"
+out_file = "docs/QuanLyBanHang_Phase2_Extracted.md"
+
+try:
+    xls = pd.ExcelFile(excel_file)
+    with open(out_file, "w", encoding="utf-8") as f:
+        f.write("# Tóm tắt Nghiệp vụ - Phase 2\n\n")
+        
+        for sheet in xls.sheet_names:
+            f.write(f"## Sheet: {sheet}\n")
+            df = pd.read_excel(xls, sheet_name=sheet)
+            # convert to markdown table
+            f.write(df.to_markdown(index=False))
+            f.write("\n\n---\n\n")
+            
+    print(f"Successfully extracted to {out_file}")
+except Exception as e:
+    print(f"Error: {e}")

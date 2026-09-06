@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import './VerifyOtp.css';
 
 const VerifyResetOtp = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,7 +51,7 @@ const VerifyResetOtp = () => {
     try {
       await axios.post('/api/auth/forgot-password', { email });
       setError('');
-      alert('Đã gửi lại mã OTP');
+      toast.success('Đã gửi lại mã OTP');
     } catch (err) {
       setError('Không thể gửi lại mã OTP lúc này');
     }

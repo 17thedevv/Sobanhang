@@ -5,10 +5,12 @@ import axios from 'axios';
 import ProductSettingsModal from './ProductSettingsModal';
 import ConfirmModal from './ConfirmModal';
 import { numberToWords } from '../utils/numberToWords';
+import { useToast } from '../context/ToastContext';
 import './ProductModal.css';
 
 export default function ProductModal({ product, onClose, onCopy, isReadOnly, onEdit }) {
   const { addProduct, updateProduct, deleteProduct } = useApp();
+  const toast = useToast();
   
   // Basic info
   const [name, setName] = useState('');
@@ -227,7 +229,7 @@ export default function ProductModal({ product, onClose, onCopy, isReadOnly, onE
     e.preventDefault();
     
     if (!name.trim()) {
-      alert('Vui lòng nhập tên sản phẩm');
+      toast.warning('Vui lòng nhập tên sản phẩm');
       return;
     }
     
@@ -261,10 +263,10 @@ export default function ProductModal({ product, onClose, onCopy, isReadOnly, onE
       }
       
       if (success) onClose();
-      else alert('Có lỗi xảy ra, vui lòng thử lại');
+      else toast.error('Có lỗi xảy ra, vui lòng thử lại');
     } catch (error) {
       console.error(error);
-      alert('Lưu sản phẩm thất bại. Kiểm tra lại dữ liệu.');
+      toast.error('Lưu sản phẩm thất bại. Kiểm tra lại dữ liệu.');
     } finally {
       setLoading(false);
     }

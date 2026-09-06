@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Search, Eye, Filter, Download, Plus, Clock, CheckCircle, Truck, DollarSign, RefreshCw, X, FileText, ChevronRight, Copy, Check, Share2 } from 'lucide-react';
 import { useResponsive } from '../hooks/useMediaQuery';
+import { useToast } from '../context/ToastContext';
 import './Orders.css';
 
 export default function Orders() {
+  const toast = useToast();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -80,24 +82,24 @@ export default function Orders() {
         amount: collectData.amount,
         description: collectData.description
       });
-      alert(`Đã thu ${collectData.amount}đ thành công!`);
+      toast.success(`Đã thu ${collectData.amount}đ thành công!`);
       setShowCollectModal(false);
       setCollectData({ amount: '', cashSourceId: '', description: '' });
       fetchSources();
     } catch (err) {
-      alert(err.response?.data?.error || 'Có lỗi xảy ra');
+      toast.error(err.response?.data?.error || 'Có lỗi xảy ra');
     }
   };
 
   const handlePayOrder = async (orderId, sourceId) => {
-    if (!sourceId) return alert('Vui lòng chọn nguồn tiền');
+    if (!sourceId) return toast.warning('Vui lòng chọn nguồn tiền');
     try {
       await axios.put(`/api/orders/${orderId}/collect-payment`, { cashSourceId: sourceId });
-      alert('Thu tiền thành công!');
+      toast.success('Thu tiền thành công!');
       setSelectedOrder(null);
       fetchOrders();
     } catch (err) {
-      alert(err.response?.data?.error || 'Lỗi thu tiền');
+      toast.error(err.response?.data?.error || 'Lỗi thu tiền');
     }
   };
 
@@ -115,7 +117,7 @@ export default function Orders() {
       }
     } else {
       navigator.clipboard.writeText(shareText);
-      alert('Đã copy thông tin hóa đơn');
+      toast.success('Đã copy thông tin hóa đơn');
     }
   };
 

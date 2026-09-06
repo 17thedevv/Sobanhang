@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import './SetPassword.css'; // Tái sử dụng style
+import { useToast } from '../context/ToastContext';
+import './SetPassword.css';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -11,6 +12,7 @@ const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -35,7 +37,7 @@ const ResetPassword = () => {
         newPassword: password
       });
       
-      alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+      toast.success('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
       navigate('/login');
     } catch (err) {
       if (err.response && err.response.data && err.response.data.error) {

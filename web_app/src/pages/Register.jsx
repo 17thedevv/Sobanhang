@@ -28,8 +28,7 @@ const Register = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('/api/auth/register/email', { email });
-      console.log('Register response:', response.data);
+      await axios.post('/api/auth/register/email', { email });
       
       // Chuyển sang bước OTP
       navigate('/verify-otp', { state: { email } });
