@@ -4,6 +4,7 @@ import { Home, BarChart2, ReceiptText, MoreHorizontal, Menu, Search, MessageCirc
 import { useAuth } from '../../context/AuthContext';
 import SidebarDrawer from './SidebarDrawer';
 import SupportModal from '../SupportModal';
+import { useToast } from '../../context/ToastContext';
 import './MobileLayout.css'; 
 
 const MobileLayout = () => {
@@ -11,6 +12,7 @@ const MobileLayout = () => {
   const [showSupport, setShowSupport] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const toast = useToast();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = async () => {
@@ -43,7 +45,7 @@ const MobileLayout = () => {
           />
         </div>
         <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-          <button className="btn-icon header-scan-btn" onClick={() => alert("Mở camera quét mã vạch")}>
+          <button className="btn-icon header-scan-btn" onClick={() => toast.info("Mở camera quét mã vạch")}>
             <ScanLine size={22} />
           </button>
           <button className="btn-icon header-chat-btn" onClick={() => setShowSupport(true)}>

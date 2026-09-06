@@ -41,6 +41,7 @@ model Store {
   settings         String? // JSON string for store settings
   debtTransactions DebtTransaction[]
   debtReminders    DebtReminder[]
+  stockReceipts    StockReceipt[]
 }
 
 model Category {
@@ -76,6 +77,7 @@ model Product {
   category   Category?        @relation(fields: [categoryId], references: [id])
   variants   ProductVariant[]
   orderItems OrderItem[]
+  stockReceiptItems StockReceiptItem[]
 }
 
 model ProductVariant {
@@ -114,6 +116,7 @@ model Customer {
   tags             CustomerTag[]
   invoiceInfo      InvoiceInfo?
   notes            CustomerNote[]
+  stockReceipts    StockReceipt[]
 }
 
 model CustomerGroup {
@@ -288,4 +291,36 @@ model DebtReminder {
 
   store    Store    @relation(fields: [storeId], references: [id])
   customer Customer @relation(fields: [customerId], references: [id])
+}
+
+model StockReceipt {
+  id           String             @id @default(uuid())
+  storeId      String
+  code         String             // e.g. NH0001
+  supplierId   String?
+  totalAmount  Float
+  discount     Float              @default(0)
+  shippingFee  Float              @default(0)
+  finalAmount  Float
+  paidAmount   Float              @default(0)
+  status       String             @default("DRAFT") // DRAFT, PARTIAL_PAID, COMPLETED, CANCELLED
+  note         String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  store        Store              @relation(fields: [storeId], references: [id])
+  supplier     Customer?          @relation(fields: [supplierId], references: [id])
+  items        StockReceiptItem[]
+}
+
+model StockReceiptItem {
+  id           String   @id @default(uuid())
+  receiptId    String
+  productId    String
+  quantity     Int
+  importPrice  Float
+  subTotal     Float
+
+  receipt      StockReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id])
 }

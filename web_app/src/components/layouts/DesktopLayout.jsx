@@ -114,7 +114,7 @@ const DesktopLayout = () => {
             {/* QUẢN LÝ KHO */}
             <div>
               <div 
-                className="nav-item mockup"
+                className={`nav-item ${location.pathname.includes('/stock-receipts') ? 'active-group' : ''}`}
                 onClick={() => toggleMenu('inventory')}
               >
                 <Archive size={18} className="nav-icon" />
@@ -124,7 +124,9 @@ const DesktopLayout = () => {
               {expandedMenus.inventory && (
                 <div className="sub-nav">
                   <div className="sub-nav-item mockup">Tồn kho</div>
-                  <div className="sub-nav-item mockup">Nhập kho</div>
+                  <NavLink to="/dashboard/stock-receipts" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
+                    Nhập kho
+                  </NavLink>
                   <div className="sub-nav-item mockup">Xuất kho</div>
                 </div>
               )}
@@ -189,7 +191,8 @@ const DesktopLayout = () => {
                location.pathname.includes('/categories') ? 'Danh mục' : 
                location.pathname.includes('/cashflow') ? 'Tài chính' : 
                location.pathname.includes('/debt') ? 'Sổ nợ' : 
-               location.pathname.includes('/customers') ? 'Khách hàng' : 'Bảng điều khiển'}
+               location.pathname.includes('/customers') ? 'Khách hàng' :
+               location.pathname.includes('/stock-receipts') ? 'Quản lý kho' : 'Bảng điều khiển'}
             </span>
           </div>
 

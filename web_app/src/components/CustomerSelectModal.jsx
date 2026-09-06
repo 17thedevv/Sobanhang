@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, Check } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from '../context/ToastContext';
 
 export default function CustomerSelectModal({ isOpen, onClose, onSelect }) {
   const [customers, setCustomers] = useState([]);
@@ -9,6 +10,7 @@ export default function CustomerSelectModal({ isOpen, onClose, onSelect }) {
   const [isCreating, setIsCreating] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ name: '', phone: '' });
   const [creatingLoading, setCreatingLoading] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -44,7 +46,7 @@ export default function CustomerSelectModal({ isOpen, onClose, onSelect }) {
       onSelect(created);
     } catch (err) {
       console.error(err);
-      alert('Không thể tạo khách hàng mới');
+      toast.error('Không thể tạo khách hàng mới');
     } finally {
       setCreatingLoading(false);
     }

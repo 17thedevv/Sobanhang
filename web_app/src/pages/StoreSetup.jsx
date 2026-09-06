@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '../context/ToastContext';
 import './StoreSetup.css';
 
 const INDUSTRIES = [
@@ -16,6 +17,7 @@ const StoreSetup = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const toast = useToast();
   
   const [formData, setFormData] = useState({
     role: 'owner',
@@ -45,7 +47,7 @@ const StoreSetup = () => {
 
       // Lưu tạm ngành hàng để màn Suggestion dùng (MVP)
       sessionStorage.setItem('tempIndustry', formData.industry);
-      alert('Tạo cửa hàng thành công!');
+      toast.success('Tạo cửa hàng thành công!');
       navigate('/suggestions', { state: { industry: formData.industry } });
       
     } catch (err) {

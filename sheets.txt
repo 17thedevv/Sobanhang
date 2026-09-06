@@ -1,0 +1,16 @@
+Phase1:
+Product Overview (Tổng quan)
+User Roles (Vai trò)
+Epics (Nhóm chức năng)
+Product Backlog (User Stories)
+Acceptance Criteria
+Tasks (Công việc)
+Business Rules (Quy tắc)
+Phase2:
+Product Overview (Tổng quan)
+User Roles (Vai trò)
+Epics (Nhóm chức năng)
+Product Backlog (User Stories)
+Acceptance Criteria
+Tasks (Công việc)
+Business Rules (Quy tắc)

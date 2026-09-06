@@ -1,12 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useToast } from './ToastContext';
 import axios from 'axios';
 
 const AppContext = createContext();
 
 export function AppProvider({ children }) {
   const { user, isAuthenticated } = useAuth();
+  const toast = useToast();
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [dashboardStats, setDashboardStats] = useState(null);
@@ -83,7 +85,7 @@ export function AppProvider({ children }) {
       return true;
     } catch (err) {
       console.error('Lỗi xóa sản phẩm:', err);
-      alert(err.response?.data?.error || 'Có lỗi xảy ra khi xóa sản phẩm');
+      toast.error(err.response?.data?.error || 'Có lỗi xảy ra khi xóa sản phẩm');
       return false;
     }
   };
@@ -94,13 +96,13 @@ export function AppProvider({ children }) {
       const existing = prev[product.id];
       if (existing) {
         if (existing.quantity >= product.stock) {
-          alert(`Kho chỉ còn ${product.stock} sản phẩm!`);
+          toast.warning(`Kho chỉ còn ${product.stock} sản phẩm!`);
           return { ...prev, [product.id]: { ...existing, quantity: product.stock } };
         }
         return { ...prev, [product.id]: { ...existing, quantity: existing.quantity + 1 } };
       }
       if (product.stock < 1) {
-        alert('Sản phẩm đã hết hàng!');
+        toast.error('Sản phẩm đã hết hàng!');
         return prev;
       }
       return { ...prev, [product.id]: { product, quantity: 1 } };
@@ -131,7 +133,7 @@ export function AppProvider({ children }) {
         return newCart;
       }
       if (numQty > product.stock) {
-        alert(`Kho chỉ còn ${product.stock} sản phẩm!`);
+        toast.warning(`Kho chỉ còn ${product.stock} sản phẩm!`);
         return { ...prev, [product.id]: { product, quantity: product.stock } };
       }
       return { ...prev, [product.id]: { product, quantity: numQty } };
@@ -167,8 +169,8 @@ export function AppProvider({ children }) {
       return res.data.order;
     } catch (err) {
       console.error('Lỗi thanh toán:', err);
-      alert(err.response?.data?.error || 'Lỗi thanh toán');
-      throw err;
+      toast.error(err.response?.data?.error || 'Lỗi thanh toán');
+      return false;
     }
   };
 

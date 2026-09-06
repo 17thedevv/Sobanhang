@@ -16,7 +16,6 @@ const ForgotPassword = () => {
 
     try {
       const response = await axios.post('/api/auth/forgot-password', { email });
-      console.log('Forgot password response:', response.data);
       // Thành công thì chuyển sang màn nhập OTP, truyền email qua state
       navigate('/verify-reset-otp', { state: { email } });
     } catch (err) {

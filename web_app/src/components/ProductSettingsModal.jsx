@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Settings } from 'lucide-react';
 import axios from 'axios';
+import { useToast } from '../context/ToastContext';
 import './ProductSettingsModal.css';
 
 const DEFAULT_SETTINGS = {
@@ -26,6 +27,7 @@ const DEFAULT_SETTINGS = {
 export default function ProductSettingsModal({ isOpen, onClose, onSave }) {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     if (isOpen) {
@@ -50,9 +52,9 @@ export default function ProductSettingsModal({ isOpen, onClose, onSave }) {
       await axios.put('/api/stores/settings', { productSettings: settings });
       if (onSave) onSave(settings);
       onClose();
-    } catch (err) {
-      console.error(err);
-      alert('Có lỗi xảy ra khi lưu cài đặt! Vui lòng thử lại.');
+    } catch (error) {
+      console.error(error);
+      toast.error('Có lỗi xảy ra khi lưu cài đặt! Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }

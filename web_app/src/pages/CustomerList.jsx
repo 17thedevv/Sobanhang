@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Search, Plus, User, Users, ChevronRight, Phone, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
+import useDebounce from '../hooks/useDebounce';
 
 export default function CustomerList() {
   const [activeTab, setActiveTab] = useState('CUSTOMERS');
@@ -16,18 +17,20 @@ export default function CustomerList() {
   const navigate = useNavigate();
   const toast = useToast();
 
+  const debouncedSearch = useDebounce(search, 300);
+
   useEffect(() => {
     if (activeTab === 'CUSTOMERS') {
       fetchCustomers();
     } else {
       fetchGroups();
     }
-  }, [activeTab, search]);
+  }, [activeTab, debouncedSearch]);
 
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/api/customers', { params: { search } });
+      const res = await axios.get('/api/customers', { params: { search: debouncedSearch } });
       setCustomers(res.data.customers || []);
     } catch (err) {
       console.error(err);
