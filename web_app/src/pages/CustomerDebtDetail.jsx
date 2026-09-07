@@ -74,27 +74,44 @@ export default function CustomerDebtDetail() {
         </button>
       </header>
 
-      {/* Overview Card */}
-      <div className="card p-4 mb-4 text-center">
-        <h5 className="text-muted mb-2">
-          {isReceivable ? 'TÔI PHẢI THU' : isPayable ? 'TÔI PHẢI TRẢ' : 'ĐÃ TẤT TOÁN'}
-        </h5>
-        <h1 className={`mb-3 ${isReceivable ? 'text-success' : isPayable ? 'text-danger' : 'text-muted'}`}>
-          {Math.abs(netDebt).toLocaleString('vi-VN')}đ
-        </h1>
-        {netDebt !== 0 && (
-          <div className="d-flex justify-content-center gap-2 mt-3">
-            <button className="btn btn-outline-primary" onClick={() => setShowReminderModal(true)}>
-              <Bell size={18} className="me-1" /> Nhắc nợ
-            </button>
-            <button className="btn btn-primary" onClick={handleOpenPayment}>
-              Thanh toán
-            </button>
+      {/* Overview Cards */}
+      <div className="row mb-4">
+        <div className="col-12 mb-3">
+          <div className="card p-4 text-center" style={{ backgroundColor: isReceivable ? '#f0fdf4' : isPayable ? '#fef2f2' : '#f8f9fa' }}>
+            <h5 className="text-muted mb-2">
+              {isReceivable ? 'TÔI PHẢI THU' : isPayable ? 'TÔI PHẢI TRẢ' : 'ĐÃ TẤT TOÁN'}
+            </h5>
+            <h1 className={`mb-0 ${isReceivable ? 'text-success' : isPayable ? 'text-danger' : 'text-muted'}`}>
+              {Math.abs(netDebt).toLocaleString('vi-VN')}đ
+            </h1>
           </div>
-        )}
+        </div>
+        <div className="col-6">
+          <div className="card p-3 text-center h-100">
+            <div className="text-muted small mb-1">Tổng phải thu</div>
+            <div className="fw-bold text-success">{totalReceivable.toLocaleString('vi-VN')}đ</div>
+          </div>
+        </div>
+        <div className="col-6">
+          <div className="card p-3 text-center h-100">
+            <div className="text-muted small mb-1">Tổng phải trả</div>
+            <div className="fw-bold text-danger">{totalPayable.toLocaleString('vi-VN')}đ</div>
+          </div>
+        </div>
       </div>
 
-      <h5 className="mb-3">Lịch sử giao dịch</h5>
+      {netDebt !== 0 && (
+        <div className="d-flex justify-content-center gap-2 mb-4">
+          <button className="btn btn-outline-primary" onClick={() => setShowReminderModal(true)}>
+            <Bell size={18} className="me-1" /> Nhắc nợ
+          </button>
+          <button className="btn btn-primary" onClick={handleOpenPayment}>
+            Thanh toán
+          </button>
+        </div>
+      )}
+
+      <h5 className="mb-3">Lịch sử ghi nợ</h5>
       
       {loading ? (
         <div className="text-center py-4 text-muted">Đang tải...</div>
@@ -152,7 +169,7 @@ export default function CustomerDebtDetail() {
                     </div>
                   )}
                 </div>
-                <div className="text-end">
+                <div className="text-end d-flex flex-column align-items-end">
                   <div className={`fw-bold fs-5 ${colorClass}`}>
                     {amountDisplay}
                   </div>
@@ -164,6 +181,23 @@ export default function CustomerDebtDetail() {
                   {t.type === 'DEBT' && t.balance === 0 && (
                     <span className="badge bg-success mt-1">Đã trả hết</span>
                   )}
+                  <button 
+                    className="btn btn-sm btn-link text-danger p-0 mt-2 text-decoration-none" 
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (window.confirm('Bạn có chắc chắn muốn xóa giao dịch này?')) {
+                        try {
+                          await axios.delete(`/api/debt/transactions/${t.id}`);
+                          toast.success('Xóa thành công');
+                          fetchTransactions();
+                        } catch (err) {
+                          toast.error(err.response?.data?.error || 'Không thể xóa');
+                        }
+                      }
+                    }}
+                  >
+                    Xóa
+                  </button>
                 </div>
               </div>
             );

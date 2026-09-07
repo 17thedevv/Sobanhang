@@ -197,7 +197,7 @@ export default function StockReceiptForm() {
                   <div key={item.productId} className="srf-cart-item">
                     <div className="srf-cart-header">
                       <span className="srf-cart-name">{item.name}</span>
-                      <Trash2 size={16} className="srf-cart-remove" onClick={() => removeFromCart(item.productId)} />
+                      <Trash2 size={20} className="srf-cart-remove" onClick={() => removeFromCart(item.productId)} />
                     </div>
                     
                     <div className="srf-cart-inputs">

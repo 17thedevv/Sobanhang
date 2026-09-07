@@ -223,13 +223,14 @@
 .srf-cart-remove {
   color: #ef4444;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
+  padding: 8px;
+  border-radius: 6px;
   transition: background 0.2s;
+  background: #fee2e2;
 }
 
 .srf-cart-remove:hover {
-  background: #fee2e2;
+  background: #fca5a5;
 }
 
 .srf-cart-inputs {

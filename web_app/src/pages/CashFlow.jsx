@@ -19,9 +19,10 @@ export default function CashFlow() {
   const [showTransferModal, setShowTransferModal] = useState(false);
 
   // Form states
-  const [newSource, setNewSource] = useState({ name: '', type: 'CASH', balance: 0, createdAt: new Date().toISOString().split('T')[0] });
-  const [transfer, setTransfer] = useState({ fromSourceId: '', toSourceId: '', amount: 0, description: '' });
+  const [newSource, setNewSource] = useState({ name: '', type: 'CASH', balance: '', createdAt: new Date().toISOString().split('T')[0] });
+  const [transfer, setTransfer] = useState({ fromSourceId: '', toSourceId: '', amount: '', description: '' });
   const [error, setError] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const fetchSources = async () => {
     try {
@@ -42,27 +43,41 @@ export default function CashFlow() {
 
   const handleCreateSource = async (e) => {
     e.preventDefault();
+    if (isProcessing) return;
     setError('');
+    setIsProcessing(true);
     try {
-      await axios.post('/api/cashbook/sources', newSource);
+      await axios.post('/api/cashbook/sources', {
+        ...newSource,
+        balance: parseInt(newSource.balance || 0, 10)
+      });
       setShowCreateModal(false);
-      setNewSource({ name: '', type: 'CASH', balance: 0, createdAt: new Date().toISOString().split('T')[0] });
+      setNewSource({ name: '', type: 'CASH', balance: '', createdAt: new Date().toISOString().split('T')[0] });
       fetchSources();
     } catch (err) {
       setError(err.response?.data?.error || 'Lỗi tạo nguồn tiền');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleTransfer = async (e) => {
     e.preventDefault();
+    if (isProcessing) return;
     setError('');
+    setIsProcessing(true);
     try {
-      await axios.post('/api/cashbook/transfer', transfer);
+      await axios.post('/api/cashbook/transfer', {
+        ...transfer,
+        amount: parseInt(transfer.amount || 0, 10)
+      });
       setShowTransferModal(false);
-      setTransfer({ fromSourceId: '', toSourceId: '', amount: 0, description: '' });
+      setTransfer({ fromSourceId: '', toSourceId: '', amount: '', description: '' });
       fetchSources();
     } catch (err) {
       setError(err.response?.data?.error || 'Lỗi chuyển tiền');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -229,10 +244,10 @@ export default function CashFlow() {
                 <input 
                   type="text" 
                   className="form-control" 
-                  value={newSource.balance === 0 ? '0' : formatCurrency(newSource.balance)} 
+                  value={newSource.balance ? formatCurrency(newSource.balance) : ''} 
                   onChange={e => {
                     const rawValue = e.target.value.replace(/\D/g, '');
-                    setNewSource({...newSource, balance: rawValue ? parseInt(rawValue, 10) : 0});
+                    setNewSource({...newSource, balance: rawValue});
                   }}
                 />
                 {newSource.balance > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(newSource.balance)}</div>}
@@ -303,10 +318,10 @@ export default function CashFlow() {
                   type="text" 
                   className="form-control" 
                   required 
-                  value={transfer.amount === 0 ? '' : formatCurrency(transfer.amount)} 
+                  value={transfer.amount ? formatCurrency(transfer.amount) : ''} 
                   onChange={e => {
                     const rawValue = e.target.value.replace(/\D/g, '');
-                    setTransfer({...transfer, amount: rawValue ? parseInt(rawValue, 10) : 0});
+                    setTransfer({...transfer, amount: rawValue});
                   }}
                 />
                 {transfer.amount > 0 && <div className="text-muted text-sm fst-italic mt-1">{numberToWords(transfer.amount)}</div>}
