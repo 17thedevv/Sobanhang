@@ -209,22 +209,47 @@ async function main() {
   console.log(`   ✅ 2 sản phẩm có biến thể (Áo thun Polo: 4 biến thể, Ốp lưng: 3 biến thể)\n`);
 
   // ══════════════════════════════════════════════════════
-  // EPIC 2: Tạo Đơn hàng mẫu (Orders)
+  // EPIC 2: Tạo Khách hàng & Đơn hàng mẫu (Orders)
   // ══════════════════════════════════════════════════════
-  console.log('📦 Epic 2: Tạo Đơn hàng mẫu...');
+  console.log('📦 Epic 2: Tạo Khách hàng & Đơn hàng mẫu...');
+
+  const sampleCustomer = await prisma.customer.create({
+    data: {
+      storeId,
+      name: 'Nguyễn Văn An',
+      phone: '0987654321',
+      address: 'Hà Nội',
+      type: 'Khách quen',
+      gender: 'MALE',
+    }
+  });
 
   // Đơn 1: Tiền mặt, 2 cà phê + 1 trà đào
   const order1Total = spCaPhe.price * 2 + (spTraDao.promotionalPrice || spTraDao.price) * 1;
   await prisma.order.create({
     data: {
       storeId,
+      customerId: sampleCustomer.id,
       total: order1Total,
-      isDebt: false,
-      paymentMethod: 'CASH',
+      orderStatus: 'COMPLETED',
+      paymentStatus: 'PAID',
+      fulfillmentStatus: 'DELIVERED',
       items: {
         create: [
-          { productId: spCaPhe.id, quantity: 2, price: spCaPhe.price },
-          { productId: spTraDao.id, quantity: 1, price: spTraDao.promotionalPrice || spTraDao.price },
+          {
+            productId: spCaPhe.id,
+            productNameSnapshot: spCaPhe.name,
+            unitPrice: spCaPhe.price,
+            quantity: 2,
+            subtotal: spCaPhe.price * 2,
+          },
+          {
+            productId: spTraDao.id,
+            productNameSnapshot: spTraDao.name,
+            unitPrice: spTraDao.promotionalPrice || spTraDao.price,
+            quantity: 1,
+            subtotal: (spTraDao.promotionalPrice || spTraDao.price) * 1,
+          },
         ]
       }
     }
@@ -235,13 +260,27 @@ async function main() {
   await prisma.order.create({
     data: {
       storeId,
+      customerId: sampleCustomer.id,
       total: order2Total,
-      isDebt: false,
-      paymentMethod: 'TRANSFER',
+      orderStatus: 'COMPLETED',
+      paymentStatus: 'PAID',
+      fulfillmentStatus: 'DELIVERED',
       items: {
         create: [
-          { productId: spBanhMi.id, quantity: 3, price: spBanhMi.price },
-          { productId: spNemChua.id, quantity: 2, price: spNemChua.price },
+          {
+            productId: spBanhMi.id,
+            productNameSnapshot: spBanhMi.name,
+            unitPrice: spBanhMi.price,
+            quantity: 3,
+            subtotal: spBanhMi.price * 3,
+          },
+          {
+            productId: spNemChua.id,
+            productNameSnapshot: spNemChua.name,
+            unitPrice: spNemChua.price,
+            quantity: 2,
+            subtotal: spNemChua.price * 2,
+          },
         ]
       }
     }
@@ -252,12 +291,20 @@ async function main() {
   await prisma.order.create({
     data: {
       storeId,
+      customerId: sampleCustomer.id,
       total: order3Total,
-      isDebt: true,
-      paymentMethod: 'CASH',
+      orderStatus: 'COMPLETED',
+      paymentStatus: 'DEBT',
+      fulfillmentStatus: 'DELIVERED',
       items: {
         create: [
-          { productId: spCocacola.id, quantity: 5, price: spCocacola.promotionalPrice || spCocacola.price },
+          {
+            productId: spCocacola.id,
+            productNameSnapshot: spCocacola.name,
+            unitPrice: spCocacola.promotionalPrice || spCocacola.price,
+            quantity: 5,
+            subtotal: order3Total,
+          },
         ]
       }
     }
