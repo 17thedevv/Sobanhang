@@ -16,6 +16,9 @@ import categoriesRoutes from './modules/categories/presentation/categories.route
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes';
 import { debtRoutes } from './modules/debt/presentation/debt.routes';
 import { stockReceiptRoutes } from './modules/stock-receipts/presentation/stockReceipt.routes';
+import stockIssueRoutes from './modules/stock-issues/presentation/stockIssue.routes';
+import stockCheckRoutes from './modules/stock-checks/presentation/stockCheck.routes';
+import stockLedgerRoutes from './modules/stock-ledger/presentation/stockLedger.routes';
 
 dotenv.config();
 
@@ -48,6 +51,9 @@ app.use('/api/onboarding/suggestions', suggestionRoutes);
 app.use('/api/onboarding/preference', preferenceRoutes);
 app.use('/api/debt', debtRoutes);
 app.use('/api/stock-receipts', stockReceiptRoutes);
+app.use('/api/stock-issues', stockIssueRoutes);
+app.use('/api/stock-checks', stockCheckRoutes);
+app.use('/api/stock-ledger', stockLedgerRoutes);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'OK' });

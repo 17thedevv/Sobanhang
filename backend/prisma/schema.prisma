@@ -30,18 +30,21 @@ model Store {
   industry  String
   createdAt DateTime @default(now())
 
-  owner      User       @relation(fields: [ownerId], references: [id])
-  products   Product[]
-  orders     Order[]
-  categories Category[]
-  customers  Customer[]
-  customerGroups CustomerGroup[]
-  customerTags   CustomerTag[]
-  cashSources CashSource[]
-  settings         String? // JSON string for store settings
-  debtTransactions DebtTransaction[]
-  debtReminders    DebtReminder[]
-  stockReceipts    StockReceipt[]
+  owner             User               @relation(fields: [ownerId], references: [id])
+  products          Product[]
+  orders            Order[]
+  categories        Category[]
+  customers         Customer[]
+  customerGroups    CustomerGroup[]
+  customerTags      CustomerTag[]
+  cashSources       CashSource[]
+  settings          String? // JSON string for store settings
+  debtTransactions  DebtTransaction[]
+  debtReminders     DebtReminder[]
+  stockReceipts     StockReceipt[]
+  stockIssues       StockIssue[]
+  stockChecks       StockCheck[]
+  stockTransactions StockTransaction[]
 }
 
 model Category {
@@ -73,11 +76,14 @@ model Product {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  store      Store            @relation(fields: [storeId], references: [id])
-  category   Category?        @relation(fields: [categoryId], references: [id])
-  variants   ProductVariant[]
-  orderItems OrderItem[]
+  store             Store              @relation(fields: [storeId], references: [id])
+  category          Category?          @relation(fields: [categoryId], references: [id])
+  variants          ProductVariant[]
+  orderItems        OrderItem[]
   stockReceiptItems StockReceiptItem[]
+  stockIssueItems   StockIssueItem[]
+  stockCheckItems   StockCheckItem[]
+  stockTransactions StockTransaction[]
 }
 
 model ProductVariant {
@@ -93,30 +99,30 @@ model ProductVariant {
 }
 
 model Customer {
-  id        String   @id @default(uuid())
-  storeId   String
-  name      String
-  phone     String?
-  address   String?
-  note      String?
-  avatarUrl String?
-  email     String?
-  isSupplier Boolean @default(false)
-  birthday  DateTime?
-  gender    String?   // "MALE", "FEMALE", "OTHER"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(uuid())
+  storeId    String
+  name       String
+  phone      String?
+  address    String?
+  note       String?
+  avatarUrl  String?
+  email      String?
+  isSupplier Boolean   @default(false)
+  birthday   DateTime?
+  gender     String? // "MALE", "FEMALE", "OTHER"
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
-  store            Store   @relation(fields: [storeId], references: [id])
+  store            Store             @relation(fields: [storeId], references: [id])
   orders           Order[]
   debtTransactions DebtTransaction[]
   debtReminders    DebtReminder[]
 
-  groups           CustomerGroup[]
-  tags             CustomerTag[]
-  invoiceInfo      InvoiceInfo?
-  notes            CustomerNote[]
-  stockReceipts    StockReceipt[]
+  groups        CustomerGroup[]
+  tags          CustomerTag[]
+  invoiceInfo   InvoiceInfo?
+  notes         CustomerNote[]
+  stockReceipts StockReceipt[]
 }
 
 model CustomerGroup {
@@ -140,9 +146,9 @@ model CustomerTag {
 }
 
 model InvoiceInfo {
-  id           String   @id @default(uuid())
-  customerId   String   @unique
-  type         String   // "INDIVIDUAL", "COMPANY"
+  id           String  @id @default(uuid())
+  customerId   String  @unique
+  type         String // "INDIVIDUAL", "COMPANY"
   buyerName    String?
   taxCode      String?
   idCard       String?
@@ -152,7 +158,7 @@ model InvoiceInfo {
   bankName     String?
   bankAccount  String?
 
-  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
 model CustomerNote {
@@ -161,7 +167,7 @@ model CustomerNote {
   content    String
   createdAt  DateTime @default(now())
 
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
 model Order {
@@ -260,23 +266,23 @@ model CashTransaction {
 }
 
 model DebtTransaction {
-  id             String      @id @default(uuid())
-  storeId        String
-  customerId     String
-  direction      String      // "GAVE" (Tôi đã đưa = Phải thu) | "RECEIVED" (Tôi đã nhận = Phải trả)
-  amount         Float
-  balance        Float       // Dư nợ sau giao dịch này
-  cashSourceId   String?
-  note           String?
-  transactionDate DateTime   @default(now())
-  attachments    String?     // JSON array of file URLs
-  parentId       String?     // Liên kết với giao dịch nợ gốc (cho thanh toán)
-  type           String      @default("DEBT") // "DEBT" | "PAYMENT"
-  createdAt      DateTime    @default(now())
+  id              String   @id @default(uuid())
+  storeId         String
+  customerId      String
+  direction       String // "GAVE" (Tôi đã đưa = Phải thu) | "RECEIVED" (Tôi đã nhận = Phải trả)
+  amount          Float
+  balance         Float // Dư nợ sau giao dịch này
+  cashSourceId    String?
+  note            String?
+  transactionDate DateTime @default(now())
+  attachments     String? // JSON array of file URLs
+  parentId        String? // Liên kết với giao dịch nợ gốc (cho thanh toán)
+  type            String   @default("DEBT") // "DEBT" | "PAYMENT"
+  createdAt       DateTime @default(now())
 
-  store      Store      @relation(fields: [storeId], references: [id])
-  customer   Customer   @relation(fields: [customerId], references: [id])
-  cashSource CashSource? @relation(fields: [cashSourceId], references: [id])
+  store      Store             @relation(fields: [storeId], references: [id])
+  customer   Customer          @relation(fields: [customerId], references: [id])
+  cashSource CashSource?       @relation(fields: [cashSourceId], references: [id])
   parent     DebtTransaction?  @relation("DebtPaymentLink", fields: [parentId], references: [id])
   children   DebtTransaction[] @relation("DebtPaymentLink")
 }
@@ -294,33 +300,96 @@ model DebtReminder {
 }
 
 model StockReceipt {
-  id           String             @id @default(uuid())
-  storeId      String
-  code         String             // e.g. NH0001
-  supplierId   String?
-  totalAmount  Float
-  discount     Float              @default(0)
-  shippingFee  Float              @default(0)
-  finalAmount  Float
-  paidAmount   Float              @default(0)
-  status       String             @default("DRAFT") // DRAFT, PARTIAL_PAID, COMPLETED, CANCELLED
-  note         String?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id          String   @id @default(uuid())
+  storeId     String
+  code        String // e.g. NH0001
+  supplierId  String?
+  totalAmount Float
+  discount    Float    @default(0)
+  shippingFee Float    @default(0)
+  finalAmount Float
+  paidAmount  Float    @default(0)
+  status      String   @default("DRAFT") // DRAFT, PARTIAL_PAID, COMPLETED, CANCELLED
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  store        Store              @relation(fields: [storeId], references: [id])
-  supplier     Customer?          @relation(fields: [supplierId], references: [id])
-  items        StockReceiptItem[]
+  store    Store              @relation(fields: [storeId], references: [id])
+  supplier Customer?          @relation(fields: [supplierId], references: [id])
+  items    StockReceiptItem[]
 }
 
 model StockReceiptItem {
-  id           String   @id @default(uuid())
-  receiptId    String
-  productId    String
-  quantity     Int
-  importPrice  Float
-  subTotal     Float
+  id          String @id @default(uuid())
+  receiptId   String
+  productId   String
+  quantity    Int
+  importPrice Float
+  subTotal    Float
 
-  receipt      StockReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
-  product      Product      @relation(fields: [productId], references: [id])
+  receipt StockReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  product Product      @relation(fields: [productId], references: [id])
+}
+
+model StockIssue {
+  id        String   @id @default(uuid())
+  storeId   String
+  code      String // e.g. XH0001
+  status    String   @default("DRAFT") // DRAFT, COMPLETED, CANCELLED
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store            @relation(fields: [storeId], references: [id])
+  items StockIssueItem[]
+}
+
+model StockIssueItem {
+  id        String @id @default(uuid())
+  issueId   String
+  productId String
+  quantity  Int // Should be positive, will subtract from product stock
+
+  issue   StockIssue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  product Product    @relation(fields: [productId], references: [id])
+}
+
+model StockCheck {
+  id        String   @id @default(uuid())
+  storeId   String
+  code      String // e.g. KK0001
+  status    String   @default("CHECKING") // CHECKING, BALANCED, CANCELLED
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store Store            @relation(fields: [storeId], references: [id])
+  items StockCheckItem[]
+}
+
+model StockCheckItem {
+  id             String @id @default(uuid())
+  checkId        String
+  productId      String
+  systemQuantity Int // Tồn kho hệ thống lúc kiểm
+  actualQuantity Int // Tồn kho thực tế
+  diffQuantity   Int // Lệch (actualQuantity - systemQuantity)
+
+  check   StockCheck @relation(fields: [checkId], references: [id], onDelete: Cascade)
+  product Product    @relation(fields: [productId], references: [id])
+}
+
+// Transaction for Sổ Kho
+model StockTransaction {
+  id             String   @id @default(uuid())
+  storeId        String
+  productId      String
+  type           String // RECEIPT, ISSUE, CHECK
+  referenceId    String // ID của StockReceipt, StockIssue, hoặc StockCheck
+  quantityChange Int // Dương nếu nhập/tăng, Âm nếu xuất/giảm
+  price          Float? // Giá vốn nhập (nếu có)
+  createdAt      DateTime @default(now())
+
+  store   Store   @relation(fields: [storeId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }

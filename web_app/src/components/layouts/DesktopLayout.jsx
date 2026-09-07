@@ -114,7 +114,7 @@ const DesktopLayout = () => {
             {/* QUẢN LÝ KHO */}
             <div>
               <div 
-                className={`nav-item ${location.pathname.includes('/stock-receipts') ? 'active-group' : ''}`}
+                className={`nav-item ${location.pathname.includes('/stock-receipts') || location.pathname.includes('/stock-issues') || location.pathname.includes('/stock-checks') || location.pathname.includes('/stock-ledger') ? 'active-group' : ''}`}
                 onClick={() => toggleMenu('inventory')}
               >
                 <Archive size={18} className="nav-icon" />
@@ -123,11 +123,18 @@ const DesktopLayout = () => {
               </div>
               {expandedMenus.inventory && (
                 <div className="sub-nav">
-                  <div className="sub-nav-item mockup">Tồn kho</div>
+                  <NavLink to="/dashboard/stock-ledger" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
+                    Sổ kho (Thẻ kho)
+                  </NavLink>
                   <NavLink to="/dashboard/stock-receipts" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
                     Nhập kho
                   </NavLink>
-                  <div className="sub-nav-item mockup">Xuất kho</div>
+                  <NavLink to="/dashboard/stock-issues" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
+                    Xuất kho
+                  </NavLink>
+                  <NavLink to="/dashboard/stock-checks" className={({ isActive }) => `sub-nav-item ${isActive ? 'active' : ''}`}>
+                    Kiểm kho
+                  </NavLink>
                 </div>
               )}
             </div>

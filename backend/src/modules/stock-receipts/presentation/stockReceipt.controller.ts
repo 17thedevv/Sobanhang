@@ -10,8 +10,9 @@ function generateReceiptCode() {
 export class StockReceiptController {
   async getReceipts(req: Request, res: Response) {
     try {
-      const { status, supplierId } = req.query;
-      const storeId = req.user?.storeId;
+      const status = req.query.status as string | undefined;
+      const supplierId = req.query.supplierId as string | undefined;
+      const storeId = req.user?.storeId as string;
       if (!storeId) return res.status(403).json({ message: 'Store required' });
 
       const where: any = { storeId };
@@ -34,10 +35,36 @@ export class StockReceiptController {
     }
   }
 
+  async getReceiptByCode(req: Request, res: Response) {
+    try {
+      const code = req.params.code as string;
+      const storeId = req.user?.storeId as string;
+
+      const receipt = await prisma.stockReceipt.findFirst({
+        where: { code, storeId },
+        include: {
+          supplier: true,
+          items: {
+            include: {
+              product: true
+            }
+          }
+        }
+      });
+
+      if (!receipt) return res.status(404).json({ message: 'Receipt not found' });
+
+      res.json({ receipt });
+    } catch (error) {
+      console.error('Error getting receipt:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
   async getReceiptById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const storeId = req.user?.storeId;
+      const id = req.params.id as string;
+      const storeId = req.user?.storeId as string;
 
       const receipt = await prisma.stockReceipt.findFirst({
         where: { id, storeId },
@@ -62,7 +89,7 @@ export class StockReceiptController {
 
   async createReceipt(req: Request, res: Response) {
     try {
-      const storeId = req.user?.storeId;
+      const storeId = req.user?.storeId as string;
       if (!storeId) return res.status(403).json({ message: 'Store required' });
 
       const { 
@@ -160,10 +187,43 @@ export class StockReceiptController {
     }
   }
 
+  async updateReceiptStatus(req: Request, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const { status } = req.body;
+      const storeId = req.user?.storeId as string;
+
+      if (status !== 'COMPLETED' && status !== 'CANCELLED') {
+        return res.status(400).json({ message: 'Invalid status' });
+      }
+
+      const receipt = await prisma.$transaction(async (tx) => {
+        const existing = await tx.stockReceipt.findFirst({
+          where: { id, storeId },
+          include: { items: true }
+        });
+
+        if (!existing) throw new Error('Receipt not found');
+        
+        const updated = await tx.stockReceipt.update({
+          where: { id },
+          data: { status }
+        });
+
+        return updated;
+      });
+
+      res.json({ receipt });
+    } catch (error) {
+      console.error('Error updating receipt status:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+
   async confirmReceipt(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const storeId = req.user?.storeId;
+      const id = req.params.id as string;
+      const storeId = req.user?.storeId as string;
       if (!storeId) return res.status(403).json({ message: 'Store required' });
       const { paidAmount, cashSourceId } = req.body;
 
@@ -237,8 +297,8 @@ export class StockReceiptController {
 
   async payReceiptDebt(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const storeId = req.user?.storeId;
+      const id = req.params.id as string;
+      const storeId = req.user?.storeId as string;
       if (!storeId) return res.status(403).json({ message: 'Store required' });
       const { amount, cashSourceId } = req.body;
 
@@ -320,8 +380,8 @@ export class StockReceiptController {
 
   async deleteReceipt(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const storeId = req.user?.storeId;
+      const id = req.params.id as string;
+      const storeId = req.user?.storeId as string;
       if (!storeId) return res.status(403).json({ message: 'Store required' });
 
       const receipt = await prisma.stockReceipt.findFirst({

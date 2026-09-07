@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
   X, User, Settings, CreditCard, HelpCircle, LogOut, BookOpen, 
-  Headset, Users, Gift, Star, Package, UserCircle, Book, Plus, Store, Edit2
+  Headset, Users, Gift, Star, Package, UserCircle, Book, Plus, Store, Edit2, Archive
 } from 'lucide-react';
 import axios from 'axios';
 import { useToast } from '../../context/ToastContext';
@@ -84,6 +84,18 @@ export default function SidebarDrawer({ isOpen, onClose }) {
             <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/stock-receipts'); onClose(); }}>
               <Package size={20} color="#666" />
               <span>Nhập kho</span>
+            </div>
+            <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/stock-issues'); onClose(); }}>
+              <Package size={20} color="#666" />
+              <span>Xuất kho</span>
+            </div>
+            <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/stock-checks'); onClose(); }}>
+              <Package size={20} color="#666" />
+              <span>Kiểm kho</span>
+            </div>
+            <div className="drawer-menu-item" onClick={() => { navigate('/dashboard/stock-ledger'); onClose(); }}>
+              <Archive size={20} color="#666" />
+              <span>Sổ kho</span>
             </div>
             <div className="drawer-menu-item">
               <BookOpen size={20} color="#666" />
