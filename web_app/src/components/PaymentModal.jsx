@@ -88,8 +88,8 @@ export default function PaymentModal({ isOpen, onClose, activeDebts, preSelected
 
   return (
     <div className="modal-overlay" style={{ zIndex: 1050 }}>
-      <div className="modal-content" style={{ maxWidth: 500, width: '90%' }}>
-        <div className="modal-header d-flex justify-content-between align-items-center mb-3">
+      <div className="modal-content p-4" style={{ maxWidth: 500, width: '90%' }}>
+        <div className="modal-header d-flex justify-content-between align-items-center mb-4">
           <h4 className="mb-0">Thanh toán nợ</h4>
           <button className="btn-icon" onClick={onClose}><X size={20} /></button>
         </div>

@@ -19,6 +19,10 @@ const products_routes_1 = __importDefault(require("./modules/products/presentati
 const categories_routes_1 = __importDefault(require("./modules/categories/presentation/categories.routes"));
 const dashboard_routes_1 = __importDefault(require("./modules/dashboard/presentation/dashboard.routes"));
 const debt_routes_1 = require("./modules/debt/presentation/debt.routes");
+const stockReceipt_routes_1 = require("./modules/stock-receipts/presentation/stockReceipt.routes");
+const stockIssue_routes_1 = __importDefault(require("./modules/stock-issues/presentation/stockIssue.routes"));
+const stockCheck_routes_1 = __importDefault(require("./modules/stock-checks/presentation/stockCheck.routes"));
+const stockLedger_routes_1 = __importDefault(require("./modules/stock-ledger/presentation/stockLedger.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
@@ -46,6 +50,10 @@ app.use('/api/stores', store_routes_1.default);
 app.use('/api/onboarding/suggestions', suggestion_routes_1.default);
 app.use('/api/onboarding/preference', preference_routes_1.default);
 app.use('/api/debt', debt_routes_1.debtRoutes);
+app.use('/api/stock-receipts', stockReceipt_routes_1.stockReceiptRoutes);
+app.use('/api/stock-issues', stockIssue_routes_1.default);
+app.use('/api/stock-checks', stockCheck_routes_1.default);
+app.use('/api/stock-ledger', stockLedger_routes_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'OK' });
 });

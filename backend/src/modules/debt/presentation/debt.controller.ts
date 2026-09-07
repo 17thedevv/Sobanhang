@@ -159,6 +159,55 @@ export class DebtController {
     }
   }
 
+  // 4b. DELETE /api/debt/transactions/:id
+  async deleteTransaction(req: Request, res: Response) {
+    try {
+      const storeId = req.user?.storeId;
+      if (!storeId) return res.status(401).json({ error: 'Unauthorized' });
+
+      const transactionId = req.params.id;
+
+      const transaction = await prisma.debtTransaction.findUnique({
+        where: { id: transactionId }
+      });
+
+      if (!transaction || transaction.storeId !== storeId) {
+        return res.status(404).json({ error: 'Không tìm thấy giao dịch' });
+      }
+
+      // Logic to handle deletion safely
+      if (transaction.type === 'PAYMENT' && transaction.parentId) {
+        // If it's a payment, restore the parent debt balance
+        const parentDebt = await prisma.debtTransaction.findUnique({
+          where: { id: transaction.parentId }
+        });
+        if (parentDebt) {
+          await prisma.debtTransaction.update({
+            where: { id: parentDebt.id },
+            data: { balance: parentDebt.balance + transaction.amount }
+          });
+        }
+      } else if (transaction.type === 'DEBT') {
+        // Prevent deleting a debt that has payments linked to it (unless we want to cascade)
+        const payments = await prisma.debtTransaction.count({
+          where: { parentId: transaction.id, type: 'PAYMENT' }
+        });
+        if (payments > 0) {
+          return res.status(400).json({ error: 'Không thể xoá ghi nợ đã có thanh toán. Vui lòng xoá các khoản thanh toán trước.' });
+        }
+      }
+
+      await prisma.debtTransaction.delete({
+        where: { id: transactionId }
+      });
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting debt transaction:', error);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // 5. GET /api/debt/reminders
   async getReminders(req: Request, res: Response) {
     try {

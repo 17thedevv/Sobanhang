@@ -36,6 +36,13 @@ const GroupDetail = React.lazy(() => import('./pages/GroupDetail'));
 const StockReceiptList = React.lazy(() => import('./pages/StockReceiptList'));
 const StockReceiptForm = React.lazy(() => import('./pages/StockReceiptForm'));
 const StockReceiptDetail = React.lazy(() => import('./pages/StockReceiptDetail'));
+const StockIssueList = React.lazy(() => import('./pages/StockIssueList'));
+const StockIssueForm = React.lazy(() => import('./pages/StockIssueForm'));
+const StockIssueDetail = React.lazy(() => import('./pages/StockIssueDetail'));
+const StockCheckList = React.lazy(() => import('./pages/StockCheckList'));
+const StockCheckForm = React.lazy(() => import('./pages/StockCheckForm'));
+const StockCheckDetail = React.lazy(() => import('./pages/StockCheckDetail'));
+const StockLedger = React.lazy(() => import('./pages/StockLedger'));
 
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'https://sobanhang-api.onrender.com';
@@ -107,6 +114,13 @@ function App() {
                 <Route path="stock-receipts" element={<StockReceiptList />} />
                 <Route path="stock-receipts/new" element={<StockReceiptForm />} />
                 <Route path="stock-receipts/:id" element={<StockReceiptDetail />} />
+                <Route path="stock-issues" element={<StockIssueList />} />
+                <Route path="stock-issues/new" element={<StockIssueForm />} />
+                <Route path="stock-issues/:id" element={<StockIssueDetail />} />
+                <Route path="stock-checks" element={<StockCheckList />} />
+                <Route path="stock-checks/new" element={<StockCheckForm />} />
+                <Route path="stock-checks/:id" element={<StockCheckDetail />} />
+                <Route path="stock-ledger" element={<StockLedger />} />
               </Route>
             </Routes>
           </Suspense>

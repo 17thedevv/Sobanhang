@@ -12,6 +12,7 @@ router.get('/summary', debtController.getSummary);
 router.get('/customers', debtController.getDebtCustomers);
 router.get('/customers/:customerId/transactions', debtController.getCustomerTransactions);
 router.post('/transactions', debtController.createTransaction);
+router.delete('/transactions/:id', debtController.deleteTransaction);
 router.get('/reminders', debtController.getReminders);
 router.post('/reminders', debtController.createReminder);
 router.put('/reminders/:id/status', debtController.updateReminderStatus);

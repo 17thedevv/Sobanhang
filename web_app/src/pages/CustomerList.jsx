@@ -30,7 +30,7 @@ export default function CustomerList() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/api/customers', { params: { search: debouncedSearch } });
+      const res = await axios.get('/api/customers', { params: { search: debouncedSearch?.trim() } });
       setCustomers(res.data.customers || []);
     } catch (err) {
       console.error(err);
@@ -263,7 +263,7 @@ export default function CustomerList() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '1rem',
           }}>
-            {groups.filter(g => g.name.toLowerCase().includes(search.toLowerCase())).map(g => {
+            {groups.filter(g => g.name.toLowerCase().includes(search.trim().toLowerCase())).map(g => {
               const color = getAvatarColor(g.name);
               const count = g._count?.customers || 0;
               return (
