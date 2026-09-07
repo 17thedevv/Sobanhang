@@ -219,7 +219,6 @@ async function main() {
       name: 'Nguyễn Văn An',
       phone: '0987654321',
       address: 'Hà Nội',
-      type: 'Khách quen',
       gender: 'MALE',
     }
   });
