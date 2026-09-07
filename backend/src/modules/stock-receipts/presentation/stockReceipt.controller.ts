@@ -138,7 +138,10 @@ export class StockReceiptController {
           for (const item of items) {
             await tx.product.update({
               where: { id: item.productId },
-              data: { stock: { increment: item.quantity } }
+              data: { 
+                stock: { increment: item.quantity },
+                trackInventory: true
+              }
             });
           }
 
@@ -247,7 +250,10 @@ export class StockReceiptController {
         for (const item of receipt.items) {
           await tx.product.update({
             where: { id: item.productId },
-            data: { stock: { increment: item.quantity } }
+            data: { 
+              stock: { increment: item.quantity },
+              trackInventory: true
+            }
           });
         }
 

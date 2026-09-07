@@ -12,7 +12,8 @@ export default function StockCheckForm() {
   
   const [products, setProducts] = useState([]);
   
-  const [cart, setCart] = useState([]); // array of { productId, systemStock, actualStock, name, unit }
+  const [cart, setCart] = useState([]); // array of { productId, systemQuantity, actualQuantity, name, unit }
+  const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, BALANCED, DISCREPANCY, EMPTY
   const [note, setNote] = useState('');
   
   const [submitting, setSubmitting] = useState(false);
@@ -32,8 +33,8 @@ export default function StockCheckForm() {
       setCart([...cart, { 
         productId: product.id, 
         name: product.name,
-        systemStock: product.stock,
-        actualStock: product.stock, // Default to system stock
+        systemQuantity: product.stock,
+        actualQuantity: product.stock, // Default to system stock
         unit: product.unit
       }]);
     } else {
@@ -41,13 +42,13 @@ export default function StockCheckForm() {
     }
   };
 
-  const updateCartItem = (productId, actualStockStr) => {
-    const qty = parseInt(actualStockStr, 10);
+  const updateCartItem = (productId, actualQuantityStr) => {
+    const qty = parseInt(actualQuantityStr, 10);
     const validQty = isNaN(qty) ? 0 : (qty < 0 ? 0 : qty); // Không cho âm
     
     setCart(cart.map(item => {
       if (item.productId === productId) {
-        return { ...item, actualStock: validQty };
+        return { ...item, actualQuantity: validQty };
       }
       return item;
     }));
@@ -60,9 +61,9 @@ export default function StockCheckForm() {
   const buildPayload = (status) => ({
     items: cart.map(i => ({
       productId: i.productId,
-      systemStock: i.systemStock,
-      actualStock: i.actualStock,
-      discrepancy: i.actualStock - i.systemStock
+      systemQuantity: i.systemQuantity,
+      actualQuantity: i.actualQuantity,
+      diffQuantity: i.actualQuantity - i.systemQuantity
     })),
     status,
     note
@@ -73,7 +74,7 @@ export default function StockCheckForm() {
     
     setSubmitting(true);
     try {
-      await stockCheckService.createCheck(buildPayload('DRAFT'));
+      await stockCheckService.createCheck(buildPayload('CHECKING'));
       toast.success('Đã lưu nháp phiếu kiểm kho');
       navigate('/dashboard/stock-checks');
     } catch (error) {
@@ -88,7 +89,7 @@ export default function StockCheckForm() {
     if (cart.length === 0) return toast.error('Vui lòng chọn sản phẩm cần kiểm kê');
     
     // Optional: Validation - confirm discrepancy
-    const hasDiscrepancy = cart.some(i => i.actualStock !== i.systemStock);
+    const hasDiscrepancy = cart.some(i => i.actualQuantity !== i.systemQuantity);
     if (hasDiscrepancy) {
       const confirm = window.confirm('Có sự chênh lệch giữa tồn kho thực tế và hệ thống. Việc cân bằng sẽ cập nhật lại tồn kho hệ thống bằng với số thực tế. Tiếp tục?');
       if (!confirm) return;
@@ -110,6 +111,14 @@ export default function StockCheckForm() {
     }
   };
 
+  const filteredCart = cart.filter(item => {
+    if (filterStatus === 'ALL') return true;
+    if (filterStatus === 'BALANCED') return item.actualQuantity === item.systemQuantity;
+    if (filterStatus === 'DISCREPANCY') return item.actualQuantity !== item.systemQuantity;
+    if (filterStatus === 'EMPTY') return item.actualQuantity === 0;
+    return true;
+  });
+
   return (
     <div className="sr-form-page">
       {/* Header */}
@@ -124,7 +133,39 @@ export default function StockCheckForm() {
         {/* Left Col: Product Selection */}
         <div className="sr-form-left">
           <div className="sr-panel">
-            <h3 className="sr-panel-title">Danh sách kiểm kê</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 className="sr-panel-title" style={{ margin: 0 }}>Danh sách kiểm kê</h3>
+              
+              {cart.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', background: '#f3f4f6', padding: '4px', borderRadius: '8px' }}>
+                  {[
+                    { id: 'ALL', label: 'Tất cả' },
+                    { id: 'BALANCED', label: 'Đã cân bằng' },
+                    { id: 'DISCREPANCY', label: 'Lệch' },
+                    { id: 'EMPTY', label: 'Trống' }
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      onClick={() => setFilterStatus(f.id)}
+                      style={{
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '13px',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        background: filterStatus === f.id ? '#fff' : 'transparent',
+                        color: filterStatus === f.id ? '#111827' : '#6b7280',
+                        boxShadow: filterStatus === f.id ? '0 1px 2px rgba(0,0,0,0.05)' : 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             
             {cart.length > 0 ? (
               <div className="sr-cart">
@@ -135,26 +176,30 @@ export default function StockCheckForm() {
                   <span className="sr-cart-col sr-cart-col--stock" style={{ textAlign: 'right' }}>Chênh lệch</span>
                   <span className="sr-cart-col sr-cart-col--action"></span>
                 </div>
-                {cart.map(item => {
-                  const discrepancy = item.actualStock - item.systemStock;
+                {filteredCart.length === 0 ? (
+                  <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', fontSize: '14px' }}>
+                    Không có sản phẩm nào khớp với bộ lọc.
+                  </div>
+                ) : filteredCart.map(item => {
+                  const discrepancy = item.actualQuantity - item.systemQuantity;
                   return (
                     <div key={item.productId} className="sr-cart-row" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 40px' }}>
                       <span className="sr-cart-col sr-cart-col--name">
                         <strong>{item.name}</strong>
                       </span>
                       <span className="sr-cart-col sr-cart-col--qty" style={{ justifyContent: 'center' }}>
-                        {item.systemStock} {item.unit}
+                        {item.systemQuantity} {item.unit}
                       </span>
                       <span className="sr-cart-col sr-cart-col--qty" style={{ justifyContent: 'center' }}>
                         <div className="sr-qty-input">
-                          <button onClick={() => updateCartItem(item.productId, item.actualStock - 1)}>-</button>
+                          <button onClick={() => updateCartItem(item.productId, item.actualQuantity - 1)}>-</button>
                           <input 
                             type="number" 
                             min="0" 
-                            value={item.actualStock} 
+                            value={item.actualQuantity} 
                             onChange={(e) => updateCartItem(item.productId, e.target.value)}
                           />
-                          <button onClick={() => updateCartItem(item.productId, item.actualStock + 1)}>+</button>
+                          <button onClick={() => updateCartItem(item.productId, item.actualQuantity + 1)}>+</button>
                         </div>
                       </span>
                       <span className="sr-cart-col sr-cart-col--stock" style={{ 
@@ -224,7 +269,7 @@ export default function StockCheckForm() {
             <div className="sr-summary-row">
               <span>SP lệch số lượng</span>
               <strong style={{ color: '#ef4444' }}>
-                {cart.filter(i => i.actualStock !== i.systemStock).length}
+                {cart.filter(i => i.actualQuantity !== i.systemQuantity).length}
               </strong>
             </div>
             
@@ -240,16 +285,16 @@ export default function StockCheckForm() {
             </div>
           </div>
 
-          <div className="sr-form-actions">
+          <div className="srf-bottom-bar">
             <button 
-              className="sr-btn-save-draft" 
+              className="srf-btn srf-btn--secondary" 
               onClick={handleSaveDraft}
               disabled={submitting}
             >
               Lưu phiếu đang kiểm
             </button>
             <button 
-              className="sr-btn-confirm" 
+              className="srf-btn srf-btn--primary" 
               onClick={handleConfirm}
               disabled={submitting || cart.length === 0}
             >

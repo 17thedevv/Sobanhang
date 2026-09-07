@@ -4,7 +4,8 @@ import { stockReceiptService } from '../services/stockReceiptService';
 import { formatMoneyVND } from '../utils/moneyUtils';
 import { useToast } from '../context/ToastContext';
 import MoneyInput from '../components/MoneyInput';
-import { ArrowLeft, Building2, Package, Trash2, X, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Building2, Package, Trash2, X, AlertTriangle, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportExcel';
 import './StockReceiptList.css'; // Reuse badge styles if needed, but we'll inline some detail styles
 
 export default function StockReceiptDetail() {
@@ -94,6 +95,25 @@ export default function StockReceiptDetail() {
     }
   };
 
+  const handleExportExcel = () => {
+    if (!receipt) return;
+    
+    const data = receipt.items.map(item => ({
+      'Mã phiếu': receipt.code,
+      'Trạng thái': receipt.status,
+      'Ngày tạo': new Date(receipt.createdAt).toLocaleString('vi-VN'),
+      'Nhà cung cấp': receipt.supplier?.name || 'Khách lẻ',
+      'Tên sản phẩm': item.product?.name || 'Sản phẩm không xác định',
+      'Số lượng': item.quantity,
+      'Đơn giá nhập': item.importPrice,
+      'Thành tiền': item.subTotal
+    }));
+    
+    exportToExcel(data, `Phieu_Nhap_${receipt.code}.xlsx`, 'ChiTietPhieuNhap');
+    toast.success('Đã xuất file Excel');
+  };
+
+
   if (loading) return (
     <div className="srf-page" style={{ justifyContent: 'center', alignItems: 'center' }}>
       <div className="sr-loading-spinner" style={{ marginBottom: 12 }}></div>
@@ -118,6 +138,13 @@ export default function StockReceiptDetail() {
           <ArrowLeft size={20} />
         </button>
         <h2 className="srf-title">Chi tiết phiếu nhập {receipt.code}</h2>
+        <button 
+          className="srf-btn srf-btn--secondary" 
+          onClick={handleExportExcel} 
+          style={{ marginLeft: 'auto', padding: '6px 12px', fontSize: '14px', display: 'flex', alignItems: 'center', height: '36px' }}
+        >
+          <Download size={16} style={{ marginRight: 6 }} /> Xuất Excel
+        </button>
       </div>
 
       <div className="srf-body" style={{ flexDirection: 'column', maxWidth: '800px', margin: '0 auto', gap: 16 }}>

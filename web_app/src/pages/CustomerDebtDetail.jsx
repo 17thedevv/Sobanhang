@@ -181,23 +181,37 @@ export default function CustomerDebtDetail() {
                   {t.type === 'DEBT' && t.balance === 0 && (
                     <span className="badge bg-success mt-1">Đã trả hết</span>
                   )}
-                  <button 
-                    className="btn btn-sm btn-link text-danger p-0 mt-2 text-decoration-none" 
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      if (window.confirm('Bạn có chắc chắn muốn xóa giao dịch này?')) {
-                        try {
-                          await axios.delete(`/api/debt/transactions/${t.id}`);
-                          toast.success('Xóa thành công');
-                          fetchTransactions();
-                        } catch (err) {
-                          toast.error(err.response?.data?.error || 'Không thể xóa');
+                  <div className="d-flex gap-3 mt-2">
+                    {t.type === 'DEBT' && t.balance > 0 && (
+                      <button 
+                        className="btn btn-sm btn-link text-primary p-0 text-decoration-none fw-bold" 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDebt(t);
+                          setShowPaymentModal(true);
+                        }}
+                      >
+                        Thanh toán
+                      </button>
+                    )}
+                    <button 
+                      className="btn btn-sm btn-link text-danger p-0 text-decoration-none" 
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Bạn có chắc chắn muốn xóa giao dịch này?')) {
+                          try {
+                            await axios.delete(`/api/debt/transactions/${t.id}`);
+                            toast.success('Xóa thành công');
+                            fetchTransactions();
+                          } catch (err) {
+                            toast.error(err.response?.data?.error || 'Không thể xóa');
+                          }
                         }
-                      }
-                    }}
-                  >
-                    Xóa
-                  </button>
+                      }}
+                    >
+                      Xóa
+                    </button>
+                  </div>
                 </div>
               </div>
             );

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { stockIssueService } from '../services/stockIssueService';
 import { useToast } from '../context/ToastContext';
-import { ArrowLeft, Package, Trash2, X, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Package, Trash2, X, AlertTriangle, CheckCircle, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportExcel';
 import './StockReceiptList.css'; // Reusing CSS
 
 export default function StockIssueDetail() {
@@ -73,6 +74,22 @@ export default function StockIssueDetail() {
     }
   };
 
+  const handleExportExcel = () => {
+    if (!issue) return;
+    
+    const data = issue.items.map(item => ({
+      'Mã phiếu': issue.code,
+      'Trạng thái': issue.status,
+      'Ngày tạo': new Date(issue.createdAt).toLocaleString('vi-VN'),
+      'Tên sản phẩm': item.product?.name || 'Sản phẩm không xác định',
+      'Số lượng xuất': item.quantity,
+    }));
+    
+    exportToExcel(data, `Phieu_Xuat_${issue.code}.xlsx`, 'ChiTietPhieuXuat');
+    toast.success('Đã xuất file Excel');
+  };
+
+
   if (loading) return (
     <div className="sr-page" style={{ justifyContent: 'center', alignItems: 'center' }}>
       <div className="sr-loading-spinner" style={{ marginBottom: 12 }}></div>
@@ -100,6 +117,16 @@ export default function StockIssueDetail() {
           {getStatusBadge(issue.status)}
         </div>
         
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            className="sr-btn-secondary" 
+            onClick={handleExportExcel}
+            disabled={isProcessing}
+          >
+            <Download size={18} style={{ marginRight: 6 }} />
+            Xuất Excel
+          </button>
+          
         {issue.status === 'DRAFT' && (
           <div style={{ display: 'flex', gap: '10px' }}>
             <button 
@@ -119,8 +146,9 @@ export default function StockIssueDetail() {
               <CheckCircle size={18} style={{ marginRight: 6 }} />
               Xác nhận xuất kho
             </button>
-          </div>
+          </>
         )}
+        </div>
       </div>
 
       <div className="sr-detail-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '20px' }}>

@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { stockLedgerService } from '../services/stockLedgerService';
 import { useToast } from '../context/ToastContext';
-import { Package, Search, Filter } from 'lucide-react';
+import { Package, Search, Filter, PackagePlus, ClipboardCheck, PackageOpen, ArrowRight, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportExcel';
 import './StockReceiptList.css'; // Reusing CSS
 
 export default function StockLedger() {
@@ -78,6 +79,24 @@ export default function StockLedger() {
            t.product?.name?.toLowerCase().includes(q);
   });
 
+  const handleExportExcel = () => {
+    if (!transactions || transactions.length === 0) {
+      toast.warning('Không có dữ liệu để xuất');
+      return;
+    }
+    
+    const data = filteredTransactions.map(t => ({
+      'Ngày giao dịch': new Date(t.createdAt).toLocaleString('vi-VN'),
+      'Mã tham chiếu': t.referenceCode,
+      'Loại giao dịch': t.type,
+      'Tên sản phẩm': t.product?.name || 'Sản phẩm không xác định',
+      'Thay đổi': t.quantityChange > 0 ? `+${t.quantityChange}` : t.quantityChange,
+    }));
+    
+    exportToExcel(data, `So_Kho.xlsx`, 'SoKho');
+    toast.success('Đã xuất báo cáo sổ kho');
+  };
+
   return (
     <div className="sr-page">
       {/* Header */}
@@ -86,6 +105,14 @@ export default function StockLedger() {
           <h1 className="sr-title">Thẻ kho (Sổ kho)</h1>
           <span className="sr-count">{transactions.length} giao dịch</span>
         </div>
+        <button 
+          className="sr-btn-secondary" 
+          onClick={handleExportExcel}
+          style={{ height: '36px', display: 'flex', alignItems: 'center', padding: '0 16px', borderRadius: '8px', border: '1px solid #d1d5db', background: '#fff', color: '#374151', fontWeight: 500, cursor: 'pointer' }}
+        >
+          <Download size={16} style={{ marginRight: 6 }} />
+          Xuất Excel
+        </button>
       </div>
 
       {/* Toolbar */}
@@ -194,6 +221,94 @@ export default function StockLedger() {
             })}
           </div>
         )}
+      </div>
+
+      {/* US-138: Quick Navigation Bar */}
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        padding: '16px 24px',
+        background: 'white',
+        borderTop: '1px solid #e5e7eb',
+        boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+        position: 'sticky',
+        bottom: 0,
+        zIndex: 10
+      }}>
+        <button
+          onClick={() => navigate('/dashboard/stock-issues/create')}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            border: '1px solid #fbbf24',
+            background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+            color: '#92400e',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(251,191,36,0.25)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+        >
+          <PackageOpen size={18} />
+          Xuất hàng
+        </button>
+
+        <button
+          onClick={() => navigate('/dashboard/stock-checks/create')}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            border: '1px solid #818cf8',
+            background: 'linear-gradient(135deg, #eef2ff, #e0e7ff)',
+            color: '#3730a3',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(129,140,248,0.25)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+        >
+          <ClipboardCheck size={18} />
+          Kiểm kho
+        </button>
+
+        <button
+          onClick={() => navigate('/dashboard/stock-receipts/create')}
+          style={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            padding: '12px 16px',
+            borderRadius: '10px',
+            border: '1px solid #34d399',
+            background: 'linear-gradient(135deg, #ecfdf5, #d1fae5)',
+            color: '#065f46',
+            fontWeight: 600,
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(52,211,153,0.25)'; }}
+          onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+        >
+          <PackagePlus size={18} />
+          Nhập hàng
+        </button>
       </div>
     </div>
   );

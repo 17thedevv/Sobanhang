@@ -168,7 +168,7 @@ export class DebtController {
       const transactionId = req.params.id;
 
       const transaction = await prisma.debtTransaction.findUnique({
-        where: { id: transactionId }
+        where: { id: transactionId as string }
       });
 
       if (!transaction || transaction.storeId !== storeId) {
@@ -198,7 +198,7 @@ export class DebtController {
       }
 
       await prisma.debtTransaction.delete({
-        where: { id: transactionId }
+        where: { id: transactionId as string }
       });
 
       return res.json({ success: true });

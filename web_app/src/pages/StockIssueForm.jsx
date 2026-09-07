@@ -221,16 +221,16 @@ export default function StockIssueForm() {
             </div>
           </div>
 
-          <div className="sr-form-actions">
+          <div className="srf-bottom-bar">
             <button 
-              className="sr-btn-save-draft" 
+              className="srf-btn srf-btn--secondary" 
               onClick={handleSaveDraft}
               disabled={submitting}
             >
               Lưu nháp
             </button>
             <button 
-              className="sr-btn-confirm" 
+              className="srf-btn srf-btn--primary" 
               onClick={handleConfirm}
               disabled={submitting || cart.length === 0}
             >

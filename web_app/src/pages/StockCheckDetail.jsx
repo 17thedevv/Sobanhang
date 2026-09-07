@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { stockCheckService } from '../services/stockCheckService';
 import { useToast } from '../context/ToastContext';
-import { ArrowLeft, Package, Trash2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Package, Trash2, CheckCircle, Download } from 'lucide-react';
+import { exportToExcel } from '../utils/exportExcel';
 import './StockReceiptList.css'; // Reusing CSS
 
 export default function StockCheckDetail() {
@@ -33,7 +34,7 @@ export default function StockCheckDetail() {
 
   const getStatusBadge = (status) => {
     const badges = {
-      DRAFT: { label: 'Đang kiểm', className: 'sr-badge--pending' },
+      CHECKING: { label: 'Đang kiểm', className: 'sr-badge--pending' },
       BALANCED: { label: 'Đã cân bằng', className: 'sr-badge--success' },
       CANCELLED: { label: 'Đã huỷ', className: 'sr-badge--error' },
     };
@@ -76,6 +77,24 @@ export default function StockCheckDetail() {
     }
   };
 
+  const handleExportExcel = () => {
+    if (!check) return;
+    
+    const data = check.items.map(item => ({
+      'Mã phiếu': check.code,
+      'Trạng thái': check.status,
+      'Ngày tạo': new Date(check.createdAt).toLocaleString('vi-VN'),
+      'Tên sản phẩm': item.product?.name || 'Sản phẩm không xác định',
+      'Tồn kho hệ thống': item.systemQuantity,
+      'Tồn kho thực tế': item.actualQuantity,
+      'Chênh lệch': item.diffQuantity
+    }));
+    
+    exportToExcel(data, `Phieu_KiemKho_${check.code}.xlsx`, 'ChiTietKiemKho');
+    toast.success('Đã xuất file Excel');
+  };
+
+
   if (loading) return (
     <div className="sr-page" style={{ justifyContent: 'center', alignItems: 'center' }}>
       <div className="sr-loading-spinner" style={{ marginBottom: 12 }}></div>
@@ -103,7 +122,17 @@ export default function StockCheckDetail() {
           {getStatusBadge(check.status)}
         </div>
         
-        {check.status === 'DRAFT' && (
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            className="sr-btn-secondary" 
+            onClick={handleExportExcel}
+            disabled={isProcessing}
+          >
+            <Download size={18} style={{ marginRight: 6 }} />
+            Xuất Excel
+          </button>
+
+        {check.status === 'CHECKING' && (
           <div style={{ display: 'flex', gap: '10px' }}>
             <button 
               className="sr-btn-secondary" 
@@ -122,8 +151,9 @@ export default function StockCheckDetail() {
               <CheckCircle size={18} style={{ marginRight: 6 }} />
               Cân bằng kho (Cập nhật tồn)
             </button>
-          </div>
+          </>
         )}
+        </div>
       </div>
 
       <div className="sr-detail-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '20px' }}>
@@ -143,7 +173,7 @@ export default function StockCheckDetail() {
 
           <div style={{ marginTop: '12px' }}>
             {check.items?.map((item) => {
-              const discrepancy = item.actualStock - item.systemStock;
+              const discrepancy = item.actualQuantity - item.systemQuantity;
               return (
                 <div key={item.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', padding: '16px 12px', borderBottom: '1px solid #f3f4f6', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -159,10 +189,10 @@ export default function StockCheckDetail() {
                     </div>
                   </div>
                   <div style={{ textAlign: 'center', color: '#6b7280' }}>
-                    {item.systemStock}
+                    {item.systemQuantity}
                   </div>
                   <div style={{ textAlign: 'center', fontWeight: 500, color: '#111827' }}>
-                    {item.actualStock}
+                    {item.actualQuantity}
                   </div>
                   <div style={{ textAlign: 'right', fontWeight: 600, color: discrepancy > 0 ? '#10b981' : (discrepancy < 0 ? '#ef4444' : '#6b7280') }}>
                     {discrepancy > 0 ? `+${discrepancy}` : discrepancy}
@@ -194,7 +224,7 @@ export default function StockCheckDetail() {
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
                 <span style={{ color: '#6b7280' }}>Lệch số lượng:</span>
                 <span style={{ fontWeight: 600, color: '#ef4444' }}>
-                  {check.items?.filter(i => i.actualStock !== i.systemStock).length || 0} SP
+                  {check.items?.filter(i => i.actualQuantity !== i.systemQuantity).length || 0} SP
                 </span>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import useDebounce from '../hooks/useDebounce';
 import { useMemo } from 'react';
+import { exportToExcel } from '../utils/exportExcel';
 import './Orders.css'; // Reuse CSS from Orders if possible, or create Debt.css
 
 export default function DebtLedger() {
@@ -76,34 +77,22 @@ export default function DebtLedger() {
     return result;
   }, [customers, filterMode, debouncedSearch, sortMode]);
 
-  const handleExportCSV = () => {
+  const handleExportExcel = () => {
     if (processedCustomers.length === 0) {
       toast.warning('Không có dữ liệu để xuất');
       return;
     }
 
-    const headers = ['Tên khách hàng', 'Số điện thoại', 'Tổng phải thu', 'Tổng phải trả', 'Dư nợ'];
-    const rows = processedCustomers.map(c => [
-      c.customer.name,
-      c.customer.phone || '',
-      c.totalReceivables,
-      c.totalPayables,
-      c.netDebt
-    ]);
+    const data = processedCustomers.map(c => ({
+      'Tên khách hàng': c.customer.name,
+      'Số điện thoại': c.customer.phone || '',
+      'Tổng phải thu': c.totalReceivables,
+      'Tổng phải trả': c.totalPayables,
+      'Dư nợ': c.netDebt
+    }));
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(r => r.join(','))
-    ].join('\n');
-
-    const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `so_no_${new Date().getTime()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    exportToExcel(data, `So_No_${new Date().getTime()}.xlsx`, 'SoNo');
+    toast.success('Đã xuất báo cáo công nợ ra Excel');
   };
 
   return (
@@ -117,8 +106,8 @@ export default function DebtLedger() {
           <button className="btn btn-outline-primary btn-sm" onClick={() => navigate('/dashboard/debt/reminders')}>
             <Bell size={16} /> <span className="d-none d-sm-inline ms-1">Nhắc nợ</span>
           </button>
-          <button className="btn btn-outline-secondary btn-sm" onClick={handleExportCSV}>
-            <Download size={16} /> <span className="d-none d-sm-inline ms-1">Xuất file</span>
+          <button className="btn btn-outline-secondary btn-sm" onClick={handleExportExcel}>
+            <Download size={16} /> <span className="d-none d-sm-inline ms-1">Xuất Excel</span>
           </button>
           <button className="btn btn-primary btn-sm" onClick={() => navigate('/dashboard/debt/new')}>
             <Plus size={16} /> <span className="d-none d-sm-inline ms-1">Ghi nợ</span>
