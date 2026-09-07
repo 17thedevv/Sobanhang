@@ -28,7 +28,12 @@ class CustomerController {
                 orderBy,
                 include: {
                     groups: true,
-                    tags: true
+                    tags: true,
+                    invoiceInfo: true,
+                    debtTransactions: {
+                        orderBy: { createdAt: 'desc' },
+                        take: 1
+                    }
                 }
             });
             return res.json({ customers });

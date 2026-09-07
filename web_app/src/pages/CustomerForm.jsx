@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ArrowLeft, Save, Plus, X } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, Tag, Check } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 
@@ -33,6 +33,32 @@ export default function CustomerForm() {
   const [allGroups, setAllGroups] = useState([]);
   const [allTags, setAllTags] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [quickTagName, setQuickTagName] = useState('');
+
+  const handleQuickCreateTag = async () => {
+    if (!quickTagName.trim()) return;
+    try {
+      const res = await axios.post('/api/customers/tags/create', { name: quickTagName.trim() });
+      const newTag = res.data.tag;
+      if (newTag) {
+        setAllTags(prev => [...prev, newTag]);
+        setFormData(prev => ({ ...prev, tagIds: [...prev.tagIds, newTag.id] }));
+        setQuickTagName('');
+        toast.success('Đã tạo nhãn: ' + newTag.name);
+      }
+    } catch (err) {
+      toast.error('Lỗi tạo nhãn');
+    }
+  };
+
+  const handleToggleTag = (tagId) => {
+    setFormData(prev => ({
+      ...prev,
+      tagIds: prev.tagIds.includes(tagId)
+        ? prev.tagIds.filter(id => id !== tagId)
+        : [...prev.tagIds, tagId]
+    }));
+  };
 
   useEffect(() => {
     fetchOptions();
@@ -199,13 +225,55 @@ export default function CustomerForm() {
           </div>
 
           <div className="mb-3">
-            <label className="form-label fw-bold">Phân loại Nhãn</label>
-            <select multiple className="form-select" value={formData.tagIds} onChange={(e) => handleMultiSelectChange(e, 'tagIds')} style={{ height: 100 }}>
-              {allTags.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-            <small className="text-muted">Giữ Ctrl (hoặc Cmd) để chọn nhiều</small>
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label fw-bold mb-0">Phân loại Nhãn</label>
+              <span className="badge bg-light text-muted">{formData.tagIds.length} đã chọn</span>
+            </div>
+            
+            {/* Quick create tag input */}
+            <div className="input-group input-group-sm mb-2">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Tạo nhãn mới (VD: VIP, Mua sỉ...)"
+                value={quickTagName}
+                onChange={(e) => setQuickTagName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleQuickCreateTag())}
+              />
+              <button
+                type="button"
+                className="btn btn-outline-primary"
+                onClick={handleQuickCreateTag}
+                disabled={!quickTagName.trim()}
+              >
+                <Plus size={14} className="me-1" /> Thêm nhãn
+              </button>
+            </div>
+
+            {/* Tag Pills */}
+            {allTags.length === 0 ? (
+              <div className="small text-muted py-2">Chưa có nhãn nào. Hãy nhập tên ở trên để tạo nhãn mới.</div>
+            ) : (
+              <div className="d-flex flex-wrap gap-2 p-2 border rounded bg-light" style={{ maxHeight: 120, overflowY: 'auto' }}>
+                {allTags.map(t => {
+                  const isSelected = formData.tagIds.includes(t.id);
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => handleToggleTag(t.id)}
+                      className={`btn btn-sm d-inline-flex align-items-center gap-1 ${
+                        isSelected ? 'btn-primary' : 'btn-outline-secondary'
+                      }`}
+                      style={{ borderRadius: 20, fontSize: '0.8rem', padding: '2px 10px' }}
+                    >
+                      {isSelected && <Check size={12} />}
+                      #{t.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="mb-4 form-check form-switch">

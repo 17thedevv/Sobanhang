@@ -151,7 +151,7 @@ export default function StockCheckDetail() {
               <CheckCircle size={18} style={{ marginRight: 6 }} />
               Cân bằng kho (Cập nhật tồn)
             </button>
-          </>
+          </div>
         )}
         </div>
       </div>

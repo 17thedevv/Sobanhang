@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const stockLedger_controller_1 = require("./stockLedger.controller");
+const auth_middleware_1 = require("../../../shared/middlewares/auth.middleware");
+const router = (0, express_1.Router)();
+const controller = new stockLedger_controller_1.StockLedgerController();
+router.use(auth_middleware_1.verifyAccessToken);
+router.get('/', controller.getTransactions);
+router.get('/transactions', controller.getTransactions);
+router.get('/products/:productId', controller.getProductLedger);
+router.get('/summary', controller.getSummary);
+exports.default = router;

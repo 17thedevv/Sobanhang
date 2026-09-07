@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.stockReceiptRoutes = void 0;
+const express_1 = require("express");
+const stockReceipt_controller_1 = require("./stockReceipt.controller");
+const auth_middleware_1 = require("../../../shared/middlewares/auth.middleware");
+exports.stockReceiptRoutes = (0, express_1.Router)();
+const controller = new stockReceipt_controller_1.StockReceiptController();
+exports.stockReceiptRoutes.use(auth_middleware_1.verifyAccessToken);
+exports.stockReceiptRoutes.get('/', controller.getReceipts.bind(controller));
+exports.stockReceiptRoutes.get('/:id', controller.getReceiptById.bind(controller));
+exports.stockReceiptRoutes.post('/', controller.createReceipt.bind(controller));
+exports.stockReceiptRoutes.put('/:id/confirm', controller.confirmReceipt.bind(controller));
+exports.stockReceiptRoutes.put('/:id/pay', controller.payReceiptDebt.bind(controller));
+exports.stockReceiptRoutes.delete('/:id', controller.deleteReceipt.bind(controller));

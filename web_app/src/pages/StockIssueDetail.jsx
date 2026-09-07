@@ -146,7 +146,7 @@ export default function StockIssueDetail() {
               <CheckCircle size={18} style={{ marginRight: 6 }} />
               Xác nhận xuất kho
             </button>
-          </>
+          </div>
         )}
         </div>
       </div>

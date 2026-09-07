@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const stockCheck_controller_1 = require("./stockCheck.controller");
+const auth_middleware_1 = require("../../../shared/middlewares/auth.middleware");
+const router = (0, express_1.Router)();
+const controller = new stockCheck_controller_1.StockCheckController();
+router.use(auth_middleware_1.verifyAccessToken);
+router.get('/', controller.getChecks);
+router.get('/:id', controller.getCheckById);
+router.post('/', controller.createCheck);
+router.put('/:id/status', controller.updateCheckStatus);
+exports.default = router;
